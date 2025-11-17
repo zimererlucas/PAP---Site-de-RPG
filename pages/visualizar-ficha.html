@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Ficha - Gênesis RPG</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+        
+        .ficha-container {
+            background: #0f3460;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #16213e;
+        }
+        
+        .ficha-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .ficha-header-left {
+            flex: 1;
+        }
+        
+        .ficha-header-left h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .ficha-header-left p {
+            margin: 5px 0 0 0;
+            color: #b0b0b0;
+            font-size: 1.05em;
+        }
+        
+        .ficha-header-right {
+            text-align: right;
+        }
+        
+        .btn-group-compact {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        
+        .btn-group-compact .btn {
+            padding: 10px 16px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-group-compact .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .ficha-main {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .ficha-top-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .tempo-reputacao-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .tempo-reacao-box {
+            background: #1a2a4e;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .tempo-reacao-label {
+            font-size: 0.85em;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .tempo-reacao-valor {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        .reputacao-box {
+            background: #1a2a4e;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .reputacao-label {
+            font-size: 0.85em;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .reputacao-valor {
+            font-size: 1.2em;
+            color: #ffd700;
+            font-weight: 600;
+        }
+        
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            background: #1a2a4e;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .info-item-label {
+            font-size: 0.8em;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .info-item-value {
+            font-size: 1.1em;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .atributos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .atributo-row {
+            display: grid;
+            grid-template-columns: 30px 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+            padding: 8px;
+            background: #1a2a4e;
+            border-radius: 6px;
+            border-left: 2px solid #667eea;
+        }
+        
+        .atributo-emoji {
+            font-size: 1.2em;
+            text-align: center;
+        }
+        
+        .atributo-nome {
+            font-size: 0.9em;
+            color: #b0b0b0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .atributo-calculo {
+            font-size: 0.85em;
+            color: #667eea;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .status-bar {
+            margin-bottom: 15px;
+        }
+        
+        .status-bar-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .status-bar-label strong {
+            color: #fff;
+        }
+        
+        .status-bar-label span {
+            color: #b0b0b0;
+            font-size: 0.85em;
+        }
+        
+        .status-bar-container {
+            background: #1a2a4e;
+            border-radius: 6px;
+            height: 24px;
+            overflow: hidden;
+            border: 1px solid #16213e;
+            position: relative;
+        }
+        
+        .status-bar-fill {
+            height: 100%;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #fff;
+            transition: width 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .status-percent {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            white-space: nowrap;
+            text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .status-bar-vida .status-bar-fill {
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+        }
+        
+        .status-bar-mana .status-bar-fill {
+            background: linear-gradient(90deg, #4444ff, #6666ff);
+        }
+        
+        .status-bar-estamina .status-bar-fill {
+            background: linear-gradient(90deg, #ffaa00, #ffcc00);
+        }
+        
+        .ficha-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #16213e;
+        }
+        
+        .ficha-tab {
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            padding: 10px 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9em;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .ficha-tab:hover {
+            color: #667eea;
+        }
+        
+        .ficha-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .ficha-navbar {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #1a2a4e;
+            border-bottom: 2px solid #667eea;
+            flex-wrap: wrap;
+        }
+        
+        .ficha-navbar-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .ficha-navbar-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .ficha-navbar-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .habilidade-item {
+            background: #1a2a4e;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .habilidade-item-title {
+            font-size: 1em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .habilidade-item-desc {
+            font-size: 0.95em;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+        
+        .ficha-bottom-row {
+            background: #1a2a4e;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #16213e;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #0f3460 0%, #16213e 100%); border-bottom: 2px solid #667eea;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="../index.html" style="font-weight: 700; color: #667eea; font-size: 1.5em;">🎲 Gênesis RPG</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="fichas.html" style="color: #e0e0e0;">Fichas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="campanhas.html" style="color: #e0e0e0;">Campanhas</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-sm btn-outline-primary" id="loginBtn" onclick="irParaLogin()" style="color: #667eea; border-color: #667eea; margin-left: 10px;">Login</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-sm btn-danger" id="logoutBtn" onclick="fazerLogout()" style="display: none; margin-left: 10px;">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="ficha-container">
+                    <!-- Header -->
+                    <div class="ficha-header">
+                        <div class="ficha-header-left">
+                            <h1 id="nomePersonagemHeader">-</h1>
+                            <p id="racaPersonagemHeader">-</p>
+                        </div>
+                        <div class="ficha-header-right">
+                            <div class="btn-group-compact">
+                                <button class="btn btn-info" onclick="irParaCombate()">⚔️ Combate</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Grid -->
+                    <div class="ficha-main">
+                        <!-- Linha Superior: 2 Colunas (Info+Atributos | Status) -->
+                        <div class="ficha-top-row">
+                            <!-- Coluna Esquerda: Informações Pessoais + Atributos -->
+                            <div>
+                                <!-- Informações Pessoais -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div class="section-title">👤 Informações Pessoais</div>
+                                        <button onclick="toggleEditarInfo()" style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 18px;">✏️</button>
+                                    </div>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <div class="info-item-label">Nome</div>
+                                            <div class="info-item-value" id="nome-view">-</div>
+                                            <input type="text" id="nome" class="info-item-input" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-item-label">Raça</div>
+                                            <div class="info-item-value" id="raca-view">-</div>
+                                            <input type="text" id="raca" class="info-item-input" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-item-label">Idade</div>
+                                            <div class="info-item-value" id="idade-view">-</div>
+                                            <input type="number" id="idade" class="info-item-input" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-item-label">Nível</div>
+                                            <div class="info-item-value" id="nivel-view">0</div>
+                                            <input type="number" id="nivel" class="info-item-input" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-item-label">Altura</div>
+                                            <div class="info-item-value"><span id="altura-view">-</span> cm</div>
+                                            <input type="number" id="altura" class="info-item-input" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-item-label">Peso</div>
+                                            <div class="info-item-value"><span id="peso-view">-</span> kg</div>
+                                            <input type="number" id="peso" class="info-item-input" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                    <div id="info-save-btn" style="display: none; margin-top: 10px;">
+                                        <button onclick="salvarInfo()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                                        <button onclick="cancelarEditarInfo()" style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
+                                    </div>
+                                </div>
+
+                                <!-- Atributos -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div class="section-title">🌟 Atributos</div>
+                                        <button onclick="toggleEditarAtributos()" style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 18px;">✏️</button>
+                                    </div>
+                                    <div class="atributos-list">
+                                        <div class="atributo-row">
+                                            <div class="atributo-emoji">💪</div>
+                                            <div class="atributo-nome">Força</div>
+                                            <div class="atributo-calculo"><span id="forcaBase-view">0</span> + <span id="forcaBonus-view">0</span> = <strong><span id="forcaTotal">0</span></strong></div>
+                                            <div class="atributo-calculo-edit" style="display: none;"><input type="number" id="forcaBase" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> + <input type="number" id="forcaBonus" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> = <strong><span id="forcaTotal-edit">0</span></strong></div>
+                                        </div>
+                                        <div class="atributo-row">
+                                            <div class="atributo-emoji">🏃</div>
+                                            <div class="atributo-nome">Agilidade</div>
+                                            <div class="atributo-calculo"><span id="agilidadeBase-view">0</span> + <span id="agilidadeBonus-view">0</span> = <strong><span id="agilidadeTotal">0</span></strong></div>
+                                            <div class="atributo-calculo-edit" style="display: none;"><input type="number" id="agilidadeBase" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> + <input type="number" id="agilidadeBonus" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> = <strong><span id="agilidadeTotal-edit">0</span></strong></div>
+                                        </div>
+                                        <div class="atributo-row">
+                                            <div class="atributo-emoji">🍀</div>
+                                            <div class="atributo-nome">Sorte</div>
+                                            <div class="atributo-calculo"><span id="sorteBase-view">0</span> + <span id="sorteBonus-view">0</span> = <strong><span id="sorteTotal">0</span></strong></div>
+                                            <div class="atributo-calculo-edit" style="display: none;"><input type="number" id="sorteBase" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> + <input type="number" id="sorteBonus" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> = <strong><span id="sorteTotal-edit">0</span></strong></div>
+                                        </div>
+                                        <div class="atributo-row">
+                                            <div class="atributo-emoji">🤓</div>
+                                            <div class="atributo-nome">Inteligência</div>
+                                            <div class="atributo-calculo"><span id="inteligenciaBase-view">0</span> + <span id="inteligenciaBonus-view">0</span> = <strong><span id="inteligenciaTotal">0</span></strong></div>
+                                            <div class="atributo-calculo-edit" style="display: none;"><input type="number" id="inteligenciaBase" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> + <input type="number" id="inteligenciaBonus" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> = <strong><span id="inteligenciaTotal-edit">0</span></strong></div>
+                                        </div>
+                                        <div class="atributo-row">
+                                            <div class="atributo-emoji">🧿</div>
+                                            <div class="atributo-nome">Corpo Essência</div>
+                                            <div class="atributo-calculo"><span id="corpoEssenciaBase-view">0</span> + <span id="corpoEssenciaBonus-view">0</span> = <strong><span id="corpoEssenciaTotal">0</span></strong></div>
+                                            <div class="atributo-calculo-edit" style="display: none;"><input type="number" id="corpoEssenciaBase" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> + <input type="number" id="corpoEssenciaBonus" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> = <strong><span id="corpoEssenciaTotal-edit">0</span></strong></div>
+                                        </div>
+                                        <div class="atributo-row">
+                                            <div class="atributo-emoji">🀄</div>
+                                            <div class="atributo-nome">Exposição Rúnica</div>
+                                            <div class="atributo-calculo"><span id="exposicaoRunicaBase-view">0</span> + <span id="exposicaoRunicaBonus-view">0</span> = <strong><span id="exposicaoRunicaTotal">0</span></strong></div>
+                                            <div class="atributo-calculo-edit" style="display: none;"><input type="number" id="exposicaoRunicaBase" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> + <input type="number" id="exposicaoRunicaBonus" style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"> = <strong><span id="exposicaoRunicaTotal-edit">0</span></strong></div>
+                                        </div>
+                                    </div>
+                                    <div id="atributos-save-btn" style="display: none; margin-top: 10px;">
+                                        <button onclick="salvarAtributos()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                                        <button onclick="cancelarEditarAtributos()" style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
+                                    </div>
+                                </div>
+
+                                <!-- Tempo de Reação e Reputação lado a lado -->
+                                <div class="tempo-reputacao-row">
+                                    <div class="tempo-reacao-box">
+                                        <div class="tempo-reacao-label">⏱️ Tempo de Reação</div>
+                                        <div class="tempo-reacao-valor" id="tempoReacaoValor">0</div>
+                                    </div>
+                                    <div class="reputacao-box">
+                                        <div class="reputacao-label">🎖️ Status Social</div>
+                                        <div class="reputacao-valor" id="reputacao">-</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Coluna Direita: Status + Navbar -->
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div class="section-title">🔮 Status</div>
+                                    <button onclick="toggleEditarStatus()" style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 18px;">✏️</button>
+                                </div>
+                                <div class="status-bar status-bar-vida">
+                                    <div class="status-bar-label">
+                                        <strong>❤️ Vida</strong>
+                                        <span id="vida-view"><span id="vidaAtual">0</span> / <span id="vidaMaxima-view">0</span></span>
+                                        <span id="vida-edit" style="display: none;"><span id="vidaAtual">0</span> / <input type="number" id="vidaMaxima" style="width: 50px; padding: 2px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"></span>
+                                    </div>
+                                    <div class="status-bar-container">
+                                        <div class="status-bar-fill" id="vidaBar" style="width: 100%;"></div>
+                                        <span id="vidaPercent" class="status-percent">100%</span>
+                                    </div>
+                                    <div style="display: flex; gap: 5px; margin-top: 8px; justify-content: flex-end; align-items: center;">
+                                        <button onclick="alterarVida(-5)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">◀◀</button>
+                                        <button onclick="alterarVida(-1)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">◀</button>
+                                        <button onclick="alterarVida(1)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">▶</button>
+                                        <button onclick="alterarVida(5)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">▶▶</button>
+                                    </div>
+                                </div>
+
+                                <div class="status-bar status-bar-mana">
+                                    <div class="status-bar-label">
+                                        <strong>🔵 Mana</strong>
+                                        <span id="mana-view"><span id="manaAtual">0</span> / <span id="manaMaxima-view">0</span></span>
+                                        <span id="mana-edit" style="display: none;"><span id="manaAtual">0</span> / <input type="number" id="manaMaxima" style="width: 50px; padding: 2px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"></span>
+                                    </div>
+                                    <div class="status-bar-container">
+                                        <div class="status-bar-fill" id="manaBar" style="width: 100%;"></div>
+                                        <span id="manaPercent" class="status-percent">100%</span>
+                                    </div>
+                                    <div style="display: flex; gap: 5px; margin-top: 8px; justify-content: flex-end; align-items: center;">
+                                        <button onclick="alterarMana(-5)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">◀◀</button>
+                                        <button onclick="alterarMana(-1)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">◀</button>
+                                        <button onclick="alterarMana(1)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">▶</button>
+                                        <button onclick="alterarMana(5)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">▶▶</button>
+                                    </div>
+                                </div>
+
+                                <div class="status-bar status-bar-estamina">
+                                    <div class="status-bar-label">
+                                        <strong>⚡ Estamina</strong>
+                                        <span id="estamina-view"><span id="estaminaAtual">0</span> / <span id="estaminaMaxima-view">0</span></span>
+                                        <span id="estamina-edit" style="display: none;"><span id="estaminaAtual">0</span> / <input type="number" id="estaminaMaxima" style="width: 50px; padding: 2px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"></span>
+                                    </div>
+                                    <div class="status-bar-container">
+                                        <div class="status-bar-fill" id="estaminaBar" style="width: 100%;"></div>
+                                        <span id="estaminaPercent" class="status-percent">100%</span>
+                                    </div>
+                                    <div style="display: flex; gap: 5px; margin-top: 8px; justify-content: flex-end; align-items: center;">
+                                        <button onclick="alterarEstamina(-5)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">◀◀</button>
+                                        <button onclick="alterarEstamina(-1)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">◀</button>
+                                        <button onclick="alterarEstamina(1)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">▶</button>
+                                        <button onclick="alterarEstamina(5)" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 14px; padding: 0 3px;">▶▶</button>
+                                    </div>
+                                </div>
+
+                                <div class="info-grid" style="margin-top: 15px;">
+                                    <div class="info-item">
+                                        <div class="info-item-label">Poder Mágico</div>
+                                        <div class="info-item-value" id="poderMagico-view">0</div>
+                                        <input type="number" id="poderMagico" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-item-label">Controle</div>
+                                        <div class="info-item-value" id="controle-view">0</div>
+                                        <input type="number" id="controle" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                    </div>
+                                </div>
+                                <div id="status-save-btn" style="display: none; margin-top: 10px;">
+                                    <button onclick="salvarStatus()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                                    <button onclick="cancelarEditarStatus()" style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
+                                </div>
+
+                                <!-- Navbar embaixo de Status -->
+                                <div class="ficha-navbar" style="margin-top: 30px;">
+                                    <button class="ficha-navbar-btn active" onclick="switchTab('magias')">🪄 Magias</button>
+                                    <button class="ficha-navbar-btn" onclick="switchTab('habilidades')">⚔️ Habilidades</button>
+                                    <button class="ficha-navbar-btn" onclick="switchTab('conhecimentos')">📚 Conhecimentos</button>
+                                    <button class="ficha-navbar-btn" onclick="switchTab('inventario')">🎒 Inventário</button>
+                                    <button class="ficha-navbar-btn" onclick="switchTab('anotacoes')">📝 Anotações</button>
+                                </div>
+
+                                <!-- Conteúdo das abas -->
+                                <div id="tab-magias" class="tab-content active" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="section-title" style="margin: 0;">🪄 Magias</div>
+                                        <button class="btn btn-primary" onclick="abrirModalMagia()" style="background: #667eea; border: none;">+ Adicionar Magia</button>
+                                    </div>
+                                    <input type="text" id="busca-magias" placeholder="Buscar magia..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarMagias()">
+                                    <div id="lista-magias">
+                                        <p style="color: #b0b0b0;">Nenhuma magia adicionada ainda.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-habilidades" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="section-title" style="margin: 0;">⚔️ Habilidades</div>
+                                        <button class="btn btn-primary" onclick="abrirModalHabilidade()" style="background: #667eea; border: none;">+ Adicionar Habilidade</button>
+                                    </div>
+                                    <input type="text" id="busca-habilidades" placeholder="Buscar habilidade..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarHabilidades()">
+                                    <div id="lista-habilidades">
+                                        <p style="color: #b0b0b0;">Nenhuma habilidade adicionada ainda.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-conhecimentos" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="section-title" style="margin: 0;">📚 Conhecimentos</div>
+                                        <button class="btn btn-primary" onclick="abrirModalConhecimento()" style="background: #667eea; border: none;">+ Adicionar Conhecimento</button>
+                                    </div>
+                                    <input type="text" id="busca-conhecimentos" placeholder="Buscar conhecimento..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarConhecimentos()">
+                                    <div id="lista-conhecimentos">
+                                        <p style="color: #b0b0b0;">Nenhum conhecimento adicionado ainda.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-inventario" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="section-title" style="margin: 0;">🎒 Inventário</div>
+                                        <button class="btn btn-primary" onclick="abrirModalItem()" style="background: #667eea; border: none;">+ Adicionar Item</button>
+                                    </div>
+                                    <input type="text" id="busca-itens" placeholder="Buscar item..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarItens()">
+                                    <div id="lista-itens">
+                                        <p style="color: #b0b0b0;">Inventário vazio.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-anotacoes" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="section-title" style="margin: 0;">📝 Anotações</div>
+                                        <button class="btn btn-primary" onclick="abrirModalAnotacao()" style="background: #667eea; border: none;">+ Adicionar Anotação</button>
+                                    </div>
+                                    <input type="text" id="busca-anotacoes" placeholder="Buscar anotação..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarAnotacoes()">
+                                    <div id="lista-anotacoes">
+                                        <p style="color: #b0b0b0;">Nenhuma anotação adicionada ainda.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAIS -->
+    <!-- Modal Magia -->
+    <div id="modal-magia" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+            <h3 style="color: #667eea; margin-bottom: 20px;">🪄 Adicionar Magia</h3>
+            <form id="form-magia">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Nome</label>
+                    <input type="text" id="magia-nome" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Dano (ex: 1d6, 2d8)</label>
+                    <input type="text" id="magia-dano" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" placeholder="1d6">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Efeito</label>
+                    <input type="text" id="magia-efeito" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
+                    <textarea id="magia-descricao" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 80px;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Mana</label>
+                    <input type="number" id="magia-custo-mana" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" value="0">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Estamina</label>
+                    <input type="number" id="magia-custo-estamina" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" value="0">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="salvarMagia()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    <button type="button" onclick="fecharModalMagia()" style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Habilidade -->
+    <div id="modal-habilidade" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+            <h3 style="color: #667eea; margin-bottom: 20px;">⚔️ Adicionar Habilidade</h3>
+            <form id="form-habilidade">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Nome</label>
+                    <input type="text" id="habilidade-nome" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Dano (ex: 1d6, 2d8)</label>
+                    <input type="text" id="habilidade-dano" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" placeholder="1d6">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Efeito</label>
+                    <input type="text" id="habilidade-efeito" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
+                    <textarea id="habilidade-descricao" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 80px;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Mana</label>
+                    <input type="number" id="habilidade-custo-mana" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" value="0">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Estamina</label>
+                    <input type="number" id="habilidade-custo-estamina" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" value="0">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="salvarHabilidade()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    <button type="button" onclick="fecharModalHabilidade()" style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Conhecimento -->
+    <div id="modal-conhecimento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+            <h3 style="color: #667eea; margin-bottom: 20px;">📚 Adicionar Conhecimento</h3>
+            <form id="form-conhecimento">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Nome</label>
+                    <input type="text" id="conhecimento-nome" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
+                    <textarea id="conhecimento-descricao" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 80px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="salvarConhecimento()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    <button type="button" onclick="fecharModalConhecimento()" style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Item -->
+    <div id="modal-item" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+            <h3 style="color: #667eea; margin-bottom: 20px;">🎒 Adicionar Item</h3>
+            <form id="form-item">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Nome do Item</label>
+                    <input type="text" id="item-nome" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Quantidade</label>
+                    <input type="number" id="item-quantidade" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" value="1">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
+                    <textarea id="item-descricao" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 80px;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Peso (kg)</label>
+                    <input type="number" id="item-peso" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" value="0" step="0.1">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="salvarItem()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    <button type="button" onclick="fecharModalItem()" style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Anotação -->
+    <div id="modal-anotacao" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+            <h3 style="color: #667eea; margin-bottom: 20px;">📝 Adicionar Anotação</h3>
+            <form id="form-anotacao">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Título</label>
+                    <input type="text" id="anotacao-titulo" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
+                    <textarea id="anotacao-descricao" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 120px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="salvarAnotacao()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    <button type="button" onclick="fecharModalAnotacao()" style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/personagens.js"></script>
+    <script src="../js/ficha-items.js"></script>
+    <script src="../js/modais-itens.js"></script>
+    <script src="../js/visualizar-ficha.js"></script>
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.ficha-navbar-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // ============================================
+        // FUNÇÕES PARA ALTERAR VIDA, MANA E ESTAMINA
+        // ============================================
+
+        async function alterarVida(valor) {
+            const vidaAtualEl = document.getElementById('vidaAtual');
+            
+            if (!vidaAtualEl) return;
+            
+            let vidaAtual = parseInt(vidaAtualEl.textContent) || 0;
+            vidaAtual = vidaAtual + valor;
+            
+            vidaAtualEl.textContent = vidaAtual;
+            atualizarBarraVida();
+            
+            // Salvar no banco de dados
+            if (window.fichaId) {
+                await updatePersonagem(window.fichaId, { vida_atual: vidaAtual });
+            }
+        }
+
+        async function alterarMana(valor) {
+            const manaAtualEl = document.getElementById('manaAtual');
+            
+            if (!manaAtualEl) return;
+            
+            let manaAtual = parseInt(manaAtualEl.textContent) || 0;
+            manaAtual = manaAtual + valor;
+            
+            manaAtualEl.textContent = manaAtual;
+            atualizarBarraMana();
+            
+            // Salvar no banco de dados
+            if (window.fichaId) {
+                await updatePersonagem(window.fichaId, { mana_atual: manaAtual });
+            }
+        }
+
+        async function alterarEstamina(valor) {
+            const estaminaAtualEl = document.getElementById('estaminaAtual');
+            
+            if (!estaminaAtualEl) return;
+            
+            let estaminaAtual = parseInt(estaminaAtualEl.textContent) || 0;
+            estaminaAtual = estaminaAtual + valor;
+            
+            estaminaAtualEl.textContent = estaminaAtual;
+            atualizarBarraEstamina();
+            
+            // Salvar no banco de dados
+            if (window.fichaId) {
+                await updatePersonagem(window.fichaId, { estamina_atual: estaminaAtual });
+            }
+        }
+
+        function atualizarBarraVida() {
+            const vidaAtual = parseInt(document.getElementById('vidaAtual').textContent) || 0;
+            const vidaMaxima = parseInt(document.getElementById('vidaMaxima-view').textContent) || 1;
+            const percent = Math.round((vidaAtual / vidaMaxima) * 100);
+            
+            const vidaBar = document.getElementById('vidaBar');
+            const vidaPercent = document.getElementById('vidaPercent');
+            
+            if (vidaBar) vidaBar.style.width = percent + '%';
+            if (vidaPercent) vidaPercent.textContent = percent + '%';
+        }
+
+        function atualizarBarraMana() {
+            const manaAtual = parseInt(document.getElementById('manaAtual').textContent) || 0;
+            const manaMaxima = parseInt(document.getElementById('manaMaxima-view').textContent) || 1;
+            const percent = Math.round((manaAtual / manaMaxima) * 100);
+            
+            const manaBar = document.getElementById('manaBar');
+            const manaPercent = document.getElementById('manaPercent');
+            
+            if (manaBar) manaBar.style.width = percent + '%';
+            if (manaPercent) manaPercent.textContent = percent + '%';
+        }
+
+        function atualizarBarraEstamina() {
+            const estaminaAtual = parseInt(document.getElementById('estaminaAtual').textContent) || 0;
+            const estaminaMaxima = parseInt(document.getElementById('estaminaMaxima-view').textContent) || 1;
+            const percent = Math.round((estaminaAtual / estaminaMaxima) * 100);
+            
+            const estaminaBar = document.getElementById('estaminaBar');
+            const estaminaPercent = document.getElementById('estaminaPercent');
+            
+            if (estaminaBar) estaminaBar.style.width = percent + '%';
+            if (estaminaPercent) estaminaPercent.textContent = percent + '%';
+        }
+
+        async function salvarAlteracao(campo) {
+            if (!window.fichaId) return;
+            const elemento = document.getElementById(campo);
+            if (!elemento) return;
+            const valor = elemento.value;
+            const updateData = {};
+            updateData[campo] = isNaN(valor) ? valor : parseInt(valor);
+            await updatePersonagem(window.fichaId, updateData);
+        }
+
+        async function atualizarAtributo(atributo) {
+            if (!window.fichaId) return;
+            const baseEl = document.getElementById(atributo + 'Base');
+            const bonusEl = document.getElementById(atributo + 'Bonus');
+            const totalEl = document.getElementById(atributo + 'Total');
+            if (!baseEl || !bonusEl || !totalEl) return;
+            const base = parseInt(baseEl.value) || 0;
+            const bonus = parseInt(bonusEl.value) || 0;
+            const total = base + bonus;
+            totalEl.textContent = total;
+            const updateData = {};
+            updateData[atributo + '_base'] = base;
+            updateData[atributo + '_bonus'] = bonus;
+            await updatePersonagem(window.fichaId, updateData);
+            recalcularTempoReacao();
+        }
+
+        function recalcularTempoReacao() {
+            const forcaTotal = parseInt(document.getElementById('forcaTotal').textContent) || 0;
+            const agilidadeTotal = parseInt(document.getElementById('agilidadeTotal').textContent) || 0;
+            const sorteTotal = parseInt(document.getElementById('sorteTotal').textContent) || 0;
+            const inteligenciaTotal = parseInt(document.getElementById('inteligenciaTotal').textContent) || 0;
+            const corpoEssenciaTotal = parseInt(document.getElementById('corpoEssenciaTotal').textContent) || 0;
+            const exposicaoRunicaTotal = parseInt(document.getElementById('exposicaoRunicaTotal').textContent) || 0;
+            const totalAtributos = forcaTotal + agilidadeTotal + sorteTotal + inteligenciaTotal + corpoEssenciaTotal + exposicaoRunicaTotal;
+            const tempoReacao = Math.floor(totalAtributos / 10);
+            console.log('Tempo de Reacao:', totalAtributos, '/', 10, '=', tempoReacao);
+            const tempoReacaoEl = document.getElementById('tempoReacao');
+            if (tempoReacaoEl) tempoReacaoEl.textContent = tempoReacao;
+        }
+
+        function toggleEditarInfo() {
+            const campos = ['nome', 'raca', 'idade', 'nivel', 'altura', 'peso'];
+            campos.forEach(campo => {
+                const view = document.getElementById(campo + '-view');
+                const input = document.getElementById(campo);
+                if (view && input) {
+                    if (view.style.display === 'none') {
+                        view.style.display = 'block';
+                        input.style.display = 'none';
+                    } else {
+                        view.style.display = 'none';
+                        input.style.display = 'block';
+                        input.value = view.textContent.trim();
+                    }
+                }
+            });
+            const saveBtn = document.getElementById('info-save-btn');
+            if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function salvarInfo() {
+            if (!window.fichaId) {
+                console.log('fichaId não definido');
+                return;
+            }
+            const updateData = {
+                nome: document.getElementById('nome').value,
+                raca: document.getElementById('raca').value,
+                idade: parseInt(document.getElementById('idade').value),
+                nivel: parseInt(document.getElementById('nivel').value),
+                altura: parseInt(document.getElementById('altura').value),
+                peso: parseInt(document.getElementById('peso').value)
+            };
+            console.log('Salvando info:', updateData);
+            const result = await updatePersonagem(window.fichaId, updateData);
+            console.log('Resultado:', result);
+            if (result.success) {
+                const campos = ['nome', 'raca', 'idade', 'nivel', 'altura', 'peso'];
+                campos.forEach(campo => {
+                    const view = document.getElementById(campo + '-view');
+                    const input = document.getElementById(campo);
+                    if (view && input) {
+                        view.textContent = input.value;
+                        view.style.display = 'block';
+                        input.style.display = 'none';
+                    }
+                });
+                document.getElementById('info-save-btn').style.display = 'none';
+            } else {
+                alert('Erro ao salvar: ' + result.error);
+            }
+        }
+
+        function cancelarEditarInfo() {
+            const campos = ['nome', 'raca', 'idade', 'nivel', 'altura', 'peso'];
+            campos.forEach(campo => {
+                const view = document.getElementById(campo + '-view');
+                const input = document.getElementById(campo);
+                if (view && input) {
+                    view.style.display = 'block';
+                    input.style.display = 'none';
+                }
+            });
+            document.getElementById('info-save-btn').style.display = 'none';
+        }
+
+        function toggleEditarAtributos() {
+            const viewCalcs = document.querySelectorAll('.atributo-calculo');
+            const editCalcs = document.querySelectorAll('.atributo-calculo-edit');
+            viewCalcs.forEach(el => {
+                if (el.style.display === 'none') {
+                    el.style.display = 'block';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+            editCalcs.forEach(el => {
+                if (el.style.display === 'none') {
+                    el.style.display = 'block';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+            const saveBtn = document.getElementById('atributos-save-btn');
+            if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function salvarAtributos() {
+            if (!window.fichaId) {
+                console.log('fichaId não definido');
+                return;
+            }
+            const atributos = [
+                { nome: 'forca', campo: 'forca' },
+                { nome: 'agilidade', campo: 'agilidade' },
+                { nome: 'sorte', campo: 'sorte' },
+                { nome: 'inteligencia', campo: 'inteligencia' },
+                { nome: 'corpoEssencia', campo: 'corpo_essencia' },
+                { nome: 'exposicaoRunica', campo: 'exposicao_runica' }
+            ];
+            const updateData = {};
+            atributos.forEach(attr => {
+                const base = parseInt(document.getElementById(attr.nome + 'Base').value) || 0;
+                const bonus = parseInt(document.getElementById(attr.nome + 'Bonus').value) || 0;
+                updateData[attr.campo + '_base'] = base;
+                updateData[attr.campo + '_bonus'] = bonus;
+                document.getElementById(attr.nome + 'Base-view').textContent = base;
+                document.getElementById(attr.nome + 'Bonus-view').textContent = bonus;
+                document.getElementById(attr.nome + 'Total').textContent = base + bonus;
+            });
+            console.log('Salvando atributos:', updateData);
+            const result = await updatePersonagem(window.fichaId, updateData);
+            console.log('Resultado:', result);
+            if (result.success) {
+                toggleEditarAtributos();
+                recalcularTempoReacao();
+            } else {
+                alert('Erro ao salvar: ' + result.error);
+            }
+        }
+
+        function cancelarEditarAtributos() {
+            toggleEditarAtributos();
+        }
+
+        function toggleEditarStatus() {
+            const vidaView = document.getElementById('vida-view');
+            const vidaEdit = document.getElementById('vida-edit');
+            const manaView = document.getElementById('mana-view');
+            const manaEdit = document.getElementById('mana-edit');
+            const estaminaView = document.getElementById('estamina-view');
+            const estaminaEdit = document.getElementById('estamina-edit');
+            const poderMagicoView = document.getElementById('poderMagico-view');
+            const poderMagicoInput = document.getElementById('poderMagico');
+            const controleView = document.getElementById('controle-view');
+            const controleInput = document.getElementById('controle');
+            const saveBtn = document.getElementById('status-save-btn');
+            
+            if (vidaView && vidaEdit) {
+                vidaView.style.display = vidaView.style.display === 'none' ? 'inline' : 'none';
+                vidaEdit.style.display = vidaEdit.style.display === 'none' ? 'inline' : 'none';
+            }
+            if (manaView && manaEdit) {
+                manaView.style.display = manaView.style.display === 'none' ? 'inline' : 'none';
+                manaEdit.style.display = manaEdit.style.display === 'none' ? 'inline' : 'none';
+            }
+            if (estaminaView && estaminaEdit) {
+                estaminaView.style.display = estaminaView.style.display === 'none' ? 'inline' : 'none';
+                estaminaEdit.style.display = estaminaEdit.style.display === 'none' ? 'inline' : 'none';
+            }
+            if (poderMagicoView && poderMagicoInput) {
+                if (poderMagicoView.style.display === 'none') {
+                    poderMagicoView.style.display = 'block';
+                    poderMagicoInput.style.display = 'none';
+                } else {
+                    poderMagicoView.style.display = 'none';
+                    poderMagicoInput.style.display = 'block';
+                    poderMagicoInput.value = poderMagicoView.textContent;
+                }
+            }
+            if (controleView && controleInput) {
+                if (controleView.style.display === 'none') {
+                    controleView.style.display = 'block';
+                    controleInput.style.display = 'none';
+                } else {
+                    controleView.style.display = 'none';
+                    controleInput.style.display = 'block';
+                    controleInput.value = controleView.textContent;
+                }
+            }
+            if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function salvarStatus() {
+            if (!window.fichaId) {
+                console.log('fichaId não definido');
+                return;
+            }
+            const vidaMaxima = parseInt(document.getElementById('vidaMaxima').value);
+            const manaMaxima = parseInt(document.getElementById('manaMaxima').value);
+            const estaminaMaxima = parseInt(document.getElementById('estaminaMaxima').value);
+            const poderMagico = parseInt(document.getElementById('poderMagico').value);
+            const controle = parseInt(document.getElementById('controle').value);
+            
+            const updateData = {
+                vida_maxima: vidaMaxima,
+                mana_maxima: manaMaxima,
+                estamina_maxima: estaminaMaxima,
+                poder_magico: poderMagico,
+                controle: controle
+            };
+            
+            console.log('Salvando status:', updateData);
+            const result = await updatePersonagem(window.fichaId, updateData);
+            console.log('Resultado:', result);
+            
+            if (result.success) {
+                document.getElementById('vidaMaxima-view').textContent = vidaMaxima;
+                document.getElementById('manaMaxima-view').textContent = manaMaxima;
+                document.getElementById('estaminaMaxima-view').textContent = estaminaMaxima;
+                document.getElementById('poderMagico-view').textContent = poderMagico;
+                document.getElementById('controle-view').textContent = controle;
+                
+                toggleEditarStatus();
+                atualizarBarraVida();
+                atualizarBarraMana();
+                atualizarBarraEstamina();
+            } else {
+                alert('Erro ao salvar: ' + result.error);
+            }
+        }
+
+        function cancelarEditarStatus() {
+            toggleEditarStatus();
+        }
+    </script>
+</body>
+</html>

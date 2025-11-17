@@ -1,0 +1,8 @@
+- [x] Adicionar função obterMagia em ficha-items.js
+- [x] Adicionar função atualizarMagia em ficha-items.js
+- [x] Adicionar função obterHabilidade em ficha-items.js
+- [x] Adicionar função atualizarHabilidade em ficha-items.js
+- [x] Adicionar função obterConhecimento em ficha-items.js
+- [x] Adicionar função atualizarConhecimento em ficha-items.js
+- [x] Adicionar função obterAnotacao em ficha-items.js
+- [x] Adicionar função atualizarAnotacao em ficha-items.js

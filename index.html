@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Nebula Background</title>
+    <link rel="stylesheet" href="css/galaxy.css">
+</head>
+<body>
+    <!-- Canvas WebGL (fundo) -->
+    <canvas id="nebula-canvas"></canvas>
+    
+    <!-- Container frontal vazio para conteúdo do site -->
+    <div id="foreground"></div>
+    
+    <!-- Fallback caso WebGL não esteja disponível -->
+    <div id="webgl-fallback">
+        <p>WebGL não está disponível. A visualizar versão simplificada.</p>
+    </div>
+    
+    <!-- Three.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Script principal -->
+    <script src="js/galaxy.js"></script>
+</body>
+</html>

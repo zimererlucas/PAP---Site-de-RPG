@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campanhas - Gênesis RPG</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="../index.html">
+                <span>📜</span> Gênesis RPG
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="fichas.html">📋 Fichas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="campanhas.html">🎭 Campanhas</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-login ms-2" id="authBtn" onclick="handleLogout()">🚪 Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1>🎭 Campanhas</h1>
+            </div>
+            <div class="col text-end">
+                <a href="criar-campanha.html" class="btn btn-primary">➕ Criar Nova Campanha</a>
+            </div>
+        </div>
+
+        <!-- Tabs for Narrador/Jogador -->
+        <ul class="nav nav-tabs mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="narrador-tab" data-bs-toggle="tab" data-bs-target="#narrador">
+                    🎭 Minhas Campanhas (Narrador)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="jogador-tab" data-bs-toggle="tab" data-bs-target="#jogador">
+                    🎮 Campanhas que Participo (Jogador)
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Tab: Narrador -->
+            <div class="tab-pane fade show active" id="narrador">
+                <!-- Loading State -->
+                <div id="loadingNarrador" class="text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyNarrador" style="display: none;" class="text-center py-5">
+                    <h3>Nenhuma campanha criada ainda</h3>
+                    <p class="text-muted">Comece criando sua primeira campanha como narrador!</p>
+                    <a href="criar-campanha.html" class="btn btn-primary">➕ Criar Primeira Campanha</a>
+                </div>
+
+                <!-- Campanhas Grid -->
+                <div id="campanhasNarradorContainer" class="row g-4"></div>
+            </div>
+
+            <!-- Tab: Jogador -->
+            <div class="tab-pane fade" id="jogador">
+                <!-- Loading State -->
+                <div id="loadingJogador" class="text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyJogador" style="display: none;" class="text-center py-5">
+                    <h3>Você não participa de nenhuma campanha ainda</h3>
+                    <p class="text-muted">Peça o código de uma campanha ao narrador para participar!</p>
+                    <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha</button>
+                </div>
+
+                <!-- Campanhas Grid -->
+                <div id="campanhasJogadorContainer" class="row g-4"></div>
+
+                <!-- Botão para entrar em campanha -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha com Código</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para entrar em campanha -->
+    <div class="modal fade" id="entrarCampanhaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">🔓 Entrar em Campanha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="entrarCampanhaForm">
+                        <div class="mb-3">
+                            <label for="codigoCampanha" class="form-label">Código da Campanha</label>
+                            <input type="text" class="form-control" id="codigoCampanha" placeholder="Ex: CAMP_ABC123" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="personagemParticipacao" class="form-label">Selecione seu Personagem</label>
+                            <select class="form-control" id="personagemParticipacao" required>
+                                <option value="">Carregando personagens...</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Entrar na Campanha</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/personagens.js"></script>
+    <script src="../js/campanhas.js"></script>
+    <script src="../js/listar-campanhas.js"></script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Combate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .combate-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .combate-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .combate-header h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 700;
+        }
+        
+        .combate-header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #667eea;
+            padding: 0 20px;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #667eea;
+            border: none;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        
+        .tab-content {
+            padding: 25px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .stat-card input, .stat-card select {
+            background: white;
+            border: 2px solid #667eea;
+            color: #333;
+            padding: 10px 12px;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card input:focus, .stat-card select:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(118, 75, 162, 0.3);
+            outline: none;
+        }
+        
+        .stat-card small {
+            color: #667eea;
+            font-weight: 600;
+            display: block;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .info-card h6 {
+            margin: 0 0 8px 0;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .info-card p {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .action-item {
+            background: #f5f7fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .action-item h6 {
+            margin: 0 0 8px 0;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .action-item p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .btn-salvar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        .btn-fechar {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            font-weight: 600;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .btn-rolar {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .resultado-dados {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        @media (max-width: 480px) {
+            .combate-header h1 {
+                font-size: 1.5em;
+            }
+            
+            .tab-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="combate-container">
+        <div class="combate-header">
+            <h1>⚔️ Controle de Combate</h1>
+            <p id="nomePersonagem">-</p>
+        </div>
+
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="status-tab" data-bs-toggle="tab" data-bs-target="#status" type="button" role="tab">📊 Status</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="acoes-tab" data-bs-toggle="tab" data-bs-target="#acoes" type="button" role="tab">⚡ Ações</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="status" role="tabpanel">
+                <!-- Acerto -->
+                <div class="stat-card">
+                    <label>🎯 Acerto</label>
+                    <select id="atributoAcerto" onchange="atualizarAcerto()">
+                        <option value="forca">💪 Força</option>
+                        <option value="agilidade" selected>🏃 Agilidade</option>
+                        <option value="inteligencia">🤓 Inteligência</option>
+                        <option value="sorte">🍀 Sorte</option>
+                        <option value="corpo_essencia">🧿 Corpo Essência</option>
+                        <option value="exposicao_runica">🀄 Exposição Rúnica</option>
+                    </select>
+                    <div class="info-card">
+                        <p>1d50 + <span id="acertoTR">0</span> + <span id="acertoBonus">0</span> + <span id="acertoAtr">0</span></p>
+                    </div>
+                </div>
+
+                <!-- Esquiva -->
+                <div class="stat-card">
+                    <label>🌀 Esquiva</label>
+                    <select id="atributoEsquiva" onchange="atualizarEsquiva()">
+                        <option value="forca">💪 Força</option>
+                        <option value="agilidade" selected>🏃 Agilidade</option>
+                        <option value="inteligencia">🤓 Inteligência</option>
+                        <option value="sorte">🍀 Sorte</option>
+                        <option value="corpo_essencia">🧿 Corpo Essência</option>
+                        <option value="exposicao_runica">🀄 Exposição Rúnica</option>
+                    </select>
+                    <div class="info-card">
+                        <p>1d50 + <span id="esquivaTR">0</span> + <span id="esquivaBonus">0</span> + <span id="esquivaAtr">0</span></p>
+                    </div>
+                </div>
+
+                <!-- Vida -->
+                <div class="stat-card">
+                    <label for="vidaAtual">❤️ Vida Atual</label>
+                    <input type="number" id="vidaAtual" placeholder="0">
+                    <small>Máximo: <span id="vidaMaxima">0</span></small>
+                </div>
+
+                <!-- Mana -->
+                <div class="stat-card">
+                    <label for="manaAtual">🔵 Mana Atual</label>
+                    <input type="number" id="manaAtual" placeholder="0">
+                    <small>Máximo: <span id="manaMaxima">0</span></small>
+                </div>
+
+                <!-- Estamina -->
+                <div class="stat-card">
+                    <label for="estaminaAtual">⚡ Estamina Atual</label>
+                    <input type="number" id="estaminaAtual" placeholder="0">
+                    <small>Máximo: <span id="estaminaMaxima">0</span></small>
+                </div>
+
+                <button class="btn-salvar" onclick="salvarDados()">💾 Salvar Alterações</button>
+            </div>
+
+            <div class="tab-pane fade" id="acoes" role="tabpanel">
+                <button class="btn-salvar" onclick="abrirFormularioAcao()">➕ Adicionar Ação</button>
+                <div id="acoesContainer">
+                    <p style="text-align: center; color: #999;">Nenhuma ação adicionada ainda</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 20px;">
+            <button class="btn-fechar" onclick="window.close()">✕ Fechar</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/personagens.js"></script>
+    <script src="../js/controle-combate.js"></script>
+</body>
+</html>
