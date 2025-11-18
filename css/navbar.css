@@ -1,0 +1,81 @@
+/* ------------------------------------- */
+/* 1. LAYOUT DA NAVBAR (Organização Horizontal) */
+/* ------------------------------------- */
+.navbar {
+    background-color: #22222200; /* Fundo escuro para contrastar */
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    color: white;
+    font-size: 2em;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+.nav-list {
+    list-style: none; /* Remove as bolinhas da lista */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Essencial para colocar os itens lado a lado */
+    justify-content: center; /* Centraliza os links na barra */
+}
+
+.nav-list li {
+    margin: 0 15px; /* Espaçamento entre os itens */
+}
+
+
+/* ------------------------------------- */
+/* 2. SEUS ESTILOS DE GRADIENTE (Aplicado aos <a>) */
+/* ------------------------------------- */
+
+/* Estilo Base dos Links */
+.nav-list li a {
+    color: rgb(255, 255, 255); /* Define a cor do texto para branco */
+    padding: 10px 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    z-index: 0;
+}
+
+.nav-list li a::after {
+    content: "";
+    position: absolute;
+    top: 0%;
+    left: 15%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(45deg, #f5e8ff, #0000ff);
+    background-size: 100% 100%;
+    z-index: -1;
+    filter: blur(30px);
+    filter: brightness(30px);
+    opacity: 0.2;
+    transition: opacity 0.5s;
+    animation: rotate-96 5s linear infinite;
+    border-radius: 100vmax;
+    width: 50px;
+    height: 50px;
+}
+
+.nav-list li a:hover::after {
+    opacity: 1;
+}
+
+@keyframes rotate-96 {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+

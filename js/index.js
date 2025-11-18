@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 });
 
+
 // Verificar e atualizar estado de autenticação
 async function checkAuthState() {
     const user = await getCurrentUser();
