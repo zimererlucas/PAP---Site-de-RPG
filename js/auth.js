@@ -1,4 +1,33 @@
-// Funções de Autenticação Completas
+// Configuração do Supabase
+const SUPABASE_URL = 'https://rdrbhapthqnpdtqubuwo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkcmJoYXB0aHFucGR0cXVidXdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTE2MDUsImV4cCI6MjA3NTM4NzYwNX0.QjZOhXNBYU_F5HKjVDRfY6aFNsNSDodX3q4YJbBwM8U';
+
+// Inicializar cliente Supabase
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+/* =============================================== */
+/* REFERÊNCIAS AO DOM (PARA LÓGICA DE UI)          */
+/* =============================================== */
+
+// Elementos da Navbar
+const loginLink = document.getElementById('login-link'); // O link "Login" ou "Entrar"
+const fichasNav = document.getElementById('fichasNav');
+const campanhasNav = document.getElementById('campanhasNav');
+
+// Elementos do Avatar/Sidebar
+const userAvatarWrapper = document.getElementById('user-avatar-wrapper');
+const profilePicture = document.getElementById('profile-picture');
+const userSidebar = document.getElementById('user-sidebar');
+const sidebarPic = document.getElementById('sidebar-pic');
+const sidebarName = document.getElementById('sidebar-name');
+const sidebarEmail = document.getElementById('sidebar-email');
+const logoutButton = document.getElementById('logout-button');
+
+
+/* =============================================== */
+/* FUNÇÕES DE AUTENTICAÇÃO                         */
+/* =============================================== */
 
 // Login com Email e Senha
 async function loginWithEmail(email, password) {
@@ -27,6 +56,7 @@ async function loginWithEmail(email, password) {
 // Login com Google
 async function loginWithGoogle() {
     try {
+        // Redireciona o usuário para a tela de login do Google
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -108,7 +138,11 @@ async function resetPassword(email) {
 // Criar ou Atualizar Perfil
 async function createOrUpdateProfile(user, username = null) {
     try {
+        // Tenta usar o username fornecido, o username dos metadados, ou a parte inicial do email
         const profileUsername = username || user.user_metadata?.username || user.email.split('@')[0];
+        
+        // Também busca URL da foto do Google ou avatar_url, se existirem
+        const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
 
         const { error } = await supabase
             .from('perfis')
@@ -116,6 +150,7 @@ async function createOrUpdateProfile(user, username = null) {
                 id: user.id,
                 email: user.email,
                 username: profileUsername,
+                avatar_url: avatarUrl, // Salva o avatar para uso futuro
                 atualizado_em: new Date().toISOString()
             }, {
                 onConflict: 'id'
@@ -156,6 +191,9 @@ async function signOutUser() {
         if (error) {
             return { success: false, error: error.message };
         }
+        
+        // Fecha a sidebar após o logout
+        if (userSidebar) userSidebar.classList.remove('open');
 
         return { success: true };
     } catch (error) {
@@ -175,7 +213,8 @@ async function requireLogin() {
     const isLoggedIn = await isUserLoggedIn();
     
     if (!isLoggedIn) {
-        alert('Você precisa estar logado para acessar esta página.');
+        // Substituí o 'alert()' por um console.error ou mensagem de UI personalizada
+        console.error('Acesso negado: Usuário precisa estar logado.');
         window.location.href = '../index.html';
         return false;
     }
@@ -183,40 +222,98 @@ async function requireLogin() {
     return true;
 }
 
-// Escutar mudanças de autenticação
-supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state changed:', event);
-    
-    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        updateNavbar();
-    } else if (event === 'SIGNED_OUT') {
-        updateNavbar();
-    }
-});
 
-// Atualizar navbar baseado no estado de autenticação
+/* =============================================== */
+/* LÓGICA DE UI DA NAVBAR (ATUALIZADA)             */
+/* =============================================== */
+
+/**
+ * Atualiza a visibilidade da navbar (Login vs. Avatar) e preenche a sidebar.
+ */
 async function updateNavbar() {
     const user = await getCurrentUser();
-    const loginNav = document.getElementById('loginNav');
-    const userMenuNav = document.getElementById('userMenuNav');
-    const fichasNav = document.getElementById('fichasNav');
-    const campanhasNav = document.getElementById('campanhasNav');
-    const userEmail = document.getElementById('userEmail');
+
+    // Garante que a sidebar está fechada ao atualizar o estado
+    if (userSidebar) userSidebar.classList.remove('open');
 
     if (user) {
-        // Usuário logado
-        if (loginNav) loginNav.style.display = 'none';
-        if (userMenuNav) {
-            userMenuNav.style.display = 'block';
-            if (userEmail) userEmail.textContent = user.email;
-        }
+        // --- Usuário logado ---
+        
+        // Esconde o link "Login" e mostra o Avatar
+        if (loginLink) loginLink.style.display = 'none';
+        if (userAvatarWrapper) userAvatarWrapper.style.display = 'block';
+
+        // Pega URL e nome do Google/Metadata
+        const photoUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+        const name = user.user_metadata?.full_name || user.email.split('@')[0];
+        
+        // Atualiza a imagem do Avatar na Navbar e na Sidebar
+        if (profilePicture && photoUrl) profilePicture.src = photoUrl;
+        if (sidebarPic && photoUrl) sidebarPic.src = photoUrl;
+        
+        // Atualiza textos na Sidebar
+        if (sidebarName) sidebarName.textContent = name;
+        if (sidebarEmail) sidebarEmail.textContent = user.email;
+
+        // Mostra links restritos
         if (fichasNav) fichasNav.style.display = 'block';
         if (campanhasNav) campanhasNav.style.display = 'block';
+
     } else {
-        // Usuário não logado
-        if (loginNav) loginNav.style.display = 'block';
-        if (userMenuNav) userMenuNav.style.display = 'none';
+        // --- Usuário não logado ---
+
+        // Mostra o link "Login" e esconde o Avatar
+        if (loginLink) loginLink.style.display = 'block';
+        if (userAvatarWrapper) userAvatarWrapper.style.display = 'none';
+
+        // Esconde links restritos
         if (fichasNav) fichasNav.style.display = 'none';
         if (campanhasNav) campanhasNav.style.display = 'none';
     }
 }
+
+
+/* =============================================== */
+/* LISTENERS DE EVENTOS                            */
+/* =============================================== */
+
+// Escutar mudanças de autenticação do Supabase
+supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth state changed:', event);
+    
+    // Qualquer evento de login ou logout aciona a atualização da navbar
+    updateNavbar();
+});
+
+// Listener: Clicar no Avatar para Abrir/Fechar a Sidebar
+if (userAvatarWrapper && userSidebar) {
+    userAvatarWrapper.addEventListener('click', (e) => {
+        e.preventDefault();
+        userSidebar.classList.toggle('open');
+    });
+
+    // Opcional: Fechar a sidebar ao clicar fora dela
+    document.addEventListener('click', (event) => {
+        // Verifica se a sidebar está aberta E se o clique não foi no avatar E não foi dentro da sidebar
+        if (
+            userSidebar.classList.contains('open') &&
+            !userSidebar.contains(event.target) &&
+            !userAvatarWrapper.contains(event.target)
+        ) {
+            userSidebar.classList.remove('open');
+        }
+    });
+}
+
+// Listener: Botão de Sair (dentro da Sidebar)
+if (logoutButton) {
+    logoutButton.addEventListener('click', async () => {
+        const result = await signOutUser();
+        if (!result.success) {
+            console.error('Erro ao fazer logout:', result.error);
+        }
+    });
+}
+
+// Chama a função inicial na primeira carga da página para definir o estado inicial
+updateNavbar();
