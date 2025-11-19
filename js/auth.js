@@ -58,10 +58,7 @@ async function loginWithGoogle() {
     try {
         // Redireciona o usuário para a tela de login do Google
         const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.href
-            }
+            provider: 'google'
         });
 
         if (error) {
