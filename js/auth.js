@@ -274,27 +274,30 @@ async function updateNavbar() {
 
 
 /* =============================================== */
-/* LISTENERS DE EVENTOS                            */
+/* LISTENERS DE EVENTOS E INICIALIZAÇÃO            */
 /* =============================================== */
 
-// Escutar mudanças de autenticação do Supabase
+// 1. Escutar mudanças de autenticação em TEMPO REAL
+// Isso captura quando o Supabase termina de processar o login do Google
 supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state changed:', event);
+    console.log('🔄 Mudança de Estado de Auth:', event);
     
-    // Qualquer evento de login ou logout aciona a atualização da navbar
-    updateNavbar();
+    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+        // Se logou, atualiza a interface imediatamente
+        updateNavbar();
+    } else if (event === 'SIGNED_OUT') {
+        updateNavbar();
+    }
 });
 
-// Listener: Clicar no Avatar para Abrir/Fechar a Sidebar
+// 2. Listener: Clicar no Avatar para Abrir/Fechar a Sidebar
 if (userAvatarWrapper && userSidebar) {
     userAvatarWrapper.addEventListener('click', (e) => {
         e.preventDefault();
         userSidebar.classList.toggle('open');
     });
 
-    // Opcional: Fechar a sidebar ao clicar fora dela
     document.addEventListener('click', (event) => {
-        // Verifica se a sidebar está aberta E se o clique não foi no avatar E não foi dentro da sidebar
         if (
             userSidebar.classList.contains('open') &&
             !userSidebar.contains(event.target) &&
@@ -305,7 +308,7 @@ if (userAvatarWrapper && userSidebar) {
     });
 }
 
-// Listener: Botão de Sair (dentro da Sidebar)
+// 3. Listener: Botão de Sair
 if (logoutButton) {
     logoutButton.addEventListener('click', async () => {
         const result = await signOutUser();
@@ -315,5 +318,22 @@ if (logoutButton) {
     });
 }
 
-// Chama a função inicial na primeira carga da página para definir o estado inicial
-updateNavbar();
+// 4. INICIALIZAÇÃO CRÍTICA (A CORREÇÃO)
+// Em vez de chamar updateNavbar() direto, usamos getSession()
+// O getSession() é quem lê a URL do Google (#access_token...) e restaura a sessão.
+async function initAuth() {
+    console.log("🔍 Verificando sessão inicial...");
+    
+    // Verifica se há uma sessão ativa ou recupera da URL
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+        console.error("Erro na sessão:", error);
+    }
+
+    // Agora que o getSession rodou, o updateNavbar vai pegar o usuário correto
+    await updateNavbar();
+}
+
+// Inicia a verificação
+initAuth();
