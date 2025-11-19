@@ -97,6 +97,17 @@ async function createOrUpdateProfile(user, username = null) {
     console.log("Salvando perfil para:", user.email);
 }
 
+// Adicione esta função ao seu js/auth.js
+
+/**
+ * Retorna o usuário logado atualmente ou null.
+ */
+async function getCurrentUser() {
+    // Usa getSession() para garantir que a sessão foi lida do Storage/URL
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.user || null;
+}
+
 // ===============================================
 // 5. ESCUTADORES DE EVENTOS
 // ===============================================
