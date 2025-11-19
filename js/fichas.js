@@ -34,21 +34,28 @@ async function loadFichas() {
         // Renderizar fichas
         fichasContainer.innerHTML = fichas.map(ficha => `
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100" style="background: #0f3460; border: 1px solid #16213e; color: #e0e0e0;">
-                    <div class="card-header" style="background: transparent; border-bottom: 1px solid #16213e;">
-                        <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">${ficha.nome}</h5>
+                <div class="card h-100 glass-card" 
+                style="background: 
+                rgba(245, 232, 255, 0.055);
+                backdrop-filter: blur(6px);
+                border-radius: 20px;
+                 
+                box-shadow: 0 px 20px rgba(0, 0, 0, 0.15);">
+
+                    <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
+                        <h5 class="card-title mb-0" style="color: #f5e8ff; font-weight: 600;">${ficha.nome}</h5>
                     </div>
                     <div class="card-body">
-                        <p class="card-text" style="color: #b0b0b0;">
-                            <strong style="color: #e0e0e0;">Raca:</strong> ${ficha.raca || '-'}<br>
-                            <strong style="color: #e0e0e0;">Nivel:</strong> ${ficha.nivel || 0}<br>
-                            <strong style="color: #e0e0e0;">Vida:</strong> ${ficha.vida_atual || 0}/${ficha.vida_maxima || 0}<br>
-                            <strong style="color: #e0e0e0;">Estamina:</strong> ${ficha.estamina_atual || 0}/${ficha.estamina_maxima || 0}
+                        <p class="card-text" style="color: #f5e8ff;">
+                            <strong style="color: #f5e8ff;">Raca:</strong> ${ficha.raca || '-'}<br>
+                            <strong style="color: #f5e8ff;">Nivel:</strong> ${ficha.nivel || 0}<br>
+                            <strong style="color: #f5e8ff;">Vida:</strong> ${ficha.vida_atual || 0}/${ficha.vida_maxima || 0}<br>
+                            <strong style="color: #f5e8ff;">Estamina:</strong> ${ficha.estamina_atual || 0}/${ficha.estamina_maxima || 0}
                         </p>
                     </div>
-                    <div class="card-footer" style="background: transparent; border-top: 1px solid #16213e;">
-                        <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewFicha('${ficha.id}')">Visualizar</button>
-                        <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="editFicha('${ficha.id}')">Editar</button>
+                    <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
+                        <button class="btn btn-sm" style="background-color: rgba(149, 129, 235, 0.53); border-color: rgba(149, 129, 235, 0.53); color: white;" onclick="viewFicha('${ficha.id}')">Visualizar</button>
+                        <button class="btn btn-sm" style="background-color: rgba(149, 129, 235, 0.53); border-color: rgba(149, 129, 235, 0.53); color: white;" onclick="editFicha('${ficha.id}')">Editar</button>
                         <button class="btn btn-sm btn-danger" onclick="deleteFicha('${ficha.id}')">Deletar</button>
                     </div>
                 </div>
