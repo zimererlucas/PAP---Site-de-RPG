@@ -53,12 +53,15 @@ async function loginWithEmail(email, password) {
     }
 }
 
-// Login com Google
 async function loginWithGoogle() {
     try {
         // Redireciona o usuário para a tela de login do Google
         const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google'
+            provider: 'google',
+            options: {
+                // Isso garante que ele volte para o site onde o usuário está (Vercel ou Localhost)
+                redirectTo: window.location.origin 
+            }
         });
 
         if (error) {
