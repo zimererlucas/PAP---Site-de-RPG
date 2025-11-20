@@ -13,410 +13,463 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
     
     <style>
-        body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-        }
-        
-        .ficha-container {
-            background: #0f3460;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            border: 1px solid #16213e;
-        }
-        
-        .ficha-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #667eea;
-        }
-        
-        .ficha-header-left {
-            flex: 1;
-        }
-        
-        .ficha-header-left h1 {
-            margin: 0;
-            font-size: 2em;
-            font-weight: 700;
-            color: #fff;
-        }
-        
-        .ficha-header-left p {
-            margin: 5px 0 0 0;
-            color: #b0b0b0;
-            font-size: 1.05em;
-        }
-        
-        .ficha-header-right {
-            text-align: right;
-        }
-        
-        .btn-group-compact {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-        }
-        
-        .btn-group-compact .btn {
-            padding: 10px 16px;
-            font-size: 0.9em;
-            font-weight: 600;
-            border-radius: 6px;
-            border: none;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-group-compact .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        
-        .ficha-main {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-        
-        .ficha-top-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        .tempo-reputacao-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .tempo-reacao-box {
-            background: #1a2a4e;
-            padding: 20px;
-            border-radius: 8px;
-            border: 2px solid #667eea;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .tempo-reacao-label {
-            font-size: 0.85em;
-            color: #b0b0b0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        
-        .tempo-reacao-valor {
-            font-size: 3em;
-            color: #667eea;
-            font-weight: 700;
-        }
-        
-        .reputacao-box {
-            background: #1a2a4e;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 3px solid #667eea;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .reputacao-label {
-            font-size: 0.85em;
-            color: #b0b0b0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        
-        .reputacao-valor {
-            font-size: 1.2em;
-            color: #ffd700;
-            font-weight: 600;
-        }
-        
-        .section-title {
-            font-size: 1.2em;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .info-item {
-            background: #1a2a4e;
-            padding: 12px;
-            border-radius: 6px;
-            border-left: 3px solid #667eea;
-        }
-        
-        .info-item-label {
-            font-size: 0.8em;
-            color: #b0b0b0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .info-item-value {
-            font-size: 1.1em;
-            color: #fff;
-            font-weight: 600;
-        }
-        
-        .atributos-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .atributo-row {
-            display: grid;
-            grid-template-columns: 30px 1fr 1fr;
-            gap: 10px;
-            align-items: center;
-            padding: 8px;
-            background: #1a2a4e;
-            border-radius: 6px;
-            border-left: 2px solid #667eea;
-        }
-        
-        .atributo-emoji {
-            font-size: 1.2em;
-            text-align: center;
-        }
-        
-        .atributo-nome {
-            font-size: 0.9em;
-            color: #b0b0b0;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .atributo-calculo {
-            font-size: 0.85em;
-            color: #667eea;
-            text-align: right;
-            font-weight: 600;
-        }
-        
-        .status-bar {
-            margin-bottom: 15px;
-        }
-        
-        .status-bar-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-        
-        .status-bar-label strong {
-            color: #fff;
-        }
-        
-        .status-bar-label span {
-            color: #b0b0b0;
-            font-size: 0.85em;
-        }
-        
-        .status-bar-container {
-            background: #1a2a4e;
-            border-radius: 6px;
-            height: 24px;
-            overflow: hidden;
-            border: 1px solid #16213e;
-            position: relative;
-        }
-        
-        .status-bar-fill {
-            height: 100%;
-            font-size: 0.75em;
-            font-weight: 700;
-            color: #fff;
-            transition: width 0.3s ease;
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .status-percent {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            white-space: nowrap;
-            text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
-            font-size: 0.75em;
-            font-weight: 700;
-            color: #fff;
-        }
-        
-        .status-bar-vida .status-bar-fill {
-            background: linear-gradient(90deg, #ff4444, #ff6666);
-        }
-        
-        .status-bar-mana .status-bar-fill {
-            background: linear-gradient(90deg, #4444ff, #6666ff);
-        }
-        
-        .status-bar-estamina .status-bar-fill {
-            background: linear-gradient(90deg, #ffaa00, #ffcc00);
-        }
-        
-        .ficha-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #16213e;
-        }
-        
-        .ficha-tab {
-            background: none;
-            border: none;
-            color: #b0b0b0;
-            padding: 10px 15px;
-            font-weight: 600;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9em;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .ficha-tab:hover {
-            color: #667eea;
-        }
-        
-        .ficha-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-        
-        .ficha-navbar {
-            display: flex;
-            gap: 15px;
-            padding: 15px 20px;
-            background: #1a2a4e;
-            border-bottom: 2px solid #667eea;
-            flex-wrap: wrap;
-        }
-        
-        .ficha-navbar-btn {
-            padding: 8px 16px;
-            background: transparent;
-            border: 2px solid #667eea;
-            color: #667eea;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .ficha-navbar-btn:hover {
-            background: #667eea;
-            color: white;
-        }
-        
-        .ficha-navbar-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .habilidade-item {
-            background: #1a2a4e;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 3px solid #667eea;
-            margin-bottom: 15px;
-        }
-        
-        .habilidade-item-title {
-            font-size: 1em;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-        
-        .habilidade-item-desc {
-            font-size: 0.95em;
-            color: #e0e0e0;
-            line-height: 1.5;
-        }
-        
-        .ficha-bottom-row {
-            background: #1a2a4e;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #16213e;
-        }
+        :root {
+    --bg-0: #071025; /* fundo da página */
+    --card-bg: rgba(255, 255, 255, 0.1); /* cor do fundo para o efeito de vidro */
+    --accent: #667eea; /* cor de destaque */
+    --muted: #b0b0b0; /* cor de texto mais suave */
+    --glass-border: rgba(255, 255, 255, 0.1); /* borda de vidro */
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #0a0f2a 0%, #081028 100%); /* fundo com gradiente */
+    color: #e0e0e0; /* cor do texto */
+}
+
+/* Canvas (Nebula) - Fundo em WebGL */
+canvas#nebula-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+}
+
+/* Container da Ficha */
+.ficha-container {
+    background: var(--card-bg); /* fundo com efeito de vidro */
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px); /* Aplicando desfoque para o efeito de vidro */
+}
+
+/* Cabeçalho da Ficha */
+.ficha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--accent); /* cor do separador */
+}
+
+/* Cabeçalho esquerdo (Nome e Raça do Personagem) */
+.ficha-header-left {
+    flex: 1;
+}
+
+.ficha-header-left h1 {
+    margin: 0;
+    font-size: 2em;
+    font-weight: 700;
+    color: #fff;
+}
+
+.ficha-header-left p {
+    margin: 5px 0 0 0;
+    color: var(--muted);
+    font-size: 1.05em;
+}
+
+.ficha-header-right {
+    text-align: right;
+}
+
+/* Botões de ação */
+.btn-group-compact {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.btn-group-compact .btn {
+    padding: 10px 16px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-group-compact .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Conteúdo principal */
+.ficha-main {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Grid para a linha superior: 2 colunas (Info+Atributos | Status) */
+.ficha-top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+/* Grid para as seções de tempo de reação e reputação */
+.tempo-reputacao-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Caixa de tempo de reação */
+.tempo-reacao-box {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid var(--accent);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.tempo-reacao-label {
+    font-size: 0.85em;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.tempo-reacao-valor {
+    font-size: 3em;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* Caixa de reputação */
+.reputacao-box {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.reputacao-label {
+    font-size: 0.85em;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.reputacao-valor {
+    font-size: 1.2em;
+    color: #ffd700;
+    font-weight: 600;
+}
+
+/* Grid para informações */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Item de informação (ex: Raça, Classe, etc) */
+.info-item {
+    background: rgba(0, 0, 0, 0.28);
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+}
+
+.info-item-label {
+    font-size: 0.8em;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.info-item-value {
+    font-size: 1.1em;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Atributos */
+.atributos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.atributo-row {
+    display: grid;
+    grid-template-columns: 30px 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 6px;
+    border-left: 2px solid var(--accent);
+}
+
+.atributo-emoji {
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.atributo-nome {
+    font-size: 0.9em;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.atributo-calculo {
+    font-size: 0.85em;
+    color: var(--accent);
+    text-align: right;
+    font-weight: 600;
+}
+
+/* Barra de status (Vida, Mana, Estamina) */
+.status-bar {
+    margin-bottom: 15px;
+}
+
+.status-bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.status-bar-label strong {
+    color: #fff;
+}
+
+.status-bar-label span {
+    color: var(--muted);
+    font-size: 0.85em;
+}
+
+.status-bar-container {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    height: 24px;
+    overflow: hidden;
+    border: 1px solid #16213e;
+    position: relative;
+}
+
+.status-bar-fill {
+    height: 100%;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: #fff;
+    transition: width 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-percent {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    white-space: nowrap;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    font-size: 0.75em;
+    font-weight: 700;
+    color: #fff;
+}
+
+.status-bar-vida .status-bar-fill {
+    background: linear-gradient(90deg, #ff4444, #ff6666);
+}
+
+.status-bar-mana .status-bar-fill {
+    background: linear-gradient(90deg, #4444ff, #6666ff);
+}
+
+.status-bar-estamina .status-bar-fill {
+    background: linear-gradient(90deg, #ffaa00, #ffcc00);
+}
+
+/* Aba da Ficha */
+.ficha-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #16213e;
+}
+
+.ficha-tab {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 10px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9em;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.ficha-tab:hover {
+    color: var(--accent);
+}
+
+.ficha-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* Navbar */
+.ficha-navbar {
+    display: flex;
+    gap: 15px;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.28);
+    border-bottom: 2px solid var(--accent);
+    border-radius: 8px;
+    border: 1px solid #16213e;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.ficha-navbar-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.ficha-navbar-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.ficha-navbar-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* Conteúdo de abas */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Habilidades */
+.habilidade-item {
+    background: rgba(0, 0, 0, 0.28);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    margin-bottom: 15px;
+}
+
+.habilidade-item-title {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.habilidade-item-desc {
+    font-size: 0.95em;
+    color: #e0e0e0;
+    line-height: 1.5;
+}
+
+/* Rodapé da ficha */
+.ficha-bottom-row {
+    background: rgba(0, 0, 0, 0.28);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #16213e;
+}
+
+/* Conteúdo de abas com estilo padronizado */
+.tab-content {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 8px;
+    border: 1px solid #16213e;
+    margin-top: 10px;
+    min-height: 500px;
+    overflow-y: auto;
+}
+
+/* Input de busca padronizado */
+.search-input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--accent);
+    color: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #0f3460 0%, #16213e 100%); border-bottom: 2px solid #667eea;">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="../index.html" style="font-weight: 700; color: #667eea; font-size: 1.5em;">🎲 Gênesis RPG</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="fichas.html" style="color: #e0e0e0;">Fichas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="campanhas.html" style="color: #e0e0e0;">Campanhas</a>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-sm btn-outline-primary" id="loginBtn" onclick="irParaLogin()" style="color: #667eea; border-color: #667eea; margin-left: 10px;">Login</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-sm btn-danger" id="logoutBtn" onclick="fazerLogout()" style="display: none; margin-left: 10px;">Logout</button>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    <!-- Navbar (estilo do index) -->
+    <nav class="navbar">
+        <div class="logo">Gênesis RPG</div>
+        <ul class="nav-list">
+            <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+            <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+            <li><a href="#" class="nav-link">Comunidade</a></li>
+
+            <!-- VISÍVEL somente deslogado -->
+            <li id="loginItem" class="nav-action">
+                <button id="loginBtn" class="nav-btn" onclick="irParaLogin()">Login</button>
+            </li>
+
+            <!-- VISÍVEL somente logado -->
+            <li id="userItem" class="nav-action" style="display:none;">
+                <span id="userEmail" class="user-email"></span>
+                <button id="logoutBtn" class="nav-btn" onclick="fazerLogout()">Sair</button>
+            </li>
+        </ul>
     </nav>
 
     <div class="container-fluid py-5">
@@ -636,52 +689,52 @@
                                 </div>
 
                                 <!-- Conteúdo das abas -->
-                                <div id="tab-magias" class="tab-content active" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                <div id="tab-magias" class="tab-content active">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                         <div class="section-title" style="margin: 0;">🪄 Magias</div>
                                         <button class="btn btn-primary" onclick="abrirModalMagia()" style="background: #667eea; border: none;">+ Adicionar Magia</button>
                                     </div>
-                                    <input type="text" id="busca-magias" placeholder="Buscar magia..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarMagias()">
+                                    <input type="text" id="busca-magias" class="search-input" placeholder="Buscar magia..." oninput="filtrarMagias()">
                                     <div id="lista-magias">
                                         <p style="color: #b0b0b0;">Nenhuma magia adicionada ainda.</p>
                                     </div>
                                 </div>
-                                <div id="tab-habilidades" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                <div id="tab-habilidades" class="tab-content">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                         <div class="section-title" style="margin: 0;">⚔️ Habilidades</div>
                                         <button class="btn btn-primary" onclick="abrirModalHabilidade()" style="background: #667eea; border: none;">+ Adicionar Habilidade</button>
                                     </div>
-                                    <input type="text" id="busca-habilidades" placeholder="Buscar habilidade..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarHabilidades()">
+                                    <input type="text" id="busca-habilidades" class="search-input" placeholder="Buscar habilidade..." oninput="filtrarHabilidades()">
                                     <div id="lista-habilidades">
                                         <p style="color: #b0b0b0;">Nenhuma habilidade adicionada ainda.</p>
                                     </div>
                                 </div>
-                                <div id="tab-conhecimentos" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                <div id="tab-conhecimentos" class="tab-content">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                         <div class="section-title" style="margin: 0;">📚 Conhecimentos</div>
                                         <button class="btn btn-primary" onclick="abrirModalConhecimento()" style="background: #667eea; border: none;">+ Adicionar Conhecimento</button>
                                     </div>
-                                    <input type="text" id="busca-conhecimentos" placeholder="Buscar conhecimento..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarConhecimentos()">
+                                    <input type="text" id="busca-conhecimentos" class="search-input" placeholder="Buscar conhecimento..." oninput="filtrarConhecimentos()">
                                     <div id="lista-conhecimentos">
                                         <p style="color: #b0b0b0;">Nenhum conhecimento adicionado ainda.</p>
                                     </div>
                                 </div>
-                                <div id="tab-inventario" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                <div id="tab-inventario" class="tab-content">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                         <div class="section-title" style="margin: 0;">🎒 Inventário</div>
                                         <button class="btn btn-primary" onclick="abrirModalItem()" style="background: #667eea; border: none;">+ Adicionar Item</button>
                                     </div>
-                                    <input type="text" id="busca-itens" placeholder="Buscar item..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarItens()">
+                                    <input type="text" id="busca-itens" class="search-input" placeholder="Buscar item..." oninput="filtrarItens()">
                                     <div id="lista-itens">
                                         <p style="color: #b0b0b0;">Inventário vazio.</p>
                                     </div>
                                 </div>
-                                <div id="tab-anotacoes" class="tab-content" style="padding: 20px; background: #1a2a4e; border-radius: 8px; margin-top: 10px; height: 500px; overflow-y: auto;">
+                                <div id="tab-anotacoes" class="tab-content">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                         <div class="section-title" style="margin: 0;">📝 Anotações</div>
                                         <button class="btn btn-primary" onclick="abrirModalAnotacao()" style="background: #667eea; border: none;">+ Adicionar Anotação</button>
                                     </div>
-                                    <input type="text" id="busca-anotacoes" placeholder="Buscar anotação..." style="width: 100%; padding: 10px; background: #0f3460; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;" oninput="filtrarAnotacoes()">
+                                    <input type="text" id="busca-anotacoes" class="search-input" placeholder="Buscar anotação..." oninput="filtrarAnotacoes()">
                                     <div id="lista-anotacoes">
                                         <p style="color: #b0b0b0;">Nenhuma anotação adicionada ainda.</p>
                                     </div>
@@ -699,7 +752,7 @@
     <!-- MODAIS -->
     <!-- Modal Magia -->
     <div id="modal-magia" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+        <div style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
             <h3 style="color: #667eea; margin-bottom: 20px;">🪄 Adicionar Magia</h3>
             <form id="form-magia">
                 <div style="margin-bottom: 15px;">
@@ -736,7 +789,7 @@
 
     <!-- Modal Habilidade -->
     <div id="modal-habilidade" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+        <div style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
             <h3 style="color: #667eea; margin-bottom: 20px;">⚔️ Adicionar Habilidade</h3>
             <form id="form-habilidade">
                 <div style="margin-bottom: 15px;">
@@ -773,7 +826,7 @@
 
     <!-- Modal Conhecimento -->
     <div id="modal-conhecimento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+        <div style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
             <h3 style="color: #667eea; margin-bottom: 20px;">📚 Adicionar Conhecimento</h3>
             <form id="form-conhecimento">
                 <div style="margin-bottom: 15px;">
@@ -794,7 +847,7 @@
 
     <!-- Modal Item -->
     <div id="modal-item" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+        <div style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
             <h3 style="color: #667eea; margin-bottom: 20px;">🎒 Adicionar Item</h3>
             <form id="form-item">
                 <div style="margin-bottom: 15px;">
@@ -823,7 +876,7 @@
 
     <!-- Modal Anotação -->
     <div id="modal-anotacao" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #0f3460; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+        <div style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
             <h3 style="color: #667eea; margin-bottom: 20px;">📝 Adicionar Anotação</h3>
             <form id="form-anotacao">
                 <div style="margin-bottom: 15px;">
@@ -1217,6 +1270,46 @@
         function cancelarEditarStatus() {
             toggleEditarStatus();
         }
+
+        // Inicializa exibição da navbar (mostra só botão Sair quando logado)
+        (async function initNavbarAuth() {
+            const loginItemEl = document.getElementById('loginItem');
+            const userItemEl = document.getElementById('userItem');
+            const userEmailEl = document.getElementById('userEmail');
+            const logoutBtnEl = document.getElementById('logoutBtn');
+
+            function showLogged() {
+                if (loginItemEl) loginItemEl.style.display = 'none';
+                if (userItemEl) userItemEl.style.display = 'flex';
+                if (userEmailEl) { userEmailEl.textContent = ''; userEmailEl.style.display = 'none'; }
+                if (logoutBtnEl) logoutBtnEl.style.display = 'inline-block';
+            }
+
+            function showLoggedOut() {
+                if (loginItemEl) loginItemEl.style.display = 'flex';
+                if (userItemEl) userItemEl.style.display = 'none';
+                if (logoutBtnEl) logoutBtnEl.style.display = 'none';
+                if (userEmailEl) { userEmailEl.textContent = ''; userEmailEl.style.display = 'none'; }
+            }
+
+            try {
+                if (typeof supabase !== 'undefined' && supabase.auth) {
+                    const { data } = await supabase.auth.getUser();
+                    if (data?.user) showLogged(); else showLoggedOut();
+                    supabase.auth.onAuthStateChange((event, session) => {
+                        if (session?.user) showLogged(); else showLoggedOut();
+                    });
+                } else if (typeof client !== 'undefined' && client.auth) {
+                    const { data } = await client.auth.getUser();
+                    if (data?.user) showLogged(); else showLoggedOut();
+                    client.auth.onAuthStateChange((event, session) => {
+                        if (session?.user) showLogged(); else showLoggedOut();
+                    });
+                }
+            } catch (err) {
+                console.warn('Navbar auth init failed:', err);
+            }
+        })();
     </script>
 </body>
 </html>

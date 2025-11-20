@@ -47,7 +47,7 @@ async function carregarMagias() {
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(magia => `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
-                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #0f3460; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${magia.nome} (Nível ${magia.nivel})</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
@@ -93,7 +93,7 @@ async function carregarHabilidades() {
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(hab => `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
-                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #0f3460; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${hab.nome} (Nível ${hab.nivel})</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
@@ -139,7 +139,7 @@ async function carregarConhecimentos() {
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(conhec => `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
-                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #0f3460; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${conhec.nome} (Nível ${conhec.nivel})</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
@@ -181,7 +181,7 @@ async function carregarItens() {
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(item => `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
-                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #0f3460; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${item.nome} (x${item.quantidade})</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
@@ -225,7 +225,7 @@ async function carregarAnotacoes() {
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(anotacao => `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
-                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #0f3460; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${anotacao.titulo}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>

@@ -67,7 +67,11 @@
                 const { data } = await client.auth.getUser();
                 
                 if (data?.user) {
-                    showUser(data.user);
+                    // Mostrar somente botão de logout (ocultar email do usuário)
+                    if (loginItem) loginItem.style.display = 'none';
+                    if (userItem) userItem.style.display = 'flex';
+                    if (userEmail) { userEmail.textContent = ''; userEmail.style.display = 'none'; }
+                    if (logoutBtn) logoutBtn.style.display = 'inline-block';
                 } else {
                     showLogin();
                 }
@@ -75,22 +79,24 @@
                 // Adiciona listener de mudança de auth (opcional, mantém a UI sincronizada)
                 client.auth.onAuthStateChange((event, session) => {
                     if (session?.user) {
-                        showUser(session.user);
+                        // Mostrar somente botão de logout (ocultar email do usuário)
+                        if (loginItem) loginItem.style.display = 'none';
+                        if (userItem) userItem.style.display = 'flex';
+                        if (userEmail) { userEmail.textContent = ''; userEmail.style.display = 'none'; }
+                        if (logoutBtn) logoutBtn.style.display = 'inline-block';
                     } else {
                         showLogin();
                     }
                 });
             }
           
-            function showUser(user) {
-                loginItem.style.display = 'none';
-                userItem.style.display = 'flex';
-                userEmail.textContent = user.email || user.user_metadata?.email || 'Usuário';
-            }
+            /* showUser removed: logic inlined into initAuthNavbar and auth state handler */
           
             function showLogin() {
-                loginItem.style.display = 'flex';
-                userItem.style.display = 'none';
+                if (loginItem) loginItem.style.display = 'flex';
+                if (userItem) userItem.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                if (userEmail) { userEmail.textContent = ''; userEmail.style.display = 'none'; }
             }
           
             // eventos
