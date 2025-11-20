@@ -161,4 +161,20 @@ supabase.auth.onAuthStateChange((event, session) => {
 (async function init() {
     console.log("🚀 Auth Script Iniciado. Forçando verificação de sessão...");
     await updateNavbar();
-})();
+})()
+/**
+ * Bloqueia páginas que exigem login e redireciona para o index.
+ * Retorna true se o usuário estiver logado.
+ */
+async function requireLogin() {
+    const user = await getCurrentUser();
+
+    if (!user) {
+        console.warn("❌ Acesso negado. Usuário não está logado.");
+        window.location.href = "../index.html"; 
+        return false;
+    }
+
+    console.log("✔ Acesso permitido. Usuário logado:", user.email);
+    return true;
+};
