@@ -1,0 +1,146 @@
+/* ------------------------------------- */
+/* 1. NAVBAR — Layout e alinhamento      */
+/* ------------------------------------- */
+
+.navbar {
+    background-color: transparent;
+    padding: 10px 20px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;       /* centra verticalmente tudo */
+    justify-content: space-between;
+}
+
+.logo {
+    color: white;
+    font-size: 2em;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+/* container dos itens */
+.nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;             /* deixa tudo lado a lado */
+    align-items: center;       /* garante alinhamento vertical idêntico */
+}
+
+/* cada item da nav */
+.nav-list li {
+    margin: 0 15px;            /* espaçamento horizontal */
+    display: flex;             /* deixa conteúdo 100% alinhado */
+    align-items: center;       /* evita que <button> fique mais baixo */
+}
+
+/* ------------------------------------- */
+/* 2. LINKS COM GLOW                     */
+/* ------------------------------------- */
+
+.nav-list li a {
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    z-index: 0;
+    display: inline-block;
+    padding: 6px 12px;         /* importante para igualar ao botão */
+    border-radius: 10px;
+}
+
+.nav-list li a::after {
+    content: "";
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: linear-gradient(45deg, #f5e8ff, #0000ff);
+    background-size: 100% 100%;
+
+    z-index: -1;
+    filter: blur(20px);
+    opacity: 0.1;
+
+    transition: opacity 0.5s;
+    border-radius: 10px;
+}
+
+.nav-list li a:hover::after {
+    opacity: 1;
+}
+
+
+/* ------------------------------------- */
+/* 3. BOTÃO DE LOGIN E LOGOUT            */
+/* ------------------------------------- */
+
+.nav-btn {
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    position: relative;
+    padding: 6px 12px;
+    border-radius: 10px;
+
+    display: inline-block; 
+    vertical-align: middle;
+    z-index: 0;
+
+    line-height: 1;        /* remove desalinhamento vertical */
+}
+
+/* Glow igual ao link */
+.nav-btn::after {
+    content: "";
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: linear-gradient(45deg, #f5e8ff, #0000ff);
+    filter: blur(20px);
+    opacity: 0.1;
+
+    border-radius: 10px;
+    transition: opacity 0.5s;
+    z-index: -1;
+}
+
+.nav-btn:hover::after {
+    opacity: 1;
+}
+
+
+/* ------------------------------------- */
+/* 4. ELEMENTOS DO LOGIN/LOGOUT          */
+/* ------------------------------------- */
+
+.user-email {
+    color: white;
+    margin-right: 8px;
+    font-weight: 600;
+}
+
+.nav-action {
+    display: flex;
+    align-items: center; /* garantir alinhamento com links */
+}
+
+
+/* ------------------------------------- */
+/* 5. ANIMAÇÃO (caso ainda queira usar) */
+/* ------------------------------------- */
+
+@keyframes rotate-96 {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

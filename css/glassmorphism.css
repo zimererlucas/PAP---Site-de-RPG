@@ -1,0 +1,15 @@
+.glass-wrapper {
+    background: rgba(245, 232, 255, 0.055);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1); /* muito sutil */
+    box-shadow: 0 px 20px rgba(0, 0, 0, 0.15); /* sombra difusa suave */
+
+    width: 95%;
+    max-width: 1900px;
+    min-height: 800px;
+    margin: 1px auto;
+
+    padding: 15px 25px
+}
