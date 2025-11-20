@@ -1,222 +1,164 @@
-// Funções de Autenticação Completas
+// ===============================================
+// 1. CONFIGURAÇÃO DO SUPABASE
+// ===============================================
+const SUPABASE_URL = 'https://rdrbhapthqnpdtqubuwo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkcmJoYXB0aHFucGR0cXVidXdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTE2MDUsImV4cCI6MjA3NTM4NzYwNX0.QjZOhXNBYU_F5HKjVDRfY6aFNsNSDodX3q4YJbBwM8U';
 
-// Login com Email e Senha
-async function loginWithEmail(email, password) {
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
+// Inicializa o cliente Supabase
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        if (error) {
-            return { success: false, error: error.message };
-        }
+// ===============================================
+// 2. ELEMENTOS DO DOM (INTERFACE)
+// ===============================================
+const loginLink = document.getElementById('login-link');
+const userAvatarWrapper = document.getElementById('user-avatar-wrapper');
+const profilePicture = document.getElementById('profile-picture');
+const userSidebar = document.getElementById('user-sidebar');
+const sidebarPic = document.getElementById('sidebar-pic');
+const sidebarName = document.getElementById('sidebar-name');
+const sidebarEmail = document.getElementById('sidebar-email');
+const logoutButton = document.getElementById('logout-button');
+const fichasNav = document.getElementById('fichasNav');
+const campanhasNav = document.getElementById('campanhasNav');
 
-        // Criar ou atualizar perfil
-        if (data.user) {
-            await createOrUpdateProfile(data.user);
-        }
+// ===============================================
+// 3. FUNÇÕES DE UI (ATUALIZAR A TELA)
+// ===============================================
 
-        return { success: true, user: data.user };
-    } catch (error) {
-        console.error('Erro ao fazer login:', error);
-        return { success: false, error: error.message };
+/**
+ * Atualiza a barra de navegação e a sidebar baseada no estado de autenticação.
+ */
+async function updateNavbar() {
+    // Passo CRÍTICO: Pega a sessão atual, que lê o token da URL de redirecionamento.
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+
+    console.log('👤 Estado do Usuário:', user ? 'Logado como ' + user.email : 'Deslogado');
+
+    if (userSidebar) userSidebar.classList.remove('open');
+
+    if (user) {
+        // --- USUÁRIO LOGADO ---
+        if (loginLink) loginLink.style.display = 'none';
+        if (userAvatarWrapper) userAvatarWrapper.style.display = 'block';
+
+        const photoUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+        const name = user.user_metadata?.full_name || user.email.split('@')[0];
+        
+        if (profilePicture && photoUrl) profilePicture.src = photoUrl;
+        if (sidebarPic && photoUrl) sidebarPic.src = photoUrl;
+        
+        if (sidebarName) sidebarName.textContent = name;
+        if (sidebarEmail) sidebarEmail.textContent = user.email;
+
+        if (fichasNav) fichasNav.style.display = 'block';
+        if (campanhasNav) campanhasNav.style.display = 'block';
+
+    } else {
+        // --- USUÁRIO DESLOGADO ---
+        if (loginLink) loginLink.style.display = 'block';
+        if (userAvatarWrapper) userAvatarWrapper.style.display = 'none';
+
+        if (fichasNav) fichasNav.style.display = 'none';
+        if (campanhasNav) campanhasNav.style.display = 'none';
     }
 }
 
-// Login com Google
+// ===============================================
+// 4. FUNÇÕES DE AUTENTICAÇÃO
+// ===============================================
+
+// Inicia o fluxo de login com o Google
 async function loginWithGoogle() {
-    try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin
-            }
-        });
-
-        if (error) {
-            return { success: false, error: error.message };
+    console.log("🔄 Iniciando login com Google...");
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            // Garante que o redirecionamento volta para a URL principal do Vercel
+            redirectTo: window.location.origin 
         }
+    });
 
-        return { success: true };
-    } catch (error) {
-        console.error('Erro ao fazer login com Google:', error);
-        return { success: false, error: error.message };
-    }
+    if (error) console.error('Erro Google:', error.message);
+    return { success: !error };
 }
 
-// Registrar Nova Conta
-async function registerUser(email, password, username) {
-    try {
-        // Validar senha
-        if (password.length < 6) {
-            return { success: false, error: 'Senha deve ter no mínimo 6 caracteres' };
-        }
-
-        // Criar usuário
-        const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    username: username
-                }
-            }
-        });
-
-        if (error) {
-            return { success: false, error: error.message };
-        }
-
-        // Criar perfil
-        if (data.user) {
-            await createOrUpdateProfile(data.user, username);
-        }
-
-        return { 
-            success: true, 
-            message: 'Conta criada! Verifique seu email para confirmar.',
-            user: data.user 
-        };
-    } catch (error) {
-        console.error('Erro ao registrar:', error);
-        return { success: false, error: error.message };
-    }
-}
-
-// Recuperar Senha
-async function resetPassword(email) {
-    try {
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/reset-password.html`
-        });
-
-        if (error) {
-            return { success: false, error: error.message };
-        }
-
-        return { 
-            success: true, 
-            message: 'Email de recuperação enviado! Verifique sua caixa de entrada.' 
-        };
-    } catch (error) {
-        console.error('Erro ao recuperar senha:', error);
-        return { success: false, error: error.message };
-    }
-}
-
-// Criar ou Atualizar Perfil
-async function createOrUpdateProfile(user, username = null) {
-    try {
-        const profileUsername = username || user.user_metadata?.username || user.email.split('@')[0];
-
-        const { error } = await supabase
-            .from('perfis')
-            .upsert({
-                id: user.id,
-                email: user.email,
-                username: profileUsername,
-                atualizado_em: new Date().toISOString()
-            }, {
-                onConflict: 'id'
-            });
-
-        if (error) {
-            console.error('Erro ao criar/atualizar perfil:', error);
-        }
-
-        return { success: !error };
-    } catch (error) {
-        console.error('Erro ao criar/atualizar perfil:', error);
-        return { success: false, error: error.message };
-    }
-}
-
-// Obter Usuário Atual
-async function getCurrentUser() {
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (error || !user) {
-            return null;
-        }
-
-        return user;
-    } catch (error) {
-        console.error('Erro ao obter usuário atual:', error);
-        return null;
-    }
-}
-
-// Fazer Logout
+// Faz o logout do utilizador
 async function signOutUser() {
-    try {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            return { success: false, error: error.message };
-        }
-
-        return { success: true };
-    } catch (error) {
-        console.error('Erro ao fazer logout:', error);
-        return { success: false, error: error.message };
-    }
-}
-
-// Verificar se usuário está logado
-async function isUserLoggedIn() {
-    const user = await getCurrentUser();
-    return user !== null;
-}
-
-// Require Login (redireciona se não logado)
-async function requireLogin() {
-    const isLoggedIn = await isUserLoggedIn();
+    const { error } = await supabase.auth.signOut();
     
-    if (!isLoggedIn) {
-        alert('Você precisa estar logado para acessar esta página.');
-        window.location.href = '../index.html';
-        return false;
-    }
-    
-    return true;
+    if (userSidebar) userSidebar.classList.remove('open');
+    window.location.reload(); 
+    return { success: !error };
 }
 
-// Escutar mudanças de autenticação
+// Função placeholder para criação/atualização de perfil (adapte se necessário)
+async function createOrUpdateProfile(user, username = null) {
+    console.log("Salvando perfil para:", user.email);
+}
+
+// Adicione esta função ao seu js/auth.js
+
+/**
+ * Retorna o usuário logado atualmente ou null.
+ */
+async function getCurrentUser() {
+    // Usa getSession() para garantir que a sessão foi lida do Storage/URL
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.user || null;
+}
+
+// ===============================================
+// 5. ESCUTADORES DE EVENTOS
+// ===============================================
+
+// Abrir/Fechar Sidebar
+if (userAvatarWrapper) {
+    userAvatarWrapper.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (userSidebar) userSidebar.classList.toggle('open');
+    });
+}
+
+// Fechar Sidebar ao clicar fora
+document.addEventListener('click', (event) => {
+    if (userSidebar && userSidebar.classList.contains('open') && 
+        !userSidebar.contains(event.target) && 
+        !userAvatarWrapper.contains(event.target)) {
+        userSidebar.classList.remove('open');
+    }
+});
+
+// Botão de Sair (Logout)
+if (logoutButton) {
+    logoutButton.addEventListener('click', signOutUser);
+}
+
+// ===============================================
+// 6. INICIALIZAÇÃO E DETEÇÃO DE SESSÃO (A SOLUÇÃO)
+// ===============================================
+
+// Listener de Estado: Captura a mudança de autenticação em tempo real
 supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state changed:', event);
+    console.log(`🔔 Evento Supabase: ${event}`);
     
-    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    // Se logou (SIGNED_IN) ou se a página carregou com o token (INITIAL_SESSION)
+    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
         updateNavbar();
+        
+        // CORREÇÃO CRÍTICA: Limpa o token da URL (#access_token=...) para o utilizador
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+            console.log("🧹 Limpando token da URL...");
+            // Substitui o estado do histórico sem recarregar
+            window.history.replaceState(null, '', window.location.pathname);
+        }
     } else if (event === 'SIGNED_OUT') {
         updateNavbar();
     }
 });
 
-// Atualizar navbar baseado no estado de autenticação
-async function updateNavbar() {
-    const user = await getCurrentUser();
-    const loginNav = document.getElementById('loginNav');
-    const userMenuNav = document.getElementById('userMenuNav');
-    const fichasNav = document.getElementById('fichasNav');
-    const campanhasNav = document.getElementById('campanhasNav');
-    const userEmail = document.getElementById('userEmail');
-
-    if (user) {
-        // Usuário logado
-        if (loginNav) loginNav.style.display = 'none';
-        if (userMenuNav) {
-            userMenuNav.style.display = 'block';
-            if (userEmail) userEmail.textContent = user.email;
-        }
-        if (fichasNav) fichasNav.style.display = 'block';
-        if (campanhasNav) campanhasNav.style.display = 'block';
-    } else {
-        // Usuário não logado
-        if (loginNav) loginNav.style.display = 'block';
-        if (userMenuNav) userMenuNav.style.display = 'none';
-        if (fichasNav) fichasNav.style.display = 'none';
-        if (campanhasNav) campanhasNav.style.display = 'none';
-    }
-}
+// Inicialização: Força a verificação da sessão imediatamente no carregamento
+(async function init() {
+    console.log("🚀 Auth Script Iniciado. Forçando verificação de sessão...");
+    await updateNavbar();
+})();
