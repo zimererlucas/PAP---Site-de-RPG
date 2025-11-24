@@ -62,7 +62,7 @@
     background-size: 100% 100%;
 
     z-index: -1;
-    filter: blur(20px);
+    filter: blur(30px);
     opacity: 0.1;
 
     transition: opacity 0.5s;
