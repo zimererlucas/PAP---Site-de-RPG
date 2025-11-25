@@ -103,16 +103,16 @@ async function loadPersonagens() {
                 <div class="card">
                     <div class="card-body">
                         <h6>🎮 ${seuPersonagem.personagem.nome}</h6>
-                        <p class="text-muted small">
+                        <p class="text-light small">
                             <strong>Raça:</strong> ${seuPersonagem.personagem.raca || '-'}
                         </p>
-                        <p class="text-muted small">
+                        <p class="text-light small">
                             <strong>Nível:</strong> ${seuPersonagem.personagem.nivel || 0}
                         </p>
-                        <p class="text-muted small">
+                        <p class="text-light small">
                             <strong>Vida:</strong> ${seuPersonagem.personagem.vida_atual || 0} / ${seuPersonagem.personagem.vida_maxima || 0}
                         </p>
-                        <p class="text-muted small">
+                        <p class="text-light small">
                             <strong>Estamina:</strong> ${seuPersonagem.personagem.estamina_atual || 0} / ${seuPersonagem.personagem.estamina_maxima || 0}
                         </p>
                         <button class="btn btn-sm btn-primary" onclick="viewPersonagem('${seuPersonagem.personagem.id}')">👁️ Ver Ficha Completa</button>
@@ -136,21 +136,21 @@ async function loadPersonagens() {
                             <h6 class="card-title mb-0">🎮 ${p.personagem.nome}</h6>
                         </div>
                         <div class="card-body">
-                            <p class="text-muted small">
+                            <p class="text-light small">
                                 <strong>Raça:</strong> ${p.personagem.raca || '-'}
                             </p>
-                            <p class="text-muted small">
+                            <p class="text-light small">
                                 <strong>Nível:</strong> ${p.personagem.nivel || 0}
                             </p>
-                            <p class="text-muted small">
+                            <p class="text-light small">
                                 <strong>Vida:</strong> ${p.personagem.vida_atual || 0} / ${p.personagem.vida_maxima || 0}
                             </p>
-                            <p class="text-muted small">
+                            <p class="text-light small">
                                 <strong>Estamina:</strong> ${p.personagem.estamina_atual || 0} / ${p.personagem.estamina_maxima || 0}
                             </p>
                         </div>
                         <div class="card-footer bg-transparent">
-                            <small class="text-muted">Personagem de outro jogador</small>
+                            <small class="text-light">Personagem de outro jogador</small>
                         </div>
                     </div>
                 </div>

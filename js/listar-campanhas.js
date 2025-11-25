@@ -47,8 +47,8 @@ async function loadCampanhasNarrador() {
         // Renderizar campanhas
         container.innerHTML = campanhas.map(campanha => `
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100" style="background: #0f3460; border: 1px solid #16213e; color: #e0e0e0;">
-                    <div class="card-header" style="background: transparent; border-bottom: 1px solid #16213e;">
+                <div class="card h-100" style="background:rgba(245, 232, 255, 0.055); border: 2px solid rgba(149, 129, 235, 0.53); color: #e0e0e0;">
+                    <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
                         <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">🎭 ${campanha.nome}</h5>
                     </div>
                     <div class="card-body">
@@ -60,7 +60,7 @@ async function loadCampanhasNarrador() {
                             <strong style="color: #e0e0e0;">Status:</strong> ${campanha.ativa ? '✅ Ativa' : '❌ Inativa'}
                         </p>
                     </div>
-                    <div class="card-footer" style="background: transparent; border-top: 1px solid #16213e;">
+                    <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
                         <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewCampanha('${campanha.id}')">Visualizar</button>
                         <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="adicionarPersonagemNarrador('${campanha.id}')">Adicionar Jogador</button>
                         <button class="btn btn-sm btn-warning" onclick="editCampanha('${campanha.id}')">Editar</button>
@@ -117,8 +117,8 @@ async function loadCampanhasJogador() {
         // Renderizar campanhas
         container.innerHTML = participacoes.map(participacao => `
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100" style="background: #0f3460; border: 1px solid #16213e; color: #e0e0e0;">
-                    <div class="card-header" style="background: transparent; border-bottom: 1px solid #16213e;">
+                <div class="card h-100" style="background: rgba(245, 232, 255, 0.055); border: 2px solid rgba(149, 129, 235, 0.53); color: #e0e0e0;">
+                    <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
                         <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">🎭 ${participacao.campanha.nome}</h5>
                     </div>
                     <div class="card-body">
@@ -130,7 +130,7 @@ async function loadCampanhasJogador() {
                             <strong style="color: #e0e0e0;">Status:</strong> ${participacao.campanha.ativa ? '✅ Ativa' : '❌ Inativa'}
                         </p>
                     </div>
-                    <div class="card-footer" style="background: transparent; border-top: 1px solid #16213e;">
+                    <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
                         <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewCampanhaJogador('${participacao.campanha.id}')">Visualizar</button>
                         <button class="btn btn-sm btn-danger" onclick="sairDaCampanha('${participacao.id}')">Sair</button>
                     </div>
