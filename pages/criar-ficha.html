@@ -16,26 +16,18 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="../index.html">
-                <span>📜</span> Gênesis RPG
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="fichas.html">📋 Fichas</a>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-login ms-2" id="authBtn" onclick="handleLogout()">🚪 Logout</button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <nav class="navbar">
+        <a href="../index.html" class="logo">Gênesis RPG</a>
+      
+        <ul class="nav-list">
+          <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+          <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+          <li><a href="pages/" class="nav-link">Comunidade</a></li>
+
+            <button id="logoutBtn" class="nav-btn">Sair</button>
+          </li>
+        </ul>
+      </nav>
 
     <!-- Main Content -->
     <div class="container py-5">

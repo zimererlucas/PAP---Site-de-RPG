@@ -130,6 +130,14 @@ body {
     margin-bottom: 2rem;
 }
 
+.logo {
+    text-decoration: none !important;
+    color: white;
+    font-weight: 700;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
 /* ===== RESPONSIVO ===== */
 @media (max-width: 768px) {
     .hero h1 {
