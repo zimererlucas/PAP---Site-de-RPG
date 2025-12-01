@@ -14,6 +14,8 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/galaxy.css">
+    <link rel="stylesheet" href="../css/glassmorphism.css">
     
     <style>
         :root {
@@ -453,22 +455,15 @@ canvas#nebula-canvas {
 <body>
     <!-- Navbar (estilo do index) -->
     <nav class="navbar">
-        <div class="logo">Gênesis RPG</div>
+        <a href="../index.html" class="logo">Gênesis RPG</a>
+      
         <ul class="nav-list">
-            <li><a href="fichas.html" class="nav-link">Fichas</a></li>
-            <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
-            <li><a href="#" class="nav-link">Comunidade</a></li>
+          <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+          <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+          <li><a href="pages/" class="nav-link">Comunidade</a></li>
 
-            <!-- VISÍVEL somente deslogado -->
-            <li id="loginItem" class="nav-action">
-                <button id="loginBtn" class="nav-btn" onclick="irParaLogin()">Login</button>
-            </li>
-
-            <!-- VISÍVEL somente logado -->
-            <li id="userItem" class="nav-action" style="display:none;">
-                <span id="userEmail" class="user-email"></span>
-                <button id="logoutBtn" class="nav-btn" onclick="fazerLogout()">Sair</button>
-            </li>
+            <button id="logoutBtn" class="nav-btn">Sair</button>
+          </li>
         </ul>
     </nav>
 
@@ -596,8 +591,25 @@ canvas#nebula-canvas {
                                         <div class="tempo-reacao-valor" id="tempoReacaoValor">0</div>
                                     </div>
                                     <div class="reputacao-box">
-                                        <div class="reputacao-label">🎖️ Status Social</div>
-                                        <div class="reputacao-valor" id="reputacao">-</div>
+                                        <div class="reputacao-label">🎖️ Status Social <button onclick="toggleEditarReputacao()" style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 14px;">✏️</button></div>
+                                        <div class="reputacao-valor" id="reputacao-view">-</div>
+                                        <select id="statusSocial" style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                            <option value="">Selecione...</option>
+                                            <option value="Repugnante">Repugnante</option>
+                                            <option value="Asqueroso">Asqueroso</option>
+                                            <option value="Desprezível">Desprezível</option>
+                                            <option value="Ofensivo">Ofensivo</option>
+                                            <option value="Questionável">Questionável</option>
+                                            <option value="Neutro">Neutro</option>
+                                            <option value="Aceitável">Aceitável</option>
+                                            <option value="Admirável">Admirável</option>
+                                            <option value="Sublime">Sublime</option>
+                                            <option value="Sagrado">Sagrado</option>
+                                        </select>
+                                        <div id="reputacao-save-btn" style="display: none; margin-top: 10px;">
+                                            <button onclick="salvarReputacao()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                                            <button onclick="cancelarEditarReputacao()" style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -685,6 +697,7 @@ canvas#nebula-canvas {
                                     <button class="ficha-navbar-btn" onclick="switchTab('habilidades')">⚔️ Habilidades</button>
                                     <button class="ficha-navbar-btn" onclick="switchTab('conhecimentos')">📚 Conhecimentos</button>
                                     <button class="ficha-navbar-btn" onclick="switchTab('inventario')">🎒 Inventário</button>
+                                    <button class="ficha-navbar-btn" onclick="switchTab('passivas')">🌀 Passivas</button>
                                     <button class="ficha-navbar-btn" onclick="switchTab('anotacoes')">📝 Anotações</button>
                                 </div>
 
@@ -737,6 +750,16 @@ canvas#nebula-canvas {
                                     <input type="text" id="busca-anotacoes" class="search-input" placeholder="Buscar anotação..." oninput="filtrarAnotacoes()">
                                     <div id="lista-anotacoes">
                                         <p style="color: #b0b0b0;">Nenhuma anotação adicionada ainda.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-passivas" class="tab-content">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="section-title" style="margin: 0;">🌀 Passivas</div>
+                                        <button class="btn btn-primary" onclick="abrirModalPassiva()" style="background: #667eea; border: none;">+ Adicionar Passiva</button>
+                                    </div>
+                                    <input type="text" id="busca-passivas" class="search-input" placeholder="Buscar passiva..." oninput="filtrarPassivas()">
+                                    <div id="lista-passivas">
+                                        <p style="color: #b0b0b0;">Nenhuma passiva adicionada ainda.</p>
                                     </div>
                                 </div>
                             </div>
@@ -890,6 +913,27 @@ canvas#nebula-canvas {
                 <div style="display: flex; gap: 10px;">
                     <button type="button" onclick="salvarAnotacao()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
                     <button type="button" onclick="fecharModalAnotacao()" style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Passiva -->
+    <div id="modal-passiva" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+            <h3 style="color: #667eea; margin-bottom: 20px;">🌀 Adicionar Passiva</h3>
+            <form id="form-passiva">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Nome</label>
+                    <input type="text" id="passiva-nome" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
+                    <textarea id="passiva-descricao" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 80px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="salvarPassiva()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    <button type="button" onclick="fecharModalPassiva()" style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
                 </div>
             </form>
         </div>

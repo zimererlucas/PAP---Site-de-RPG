@@ -261,7 +261,9 @@ async function loadFicha() {
         setElement('tempoReacaoValor', tempoReacaoCalculado);
         
         // Reputação
-        setElement('reputacao', ficha.reputacao || '-');
+        setElement('reputacao-view', ficha.reputacao || '-');
+        const reputacaoSelect = document.getElementById('statusSocial');
+        if (reputacaoSelect) reputacaoSelect.value = ficha.reputacao || '';
         
         // Status - Nível
         setElement('nivel', ficha.nivel || 0);
@@ -315,7 +317,31 @@ async function loadFicha() {
         
         // Habilidades
         setElement('fragmentoDivino', ficha.fragmento_divino || '-');
-        setElement('passiva', ficha.passiva || '-');
+
+        // Passivas - lista de habilidades passivas
+        const passivasList = document.getElementById('passivas-list');
+        if (passivasList) {
+            passivasList.innerHTML = '';
+            if (ficha.passiva && Array.isArray(ficha.passiva)) {
+                ficha.passiva.forEach(passiva => {
+                    const li = document.createElement('li');
+                    li.textContent = passiva;
+                    passivasList.appendChild(li);
+                });
+            } else if (ficha.passiva) {
+                // Se for string, assumir separado por vírgula
+                const passivasArray = ficha.passiva.split(',').map(p => p.trim());
+                passivasArray.forEach(passiva => {
+                    const li = document.createElement('li');
+                    li.textContent = passiva;
+                    passivasList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = '-';
+                passivasList.appendChild(li);
+            }
+        }
         
         // Guardar dados da ficha para usar no modal de combate
         window.fichaData = ficha;
@@ -355,17 +381,63 @@ function switchTab(tabName) {
     // Ocultar todas as abas
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => tab.classList.remove('active'));
-    
+
     // Remover classe active de todos os botões
     const buttons = document.querySelectorAll('.ficha-tab');
     buttons.forEach(btn => btn.classList.remove('active'));
-    
+
     // Mostrar aba selecionada
     const selectedTab = document.getElementById('tab-' + tabName);
     if (selectedTab) {
         selectedTab.classList.add('active');
     }
-    
+
     // Adicionar classe active ao botão clicado
     event.target.classList.add('active');
+}
+
+function toggleEditarReputacao() {
+    const reputacaoView = document.getElementById('reputacao-view');
+    const statusSocialSelect = document.getElementById('statusSocial');
+    const saveBtn = document.getElementById('reputacao-save-btn');
+
+    if (reputacaoView && statusSocialSelect) {
+        if (reputacaoView.style.display === 'none') {
+            reputacaoView.style.display = 'block';
+            statusSocialSelect.style.display = 'none';
+        } else {
+            reputacaoView.style.display = 'none';
+            statusSocialSelect.style.display = 'block';
+            statusSocialSelect.value = reputacaoView.textContent.trim();
+        }
+    }
+    if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
+}
+
+async function salvarReputacao() {
+    if (!window.fichaId) {
+        console.log('fichaId não definido');
+        return;
+    }
+    const statusSocialSelect = document.getElementById('statusSocial');
+    if (!statusSocialSelect) return;
+
+    const novaReputacao = statusSocialSelect.value;
+    const updateData = { reputacao: novaReputacao };
+
+    console.log('Salvando reputação:', updateData);
+    const result = await updatePersonagem(window.fichaId, updateData);
+    console.log('Resultado:', result);
+
+    if (result.success) {
+        const reputacaoView = document.getElementById('reputacao-view');
+        if (reputacaoView) reputacaoView.textContent = novaReputacao || '-';
+        toggleEditarReputacao();
+    } else {
+        alert('Erro ao salvar reputação: ' + result.error);
+    }
+}
+
+function cancelarEditarReputacao() {
+    toggleEditarReputacao();
 }

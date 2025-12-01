@@ -17,14 +17,35 @@
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/galaxy.css">
     <link rel="stylesheet" href="../css/glassmorphism.css">
+    <style>
+    .modal-content {
+        background: #1f2937; /* Fundo sólido escuro para garantir leitura */
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .modal-header, .modal-footer { border-color: rgba(255, 255, 255, 0.1); }
+    .btn-close { filter: invert(1); }
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: none;
+    }
+    option { background: #1f2937; color: white; }</style>
 </head>
 
 <body>
+    <!-- Navbar -->
     <canvas id="nebula-canvas"></canvas>
     <div id="foreground">
         <!-- Navbar -->
         <nav class="navbar">
-            <div class="logo">Gênesis RPG</div>
+            <a href="../index.html" class="logo">Gênesis RPG</a>
 
             <ul class="nav-list">
                 <li><a href="fichas.html" class="nav-link">Fichas</a></li>
@@ -74,7 +95,7 @@
                     <!-- Empty State -->
                     <div id="emptyNarrador" style="display: none;" class="text-center py-5">
                         <h3>Nenhuma campanha criada ainda</h3>
-                        <p class="text-light">Comece criando sua primeira campanha como narrador!</p>
+                        <p class="text-center">Comece criando sua primeira campanha como narrador!</p>
                         <a href="criar-campanha.html" class="btn btn-primary">➕ Criar Primeira Campanha</a>
                     </div>
 
@@ -94,51 +115,52 @@
                     <!-- Empty State -->
                     <div id="emptyJogador" style="display: none;" class="text-center py-5">
                         <h3>Você não participa de nenhuma campanha ainda</h3>
-                        <p class="text-muted">Peça o código de uma campanha ao narrador para participar!</p>
-                        <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em
-                            Campanha</button>
+                        <p class="text-center">Peça o código de uma campanha ao narrador para participar!</p>
+                        <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha com
+                            Código</button>
                     </div>
 
                     <!-- Campanhas Grid -->
                     <div id="campanhasJogadorContainer" class="row g-4"></div>
 
                     <!-- Botão para entrar em campanha -->
-                    <div class="text-center mt-4">
-                        <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha com
-                            Código</button>
+                    <div id="btnEntrarBottom" class="text-center mt-4">
+                        <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha com Código</button>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal para entrar em campanha -->
-        <div class="modal fade" id="entrarCampanhaModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">🔓 Entrar em Campanha</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="entrarCampanhaForm">
-                            <div class="mb-3">
-                                <label for="codigoCampanha" class="form-label">Código da Campanha</label>
-                                <input type="text" class="form-control" id="codigoCampanha"
-                                    placeholder="Ex: CAMP_ABC123" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="personagemParticipacao" class="form-label">Selecione seu Personagem</label>
-                                <select class="form-control" id="personagemParticipacao" required>
-                                    <option value="">Carregando personagens...</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Entrar na Campanha</button>
-                        </form>
-                    </div>
+                    
                 </div>
             </div>
         </div>
     </div>
+    <!-- Modal para entrar em campanha -->
+    <div class="modal fade" id="entrarCampanhaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">🔓 Entrar em Campanha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="entrarCampanhaForm">
+                        <div class="mb-3">
+                            <label for="codigoCampanha" class="form-label">Código da Campanha</label>
+                            <input type="text" class="form-control" id="codigoCampanha" placeholder="Ex: CAMP_ABC123"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="personagemParticipacao" class="form-label">Selecione seu Personagem</label>
+                            <select class="form-control" id="personagemParticipacao" required>
+                                <option value="">Carregando personagens...</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Entrar na Campanha</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="../js/galaxy.js"></script>

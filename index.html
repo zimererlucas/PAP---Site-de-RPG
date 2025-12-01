@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +11,15 @@
     <!-- Supabase deve vir ANTES de qualquer script que usa ele -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
-    
+
     <canvas id="nebula-canvas"></canvas>
-    
+
     <div id="foreground">
         <nav class="navbar">
             <div class="logo">Gênesis RPG</div>
-          
+
             <ul class="nav-list">
                 <li><a href="pages/fichas.html" class="nav-link">Fichas</a></li>
                 <li><a href="pages/campanhas.html" class="nav-link">Campanhas</a></li>
@@ -44,28 +46,28 @@
             <p id="userEmail"></p>
             <button id="logoutBtn" class="nav-btn">Sair</button>
         </div>
-        
+
         <script>
             // Configuração do seu projeto Supabase (use seus valores)
             const SUPABASE_URL = 'https://rdrbhapthqnpdtqubuwo.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkcmJoYXB0aHFucGR0cXVidXdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTE2MDUsImV4cCI6MjA3NTM4NzYwNX0.QjZOhXNBYU_F5HKjVDRfY6aFNsNSDodX3q4YJbBwM8U';
 
-          
+
             const { createClient } = supabase;
             const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-          
+
             // elementos
             const loginItem = document.getElementById('loginItem');
             const loginBtn = document.getElementById('loginBtn');
             const userItem = document.getElementById('userItem');
             const userEmail = document.getElementById('userEmail');
             const logoutBtn = document.getElementById('logoutBtn');
-          
+
             // Inicia: verifica usuário ao carregar
             async function initAuthNavbar() {
                 // Checa sessão atual (se redirecionou após OAuth, Supabase também trata)
                 const { data } = await client.auth.getUser();
-                
+
                 if (data?.user) {
                     // Mostrar somente botão de logout (ocultar email do usuário)
                     if (loginItem) loginItem.style.display = 'none';
@@ -89,16 +91,16 @@
                     }
                 });
             }
-          
+
             /* showUser removed: logic inlined into initAuthNavbar and auth state handler */
-          
+
             function showLogin() {
                 if (loginItem) loginItem.style.display = 'flex';
                 if (userItem) userItem.style.display = 'none';
                 if (logoutBtn) logoutBtn.style.display = 'none';
                 if (userEmail) { userEmail.textContent = ''; userEmail.style.display = 'none'; }
             }
-          
+
             // eventos
             loginBtn.addEventListener('click', async () => {
                 // inicia OAuth (redireciona)
@@ -108,7 +110,7 @@
                 });
                 if (error) alert('Erro ao iniciar login: ' + error.message);
             });
-          
+
             logoutBtn.addEventListener('click', async () => {
                 await client.auth.signOut();
                 // limpa UI localmente
@@ -116,56 +118,57 @@
                 // opcional: recarregar para limpar estado
                 // location.reload();
             });
-          
+
             // inicializa
             document.addEventListener('DOMContentLoaded', () => {
                 initAuthNavbar();
             });
         </script>
-                  
+
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
         <script src="js/galaxy.js"></script>
         <script src="js/auth.js"></script>
     </div>
 
-<!-- Code injected by live-server -->
-<script>
-	// <![CDATA[  <-- For SVG support
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
-</script>
+    <!-- Code injected by live-server -->
+    <script>
+        // <![CDATA[  <-- For SVG support
+        if ('WebSocket' in window) {
+            (function () {
+                function refreshCSS() {
+                    var sheets = [].slice.call(document.getElementsByTagName("link"));
+                    var head = document.getElementsByTagName("head")[0];
+                    for (var i = 0; i < sheets.length; ++i) {
+                        var elem = sheets[i];
+                        var parent = elem.parentElement || head;
+                        parent.removeChild(elem);
+                        var rel = elem.rel;
+                        if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+                            var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+                            elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+                        }
+                        parent.appendChild(elem);
+                    }
+                }
+                var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+                var address = protocol + window.location.host + window.location.pathname + '/ws';
+                var socket = new WebSocket(address);
+                socket.onmessage = function (msg) {
+                    if (msg.data == 'reload') window.location.reload();
+                    else if (msg.data == 'refreshcss') refreshCSS();
+                };
+                if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+                    console.log('Live reload enabled.');
+                    sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+                }
+            })();
+        }
+        else {
+            console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+        }
+        // ]]>
+    </script>
 </body>
+
 </html>

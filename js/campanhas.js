@@ -129,13 +129,41 @@ async function deleteCampanha(id) {
 
         if (error) {
             console.error('Erro ao deletar campanha:', error);
-            return { success: false, error: error.message };
+            return { success: false, error: error.message || error };
         }
 
         return { success: true };
     } catch (error) {
         console.error('Erro:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message || error };
+    }
+}
+
+// --- UI helper: comportamento igual ao deleteFicha ---
+async function deleteCampanhaUI(id) {
+    if (!confirm('Tem certeza que deseja deletar esta campanha?')) {
+        return;
+    }
+
+    // Opcional: mostrar carregando...
+    // Ex: mostrar spinner ou desabilitar botões enquanto aguarda.
+
+    const result = await deleteCampanha(id);
+
+    if (result.success) {
+        alert('Campanha deletada com sucesso!');
+        // Se você tiver uma função que recarrega a lista de campanhas, chame-a.
+        // Eu uso loadCampanhas() como convenção — altere se a sua função tiver outro nome.
+        if (typeof loadCampanhas === 'function') {
+            await loadCampanhas();
+        } else if (typeof listarCampanhas === 'function') {
+            await listarCampanhas();
+        } else {
+            // fallback: recarrega a página
+            location.reload();
+        }
+    } else {
+        alert('Erro ao deletar campanha: ' + (result.error || 'erro desconhecido'));
     }
 }
 

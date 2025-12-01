@@ -47,7 +47,7 @@ async function loadCampanhasNarrador() {
         // Renderizar campanhas
         container.innerHTML = campanhas.map(campanha => `
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100" style="background:rgba(245, 232, 255, 0.055); border: 2px solid rgba(149, 129, 235, 0.53); color: #e0e0e0;">
+                <div class="card h-100" style="background:rgba(245, 232, 255, 0.055); color: #e0e0e0;">
                     <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
                         <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">🎭 ${campanha.nome}</h5>
                     </div>
@@ -62,9 +62,8 @@ async function loadCampanhasNarrador() {
                     </div>
                     <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
                         <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewCampanha('${campanha.id}')">Visualizar</button>
-                        <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="adicionarPersonagemNarrador('${campanha.id}')">Adicionar Jogador</button>
                         <button class="btn btn-sm btn-warning" onclick="editCampanha('${campanha.id}')">Editar</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCampanhaConfirm('${campanha.id}')">Deletar</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCampanhaUI('${campanha.id}')">Deletar</button>
                     </div>
                 </div>
             </div>
@@ -81,69 +80,79 @@ async function loadCampanhasJogador() {
     const loadingState = document.getElementById('loadingJogador');
     const emptyState = document.getElementById('emptyJogador');
     const container = document.getElementById('campanhasJogadorContainer');
-    
+    const btnBottom = document.getElementById('btnEntrarBottom');
+
     try {
         const user = await getCurrentUser();
         if (!user) return;
-        
-        // Obter campanhas onde o usuário participa
+
         const { data, error } = await supabase
             .from('campanha_personagens')
             .select(`
                 *,
-                campanha:campanha_id(
-                    id, nome, descricao, codigo, narrador_id, ativa
-                ),
-                personagem:personagem_id(
-                    id, nome, raca
-                )
+                campanha:campanha_id(id, nome, descricao, codigo, narrador_id, ativa),
+                personagem:personagem_id(id, nome, raca)
             `)
             .eq('jogador_id', user.id);
-        
-        if (error) {
-            console.error('Erro ao carregar campanhas do jogador:', error);
-            loadingState.style.display = 'none';
-            return;
-        }
-        
-        const participacoes = data || [];
+
+        // 🔥 SEMPRE remover o loading primeiro
         loadingState.style.display = 'none';
-        
-        if (participacoes.length === 0) {
+
+        if (error) {
+            console.error(error);
             emptyState.style.display = 'block';
             return;
         }
-        
-        // Renderizar campanhas
-        container.innerHTML = participacoes.map(participacao => `
+
+        const participacoes = data || [];
+
+        // limpar UI
+        container.innerHTML = '';
+        emptyState.style.display = 'none';
+        btnBottom.style.display = 'none';
+
+        // 🔥 CASO NÃO TENHA CAMPANHAS
+        if (participacoes.length === 0) {
+            emptyState.style.display = 'block';
+            // esconder botão inferior
+            btnBottom.style.display = 'none';
+            return;
+        }
+
+        // RENDERIZAR CAMPANHAS
+        container.innerHTML = participacoes.map(p => `
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100" style="background: rgba(245, 232, 255, 0.055); border: 2px solid rgba(149, 129, 235, 0.53); color: #e0e0e0;">
+                <div class="card h-100" style="background: rgba(245, 232, 255, 0.055); color: #e0e0e0;">
                     <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
-                        <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">🎭 ${participacao.campanha.nome}</h5>
+                        <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">🎭 ${p.campanha.nome}</h5>
                     </div>
                     <div class="card-body">
-                        <p class="card-text" style="color: #b0b0b0;">${participacao.campanha.descricao || 'Sem descricao'}</p>
+                        <p class="card-text" style="color: #b0b0b0;">${p.campanha.descricao || 'Sem descricao'}</p>
                         <p style="color: #888; font-size: 0.9em;">
-                            <strong style="color: #e0e0e0;">Seu Personagem:</strong> ${participacao.personagem.nome}
+                            <strong style="color: #e0e0e0;">Seu Personagem:</strong> ${p.personagem.nome}
                         </p>
                         <p style="color: #888; font-size: 0.9em;">
-                            <strong style="color: #e0e0e0;">Status:</strong> ${participacao.campanha.ativa ? '✅ Ativa' : '❌ Inativa'}
+                            <strong style="color: #e0e0e0;">Status:</strong> ${p.campanha.ativa ? '✅ Ativa' : '❌ Inativa'}
                         </p>
                     </div>
                     <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
-                        <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewCampanhaJogador('${participacao.campanha.id}')">Visualizar</button>
-                        <button class="btn btn-sm btn-danger" onclick="sairDaCampanha('${participacao.id}')">Sair</button>
+                        <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewCampanhaJogador('${p.campanha.id}')">Visualizar</button>
+                        <button class="btn btn-sm btn-danger" onclick="sairDaCampanha('${p.id}')">Sair</button>
                     </div>
                 </div>
             </div>
         `).join('');
-        
-    } catch (error) {
-        console.error('Erro ao carregar campanhas do jogador:', error);
-        alert('Erro ao carregar campanhas');
+
+        // mostrar botão inferior (somente quando há campanhas)
+        btnBottom.style.display = 'block';
+
+    } catch (e) {
+        console.error(e);
         loadingState.style.display = 'none';
+        emptyState.style.display = 'block';
     }
 }
+
 
 function adicionarPersonagemNarrador(id) {
     window.location.href = `adicionar-personagem-campanha.html?id=${id}`;

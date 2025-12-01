@@ -91,7 +91,8 @@ async function loadFichaForEditing(id) {
         document.getElementById('manaMaxima').value = ficha.mana_maxima || 0;
         document.getElementById('poderMagico').value = ficha.poder_magico || 0;
         document.getElementById('controle').value = ficha.controle || 0;
-        
+        document.getElementById('statusSocial').value = ficha.status_social || '';
+
         // Habilidades
         document.getElementById('fragmentoDivino').value = ficha.fragmento_divino || '';
         document.getElementById('passiva').value = ficha.passiva || '';
@@ -148,7 +149,8 @@ async function handleFormSubmit(e) {
         mana_maxima: parseInt(document.getElementById('manaMaxima').value) || 0,
         poder_magico: parseInt(document.getElementById('poderMagico').value) || 0,
         controle: parseInt(document.getElementById('controle').value) || 0,
-        
+        status_social: document.getElementById('statusSocial').value || null,
+
         // Habilidades
         fragmento_divino: document.getElementById('fragmentoDivino').value || null,
         passiva: document.getElementById('passiva').value || null
