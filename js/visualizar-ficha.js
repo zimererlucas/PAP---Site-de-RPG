@@ -7,7 +7,7 @@ let fichaId = null;
 
 function alterarVida(valor) {
     const vidaAtualEl = document.getElementById('vidaAtual');
-    const vidaMaximaEl = document.getElementById('vidaMaxima');
+    const vidaMaximaEl = document.getElementById('vidaMaxima-view');
     
     if (!vidaAtualEl || !vidaMaximaEl) return;
     
@@ -22,7 +22,7 @@ function alterarVida(valor) {
 
 function alterarMana(valor) {
     const manaAtualEl = document.getElementById('manaAtual');
-    const manaMaximaEl = document.getElementById('manaMaxima');
+    const manaMaximaEl = document.getElementById('manaMaxima-view');
     
     if (!manaAtualEl || !manaMaximaEl) return;
     
@@ -37,7 +37,7 @@ function alterarMana(valor) {
 
 function alterarEstamina(valor) {
     const estaminaAtualEl = document.getElementById('estaminaAtual');
-    const estaminaMaximaEl = document.getElementById('estaminaMaxima');
+    const estaminaMaximaEl = document.getElementById('estaminaMaxima-view');
     
     if (!estaminaAtualEl || !estaminaMaximaEl) return;
     
@@ -52,7 +52,7 @@ function alterarEstamina(valor) {
 
 function atualizarBarraVida() {
     const vidaAtual = parseInt(document.getElementById('vidaAtual').textContent) || 0;
-    const vidaMaxima = parseInt(document.getElementById('vidaMaxima').textContent) || 1;
+    const vidaMaxima = parseInt(document.getElementById('vidaMaxima-view').textContent) || 1;
     const percent = Math.round((vidaAtual / vidaMaxima) * 100);
     
     const vidaBar = document.getElementById('vidaBar');
@@ -64,7 +64,7 @@ function atualizarBarraVida() {
 
 function atualizarBarraMana() {
     const manaAtual = parseInt(document.getElementById('manaAtual').textContent) || 0;
-    const manaMaxima = parseInt(document.getElementById('manaMaxima').textContent) || 1;
+    const manaMaxima = parseInt(document.getElementById('manaMaxima-view').textContent) || 1;
     const percent = Math.round((manaAtual / manaMaxima) * 100);
     
     const manaBar = document.getElementById('manaBar');
@@ -76,7 +76,7 @@ function atualizarBarraMana() {
 
 function atualizarBarraEstamina() {
     const estaminaAtual = parseInt(document.getElementById('estaminaAtual').textContent) || 0;
-    const estaminaMaxima = parseInt(document.getElementById('estaminaMaxima').textContent) || 1;
+    const estaminaMaxima = parseInt(document.getElementById('estaminaMaxima-view').textContent) || 1;
     const percent = Math.round((estaminaAtual / estaminaMaxima) * 100);
     
     const estaminaBar = document.getElementById('estaminaBar');
@@ -269,40 +269,49 @@ async function loadFicha() {
         setElement('nivel', ficha.nivel || 0);
         
         // Status - Vida
+        const vidaMaximaBase = ficha.vida_maxima || 0;
+        const vidaMaximaBonus = ficha.vida_maxima_bonus || 0;
+        const vidaMaximaTotal = vidaMaximaBase + vidaMaximaBonus;
         setElement('vidaAtual', ficha.vida_atual || 0);
-        setElement('vidaMaxima-view', ficha.vida_maxima || 0);
+        setElement('vidaMaxima-view', vidaMaximaTotal);
         const vidaMaximaInput = document.getElementById('vidaMaxima');
-        if (vidaMaximaInput) vidaMaximaInput.value = ficha.vida_maxima || 0;
+        if (vidaMaximaInput) vidaMaximaInput.value = vidaMaximaBase;
         const vidaBar = document.getElementById('vidaBar');
         const vidaPercent = document.getElementById('vidaPercent');
-        if (vidaBar && ficha.vida_maxima) {
-            const vidaPercentage = (ficha.vida_atual / ficha.vida_maxima) * 100;
+        if (vidaBar && vidaMaximaTotal) {
+            const vidaPercentage = (ficha.vida_atual / vidaMaximaTotal) * 100;
             vidaBar.style.width = vidaPercentage + '%';
             if (vidaPercent) vidaPercent.textContent = Math.round(vidaPercentage) + '%';
         }
         
         // Status - Estamina
+        const estaminaMaximaBase = ficha.estamina_maxima || 0;
+        const estaminaMaximaBonus = ficha.estamina_maxima_bonus || 0;
+        const estaminaMaximaTotal = estaminaMaximaBase + estaminaMaximaBonus;
         setElement('estaminaAtual', ficha.estamina_atual || 0);
-        setElement('estaminaMaxima-view', ficha.estamina_maxima || 0);
+        setElement('estaminaMaxima-view', estaminaMaximaTotal);
         const estaminaMaximaInput = document.getElementById('estaminaMaxima');
-        if (estaminaMaximaInput) estaminaMaximaInput.value = ficha.estamina_maxima || 0;
+        if (estaminaMaximaInput) estaminaMaximaInput.value = estaminaMaximaBase;
         const estaminaBar = document.getElementById('estaminaBar');
         const estaminaPercent = document.getElementById('estaminaPercent');
-        if (estaminaBar && ficha.estamina_maxima) {
-            const estaminaPercentage = (ficha.estamina_atual / ficha.estamina_maxima) * 100;
+        if (estaminaBar && estaminaMaximaTotal) {
+            const estaminaPercentage = (ficha.estamina_atual / estaminaMaximaTotal) * 100;
             estaminaBar.style.width = estaminaPercentage + '%';
             if (estaminaPercent) estaminaPercent.textContent = Math.round(estaminaPercentage) + '%';
         }
         
         // Status - Mana
+        const manaMaximaBase = ficha.mana_maxima || 0;
+        const manaMaximaBonus = ficha.mana_maxima_bonus || 0;
+        const manaMaximaTotal = manaMaximaBase + manaMaximaBonus;
         setElement('manaAtual', ficha.mana_atual || 0);
-        setElement('manaMaxima-view', ficha.mana_maxima || 0);
+        setElement('manaMaxima-view', manaMaximaTotal);
         const manaMaximaInput = document.getElementById('manaMaxima');
-        if (manaMaximaInput) manaMaximaInput.value = ficha.mana_maxima || 0;
+        if (manaMaximaInput) manaMaximaInput.value = manaMaximaBase;
         const manaBar = document.getElementById('manaBar');
         const manaPercent = document.getElementById('manaPercent');
-        if (manaBar && ficha.mana_maxima) {
-            const manaPercentage = (ficha.mana_atual / ficha.mana_maxima) * 100;
+        if (manaBar && manaMaximaTotal) {
+            const manaPercentage = (ficha.mana_atual / manaMaximaTotal) * 100;
             manaBar.style.width = manaPercentage + '%';
             if (manaPercent) manaPercent.textContent = Math.round(manaPercentage) + '%';
         }
@@ -345,6 +354,11 @@ async function loadFicha() {
         
         // Guardar dados da ficha para usar no modal de combate
         window.fichaData = ficha;
+        
+        // Recalcular bônus globais ao carregar a ficha
+        if (typeof recalcularBonusGlobais === 'function') {
+            await recalcularBonusGlobais(fichaId);
+        }
         
         if (loadingState) loadingState.style.display = 'none';
         if (fichaContent) fichaContent.style.display = 'block';

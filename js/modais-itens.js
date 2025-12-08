@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         carregarConhecimentos();
         carregarItens();
         carregarAnotacoes();
+        carregarPassivas();
     }
 });
 
@@ -45,7 +46,12 @@ async function carregarMagias() {
     if (!container) return;
 
     if (resultado.success && resultado.data.length > 0) {
-        container.innerHTML = resultado.data.map(magia => `
+        container.innerHTML = resultado.data.map(magia => {
+            const bonusText = magia.bonus && Array.isArray(magia.bonus) && magia.bonus.length > 0 
+                ? magia.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
+                : '-';
+            
+            return `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${magia.nome} (Nível ${magia.nivel})</span>
@@ -56,6 +62,7 @@ async function carregarMagias() {
                     <p><strong>Efeito:</strong> ${magia.efeito || '-'}</p>
                     <p><strong>Mana:</strong> ${magia.custo_mana}</p>
                     <p><strong>Estamina:</strong> ${magia.custo_estamina || 0}</p>
+                    <p><strong>Bônus:</strong> ${bonusText}</p>
                     <p><strong>Descrição:</strong> ${magia.descricao}</p>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarMagia('${magia.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
@@ -63,7 +70,8 @@ async function carregarMagias() {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     } else {
         container.innerHTML = '<p style="color: #b0b0b0;">Nenhuma magia adicionada ainda.</p>';
     }
@@ -74,6 +82,8 @@ async function deletarMagiaUI(magiaId) {
         const resultado = await deletarMagia(magiaId);
         if (resultado.success) {
             carregarMagias();
+            // Recalcular bônus globais após deletar
+            await recalcularBonusGlobais(fichaIdGlobal);
         } else {
             alert('Erro ao deletar magia: ' + resultado.error);
         }
@@ -91,7 +101,12 @@ async function carregarHabilidades() {
     if (!container) return;
 
     if (resultado.success && resultado.data.length > 0) {
-        container.innerHTML = resultado.data.map(hab => `
+        container.innerHTML = resultado.data.map(hab => {
+            const bonusText = hab.bonus && Array.isArray(hab.bonus) && hab.bonus.length > 0 
+                ? hab.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
+                : '-';
+            
+            return `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${hab.nome} (Nível ${hab.nivel})</span>
@@ -102,6 +117,7 @@ async function carregarHabilidades() {
                     <p><strong>Efeito:</strong> ${hab.efeito || '-'}</p>
                     <p><strong>Mana:</strong> ${hab.custo_mana}</p>
                     <p><strong>Estamina:</strong> ${hab.custo_estamina || 0}</p>
+                    <p><strong>Bônus:</strong> ${bonusText}</p>
                     <p><strong>Descrição:</strong> ${hab.descricao}</p>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarHabilidade('${hab.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
@@ -109,7 +125,8 @@ async function carregarHabilidades() {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     } else {
         container.innerHTML = '<p style="color: #b0b0b0;">Nenhuma habilidade adicionada ainda.</p>';
     }
@@ -120,6 +137,8 @@ async function deletarHabilidadeUI(habilidadeId) {
         const resultado = await deletarHabilidade(habilidadeId);
         if (resultado.success) {
             carregarHabilidades();
+            // Recalcular bônus globais após deletar
+            await recalcularBonusGlobais(fichaIdGlobal);
         } else {
             alert('Erro ao deletar habilidade: ' + resultado.error);
         }
@@ -137,7 +156,12 @@ async function carregarConhecimentos() {
     if (!container) return;
 
     if (resultado.success && resultado.data.length > 0) {
-        container.innerHTML = resultado.data.map(conhec => `
+        container.innerHTML = resultado.data.map(conhec => {
+            const bonusText = conhec.bonus && Array.isArray(conhec.bonus) && conhec.bonus.length > 0 
+                ? conhec.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
+                : '-';
+            
+            return `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${conhec.nome} (Nível ${conhec.nivel})</span>
@@ -145,13 +169,15 @@ async function carregarConhecimentos() {
                 </button>
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
                     <p><strong>Descrição:</strong> ${conhec.descricao}</p>
+                    <p><strong>Bônus:</strong> ${bonusText}</p>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarConhecimento('${conhec.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
                         <button onclick="deletarConhecimentoUI('${conhec.id}')" style="background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">🗑️ Deletar</button>
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     } else {
         container.innerHTML = '<p style="color: #b0b0b0;">Nenhum conhecimento adicionado ainda.</p>';
     }
@@ -162,6 +188,8 @@ async function deletarConhecimentoUI(conhecimentoId) {
         const resultado = await deletarConhecimento(conhecimentoId);
         if (resultado.success) {
             carregarConhecimentos();
+            // Recalcular bônus globais após deletar
+            await recalcularBonusGlobais(fichaIdGlobal);
         } else {
             alert('Erro ao deletar conhecimento: ' + resultado.error);
         }
@@ -179,7 +207,12 @@ async function carregarItens() {
     if (!container) return;
 
     if (resultado.success && resultado.data.length > 0) {
-        container.innerHTML = resultado.data.map(item => `
+        container.innerHTML = resultado.data.map(item => {
+            const bonusText = item.bonus && Array.isArray(item.bonus) && item.bonus.length > 0 
+                ? item.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
+                : '-';
+            
+            return `
             <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${item.nome} (x${item.quantidade})</span>
@@ -188,6 +221,7 @@ async function carregarItens() {
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
                     <p><strong>Quantidade:</strong> ${item.quantidade}</p>
                     <p><strong>Peso:</strong> ${item.peso} kg</p>
+                    <p><strong>Bônus:</strong> ${bonusText}</p>
                     <p><strong>Descrição:</strong> ${item.descricao}</p>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarItem('${item.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
@@ -195,7 +229,8 @@ async function carregarItens() {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     } else {
         container.innerHTML = '<p style="color: #b0b0b0;">Inventário vazio.</p>';
     }
@@ -206,6 +241,8 @@ async function deletarItemUI(itemId) {
         const resultado = await deletarItem(itemId);
         if (resultado.success) {
             carregarItens();
+            // Recalcular bônus globais após deletar
+            await recalcularBonusGlobais(fichaIdGlobal);
         } else {
             alert('Erro ao deletar item: ' + resultado.error);
         }
@@ -255,6 +292,59 @@ async function deletarAnotacaoUI(anotacaoId) {
 }
 
 // ============================================
+// PASSIVAS
+// ============================================
+
+async function carregarPassivas() {
+    const resultado = await obterPassivas(fichaIdGlobal);
+    const container = document.getElementById('lista-passivas');
+
+    if (!container) return;
+
+    if (resultado.success && resultado.data.length > 0) {
+        container.innerHTML = resultado.data.map(passiva => {
+            const bonusText = passiva.bonus && Array.isArray(passiva.bonus) && passiva.bonus.length > 0 
+                ? passiva.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
+                : '-';
+            
+            return `
+            <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+                <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                    <span style="font-weight: bold;">${passiva.nome}</span>
+                    <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
+                </button>
+                <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
+                    <p><strong>Categoria:</strong> ${passiva.categoria || '-'}</p>
+                    <p><strong>Efeito:</strong> ${passiva.efeito || '-'}</p>
+                    <p><strong>Bônus:</strong> ${bonusText}</p>
+                    <p><strong>Descrição:</strong> ${passiva.descricao}</p>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button onclick="editarPassiva('${passiva.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
+                        <button onclick="deletarPassivaUI('${passiva.id}')" style="background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">🗑️ Deletar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        }).join('');
+    } else {
+        container.innerHTML = '<p style="color: #b0b0b0;">Nenhuma passiva adicionada ainda.</p>';
+    }
+}
+
+async function deletarPassivaUI(passivaId) {
+    if (confirm('Tem certeza que deseja deletar esta passiva?')) {
+        const resultado = await deletarPassiva(fichaIdGlobal, passivaId);
+        if (resultado.success) {
+            carregarPassivas();
+            // Recalcular bônus globais após deletar
+            await recalcularBonusGlobais(fichaIdGlobal);
+        } else {
+            alert('Erro ao deletar passiva: ' + resultado.error);
+        }
+    }
+}
+
+// ============================================
 // VARIÁVEIS GLOBAIS
 // ============================================
 
@@ -263,6 +353,67 @@ let editandoHabilidadeId = null;
 let editandoConhecimentoId = null;
 let editandoItemId = null;
 let editandoAnotacaoId = null;
+let editandoPassivaId = null;
+
+// ============================================
+// FUNÇÕES DE BÔNUS
+// ============================================
+
+const atributosDisponiveis = [
+    { value: 'forca_bonus', text: 'Força' },
+    { value: 'agilidade_bonus', text: 'Agilidade' },
+    { value: 'sorte_bonus', text: 'Sorte' },
+    { value: 'inteligencia_bonus', text: 'Inteligência' },
+    { value: 'corpo_essencia_bonus', text: 'Corpo Essência' },
+    { value: 'exposicao_runica_bonus', text: 'Exposição Rúnica' },
+    { value: 'vida_maxima_bonus', text: 'Vida Máxima' },
+    { value: 'mana_maxima_bonus', text: 'Mana Máxima' },
+    { value: 'estamina_maxima_bonus', text: 'Estamina Máxima' }
+];
+
+function adicionarBonus(tipo, bonus = { atributo: '', valor: 0 }) {
+    const container = document.getElementById(`${tipo}-bonus-container`);
+    if (!container) return;
+
+    const bonusId = `bonus-${tipo}-${Date.now()}`;
+    const bonusWrapper = document.createElement('div');
+    bonusWrapper.className = 'bonus-item';
+    bonusWrapper.id = bonusId;
+    bonusWrapper.style.display = 'flex';
+    bonusWrapper.style.gap = '10px';
+    bonusWrapper.style.marginBottom = '10px';
+
+    const select = document.createElement('select');
+    select.className = 'bonus-atributo';
+    select.style = "flex: 2; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;";
+    atributosDisponiveis.forEach(attr => {
+        const option = document.createElement('option');
+        option.value = attr.value;
+        option.textContent = attr.text;
+        if (attr.value === bonus.atributo) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'bonus-valor';
+    input.value = bonus.valor;
+    input.style = "flex: 1; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;";
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '🗑️';
+    removeBtn.style = "padding: 8px 12px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;";
+    removeBtn.onclick = () => document.getElementById(bonusId).remove();
+
+    bonusWrapper.appendChild(select);
+    bonusWrapper.appendChild(input);
+    bonusWrapper.appendChild(removeBtn);
+    container.appendChild(bonusWrapper);
+}
+
 
 // ============================================
 // MODAIS - ABRIR
@@ -275,6 +426,7 @@ function abrirModalMagia() {
 function fecharModalMagia() {
     document.getElementById('modal-magia').style.display = 'none';
     document.getElementById('form-magia').reset();
+    document.getElementById('magia-bonus-container').innerHTML = ''; // Limpar bônus
     editandoMagiaId = null;
 }
 
@@ -285,6 +437,7 @@ function abrirModalHabilidade() {
 function fecharModalHabilidade() {
     document.getElementById('modal-habilidade').style.display = 'none';
     document.getElementById('form-habilidade').reset();
+    document.getElementById('habilidade-bonus-container').innerHTML = '';
     editandoHabilidadeId = null;
 }
 
@@ -295,6 +448,7 @@ function abrirModalConhecimento() {
 function fecharModalConhecimento() {
     document.getElementById('modal-conhecimento').style.display = 'none';
     document.getElementById('form-conhecimento').reset();
+    document.getElementById('conhecimento-bonus-container').innerHTML = '';
     editandoConhecimentoId = null;
 }
 
@@ -305,6 +459,7 @@ function abrirModalItem() {
 function fecharModalItem() {
     document.getElementById('modal-item').style.display = 'none';
     document.getElementById('form-item').reset();
+    document.getElementById('item-bonus-container').innerHTML = '';
     editandoItemId = null;
 }
 
@@ -318,13 +473,22 @@ function fecharModalAnotacao() {
     editandoAnotacaoId = null;
 }
 
+function abrirModalPassiva() {
+    document.getElementById('modal-passiva').style.display = 'flex';
+}
+
+function fecharModalPassiva() {
+    document.getElementById('modal-passiva').style.display = 'none';
+    document.getElementById('form-passiva').reset();
+    document.getElementById('passiva-bonus-container').innerHTML = '';
+    editandoPassivaId = null;
+}
+
 // ============================================
 // SALVAR ITENS
 // ============================================
 
 async function salvarMagia() {
-    console.log('salvarMagia chamado');
-    console.log('editandoMagiaId:', editandoMagiaId);
     const nome = document.getElementById('magia-nome')?.value;
     const dano = document.getElementById('magia-dano')?.value;
     const efeito = document.getElementById('magia-efeito')?.value;
@@ -334,56 +498,52 @@ async function salvarMagia() {
     const nivelInput = document.getElementById('magia-nivel');
     const nivel = nivelInput ? nivelInput.value : 1;
 
-    if (!nome || !dano) {
-        alert('Preencha os campos obrigatórios!');
+    if (!nome) {
+        alert('O nome da magia é obrigatório!');
         return;
     }
 
-    // Se está editando, atualiza ao invés de adicionar
-    if (editandoMagiaId) {
-        console.log('Editando magia ID:', editandoMagiaId);
-        const resultado = await atualizarMagia(editandoMagiaId, {
-            nome,
-            dano,
-            efeito,
-            descricao,
-            custo_mana: parseInt(custo_mana) || 0,
-            custo_estamina: parseInt(custo_estamina) || 0,
-            nivel: parseInt(nivel) || 1
-        });
+    // Coletar bônus
+    const bonusContainer = document.getElementById('magia-bonus-container');
+    const bonusItems = bonusContainer.querySelectorAll('.bonus-item');
+    const bonus = Array.from(bonusItems).map(item => {
+        const atributo = item.querySelector('.bonus-atributo').value;
+        const valor = parseInt(item.querySelector('.bonus-valor').value) || 0;
+        return { atributo, valor };
+    });
 
-        if (resultado.success) {
-            fecharModalMagia();
-            carregarMagias();
-            editandoMagiaId = null;
-            alert('Magia atualizada com sucesso!');
-        } else {
-            alert('Erro ao atualizar magia: ' + resultado.error);
-        }
-        return;
-    }
-
-    const fichaId = obterFichaId() || window.fichaId || fichaIdGlobal;
-    if (!fichaId) {
-        alert('Erro: ID da ficha não encontrado!');
-        return;
-    }
-    const resultado = await adicionarMagia(fichaId, {
+    const dadosMagia = {
         nome,
         dano,
         efeito,
         descricao,
         custo_mana: parseInt(custo_mana) || 0,
         custo_estamina: parseInt(custo_estamina) || 0,
-        nivel: parseInt(nivel) || 1
-    });
+        nivel: parseInt(nivel) || 1,
+        bonus // Adiciona o array de bônus
+    };
+
+    let resultado;
+    if (editandoMagiaId) {
+        resultado = await atualizarMagia(editandoMagiaId, dadosMagia);
+    } else {
+        const fichaId = obterFichaId() || window.fichaId || fichaIdGlobal;
+        if (!fichaId) {
+            alert('Erro: ID da ficha não encontrado!');
+            return;
+        }
+        resultado = await adicionarMagia(fichaId, dadosMagia);
+    }
 
     if (resultado.success) {
         fecharModalMagia();
         carregarMagias();
-        alert('Magia adicionada com sucesso!');
+        // Recalcular bônus globais
+        await recalcularBonusGlobais(fichaIdGlobal);
+        alert(editandoMagiaId ? 'Magia atualizada com sucesso!' : 'Magia adicionada com sucesso!');
+        editandoMagiaId = null;
     } else {
-        alert('Erro ao adicionar magia: ' + resultado.error);
+        alert('Erro ao salvar magia: ' + resultado.error);
     }
 }
 
@@ -402,6 +562,15 @@ async function salvarHabilidade() {
         return;
     }
 
+    // Coletar bônus
+    const bonusContainer = document.getElementById('habilidade-bonus-container');
+    const bonusItems = bonusContainer?.querySelectorAll('.bonus-item') || [];
+    const bonus = Array.from(bonusItems).map(item => {
+        const atributo = item.querySelector('.bonus-atributo').value;
+        const valor = parseInt(item.querySelector('.bonus-valor').value) || 0;
+        return { atributo, valor };
+    });
+
     // Se está editando, atualiza ao invés de adicionar
     if (editandoHabilidadeId) {
         const resultado = await atualizarHabilidade(editandoHabilidadeId, {
@@ -411,13 +580,16 @@ async function salvarHabilidade() {
             descricao,
             custo_mana: parseInt(custo_mana) || 0,
             custo_estamina: parseInt(custo_estamina) || 0,
-            nivel: parseInt(nivel) || 1
+            nivel: parseInt(nivel) || 1,
+            bonus
         });
 
         if (resultado.success) {
             fecharModalHabilidade();
             carregarHabilidades();
             editandoHabilidadeId = null;
+            // Recalcular bônus globais
+            await recalcularBonusGlobais(fichaIdGlobal);
             alert('Habilidade atualizada com sucesso!');
         } else {
             alert('Erro ao atualizar habilidade: ' + resultado.error);
@@ -437,12 +609,15 @@ async function salvarHabilidade() {
         descricao,
         custo_mana: parseInt(custo_mana) || 0,
         custo_estamina: parseInt(custo_estamina) || 0,
-        nivel: parseInt(nivel) || 1
+        nivel: parseInt(nivel) || 1,
+        bonus
     });
 
     if (resultado.success) {
         fecharModalHabilidade();
         carregarHabilidades();
+        // Recalcular bônus globais
+        await recalcularBonusGlobais(fichaIdGlobal);
         alert('Habilidade adicionada com sucesso!');
     } else {
         alert('Erro ao adicionar habilidade: ' + resultado.error);
@@ -460,18 +635,30 @@ async function salvarConhecimento() {
         return;
     }
 
+    // Coletar bônus
+    const bonusContainer = document.getElementById('conhecimento-bonus-container');
+    const bonusItems = bonusContainer?.querySelectorAll('.bonus-item') || [];
+    const bonus = Array.from(bonusItems).map(item => {
+        const atributo = item.querySelector('.bonus-atributo').value;
+        const valor = parseInt(item.querySelector('.bonus-valor').value) || 0;
+        return { atributo, valor };
+    });
+
     // Se está editando, atualiza ao invés de adicionar
     if (editandoConhecimentoId) {
         const resultado = await atualizarConhecimento(editandoConhecimentoId, {
             nome,
             descricao,
-            nivel: parseInt(nivel) || 1
+            nivel: parseInt(nivel) || 1,
+            bonus
         });
 
         if (resultado.success) {
             fecharModalConhecimento();
             carregarConhecimentos();
             editandoConhecimentoId = null;
+            // Recalcular bônus globais
+            await recalcularBonusGlobais(fichaIdGlobal);
             alert('Conhecimento atualizado com sucesso!');
         } else {
             alert('Erro ao atualizar conhecimento: ' + resultado.error);
@@ -487,12 +674,15 @@ async function salvarConhecimento() {
     const resultado = await adicionarConhecimento(fichaId, {
         nome,
         descricao,
-        nivel: parseInt(nivel) || 1
+        nivel: parseInt(nivel) || 1,
+        bonus
     });
 
     if (resultado.success) {
         fecharModalConhecimento();
         carregarConhecimentos();
+        // Recalcular bônus globais
+        await recalcularBonusGlobais(fichaIdGlobal);
         alert('Conhecimento adicionado com sucesso!');
     } else {
         alert('Erro ao adicionar conhecimento: ' + resultado.error);
@@ -510,19 +700,31 @@ async function salvarItem() {
         return;
     }
 
+    // Coletar bônus
+    const bonusContainer = document.getElementById('item-bonus-container');
+    const bonusItems = bonusContainer?.querySelectorAll('.bonus-item') || [];
+    const bonus = Array.from(bonusItems).map(item => {
+        const atributo = item.querySelector('.bonus-atributo').value;
+        const valor = parseInt(item.querySelector('.bonus-valor').value) || 0;
+        return { atributo, valor };
+    });
+
     // Se está editando, atualiza ao invés de adicionar
     if (editandoItemId) {
         const resultado = await atualizarItem(editandoItemId, {
             nome,
             quantidade: parseInt(quantidade) || 1,
             descricao,
-            peso: parseFloat(peso) || 0
+            peso: parseFloat(peso) || 0,
+            bonus
         });
 
         if (resultado.success) {
             fecharModalItem();
             carregarItens();
             editandoItemId = null;
+            // Recalcular bônus globais
+            await recalcularBonusGlobais(fichaIdGlobal);
             alert('Item atualizado com sucesso!');
         } else {
             alert('Erro ao atualizar item: ' + resultado.error);
@@ -539,12 +741,15 @@ async function salvarItem() {
         nome,
         quantidade: parseInt(quantidade) || 1,
         descricao,
-        peso: parseFloat(peso) || 0
+        peso: parseFloat(peso) || 0,
+        bonus
     });
 
     if (resultado.success) {
         fecharModalItem();
         carregarItens();
+        // Recalcular bônus globais
+        await recalcularBonusGlobais(fichaIdGlobal);
         alert('Item adicionado com sucesso!');
     } else {
         alert('Erro ao adicionar item: ' + resultado.error);
@@ -597,6 +802,73 @@ async function salvarAnotacao() {
     }
 }
 
+async function salvarPassiva() {
+    const nome = document.getElementById('passiva-nome')?.value;
+    const categoria = document.getElementById('passiva-categoria')?.value;
+    const efeito = document.getElementById('passiva-efeito')?.value;
+    const descricao = document.getElementById('passiva-descricao')?.value;
+
+    if (!nome) {
+        alert('Preencha o nome da passiva!');
+        return;
+    }
+
+    // Coletar bônus
+    const bonusContainer = document.getElementById('passiva-bonus-container');
+    const bonusItems = bonusContainer?.querySelectorAll('.bonus-item') || [];
+    const bonus = Array.from(bonusItems).map(item => {
+        const atributo = item.querySelector('.bonus-atributo').value;
+        const valor = parseInt(item.querySelector('.bonus-valor').value) || 0;
+        return { atributo, valor };
+    });
+
+    // Se está editando, atualiza ao invés de adicionar
+    if (editandoPassivaId) {
+        const resultado = await atualizarPassiva(fichaIdGlobal, editandoPassivaId, {
+            nome,
+            categoria,
+            efeito,
+            bonus,
+            descricao
+        });
+
+        if (resultado.success) {
+            fecharModalPassiva();
+            carregarPassivas();
+            editandoPassivaId = null;
+            // Recalcular bônus globais
+            await recalcularBonusGlobais(fichaIdGlobal);
+            alert('Passiva atualizada com sucesso!');
+        } else {
+            alert('Erro ao atualizar passiva: ' + resultado.error);
+        }
+        return;
+    }
+
+    const fichaId = obterFichaId() || window.fichaId || fichaIdGlobal;
+    if (!fichaId) {
+        alert('Erro: ID da ficha não encontrado!');
+        return;
+    }
+    const resultado = await adicionarPassiva(fichaId, {
+        nome,
+        categoria,
+        efeito,
+        bonus,
+        descricao
+    });
+
+    if (resultado.success) {
+        fecharModalPassiva();
+        carregarPassivas();
+        // Recalcular bônus globais
+        await recalcularBonusGlobais(fichaIdGlobal);
+        alert('Passiva adicionada com sucesso!');
+    } else {
+        alert('Erro ao adicionar passiva: ' + resultado.error);
+    }
+}
+
 // Fechar modal ao clicar fora
 document.addEventListener('click', (e) => {
     if (e.target.id === 'modal-magia') fecharModalMagia();
@@ -604,6 +876,7 @@ document.addEventListener('click', (e) => {
     if (e.target.id === 'modal-conhecimento') fecharModalConhecimento();
     if (e.target.id === 'modal-item') fecharModalItem();
     if (e.target.id === 'modal-anotacao') fecharModalAnotacao();
+    if (e.target.id === 'modal-passiva') fecharModalPassiva();
 });
 
 // ============================================
@@ -766,7 +1039,6 @@ function filtrarAnotacoes() {
 // ============================================
 
 async function editarMagia(magiaId) {
-    console.log('editarMagia chamado com ID:', magiaId);
     const resultado = await obterMagia(magiaId);
     if (!resultado.success) {
         alert('Erro ao carregar magia: ' + resultado.error);
@@ -774,7 +1046,7 @@ async function editarMagia(magiaId) {
     }
     const magia = resultado.data;
     editandoMagiaId = magiaId;
-    console.log('editandoMagiaId definido como:', editandoMagiaId);
+
     document.getElementById('magia-nome').value = magia.nome;
     document.getElementById('magia-dano').value = magia.dano;
     document.getElementById('magia-efeito').value = magia.efeito || '';
@@ -783,6 +1055,13 @@ async function editarMagia(magiaId) {
     document.getElementById('magia-custo-estamina').value = magia.custo_estamina || 0;
     const magiaInputNivel = document.getElementById('magia-nivel');
     if (magiaInputNivel) magiaInputNivel.value = magia.nivel || 1;
+
+    // Limpar e popular bônus
+    const bonusContainer = document.getElementById('magia-bonus-container');
+    bonusContainer.innerHTML = '';
+    if (magia.bonus && Array.isArray(magia.bonus)) {
+        magia.bonus.forEach(b => adicionarBonus('magia', b));
+    }
     
     abrirModalMagia();
 }
@@ -804,6 +1083,13 @@ async function editarHabilidade(habilidadeId) {
     const habInputNivel = document.getElementById('habilidade-nivel');
     if (habInputNivel) habInputNivel.value = hab.nivel || 1;
     
+    // Limpar e popular bônus
+    const bonusContainer = document.getElementById('habilidade-bonus-container');
+    bonusContainer.innerHTML = '';
+    if (hab.bonus && Array.isArray(hab.bonus)) {
+        hab.bonus.forEach(b => adicionarBonus('habilidade', b));
+    }
+    
     abrirModalHabilidade();
 }
 
@@ -819,6 +1105,13 @@ async function editarConhecimento(conhecimentoId) {
     document.getElementById('conhecimento-descricao').value = conhec.descricao || '';
     const conhecInputNivel = document.getElementById('conhecimento-nivel');
     if (conhecInputNivel) conhecInputNivel.value = conhec.nivel || 1;
+    
+    // Limpar e popular bônus
+    const bonusContainer = document.getElementById('conhecimento-bonus-container');
+    bonusContainer.innerHTML = '';
+    if (conhec.bonus && Array.isArray(conhec.bonus)) {
+        conhec.bonus.forEach(b => adicionarBonus('conhecimento', b));
+    }
     
     abrirModalConhecimento();
 }
@@ -836,6 +1129,13 @@ async function editarItem(itemId) {
     document.getElementById('item-descricao').value = item.descricao || '';
     document.getElementById('item-peso').value = item.peso || 0;
     
+    // Limpar e popular bônus
+    const bonusContainer = document.getElementById('item-bonus-container');
+    bonusContainer.innerHTML = '';
+    if (item.bonus && Array.isArray(item.bonus)) {
+        item.bonus.forEach(b => adicionarBonus('item', b));
+    }
+    
     abrirModalItem();
 }
 
@@ -849,6 +1149,29 @@ async function editarAnotacao(anotacaoId) {
     editandoAnotacaoId = anotacaoId;
     document.getElementById('anotacao-titulo').value = anotacao.titulo;
     document.getElementById('anotacao-descricao').value = anotacao.descricao || '';
-    
+
     abrirModalAnotacao();
+}
+
+async function editarPassiva(passivaId) {
+    const resultado = await obterPassiva(fichaIdGlobal, passivaId);
+    if (!resultado.success) {
+        alert('Erro ao carregar passiva: ' + resultado.error);
+        return;
+    }
+    const passiva = resultado.data;
+    editandoPassivaId = passivaId;
+    document.getElementById('passiva-nome').value = passiva.nome;
+    document.getElementById('passiva-categoria').value = passiva.categoria || '';
+    document.getElementById('passiva-efeito').value = passiva.efeito || '';
+    document.getElementById('passiva-descricao').value = passiva.descricao || '';
+
+    // Limpar e popular bônus
+    const bonusContainer = document.getElementById('passiva-bonus-container');
+    bonusContainer.innerHTML = '';
+    if (passiva.bonus && Array.isArray(passiva.bonus)) {
+        passiva.bonus.forEach(b => adicionarBonus('passiva', b));
+    }
+
+    abrirModalPassiva();
 }

@@ -19,6 +19,7 @@ async function adicionarMagia(fichaId, magia) {
                 custo_mana: magia.custo_mana || 0,
                 custo_estamina: magia.custo_estamina || 0,
                 nivel: magia.nivel || 1,
+                bonus: magia.bonus || [],
                 criado_em: new Date().toISOString()
             }])
             .select()
@@ -78,7 +79,8 @@ async function atualizarMagia(magiaId, magia) {
                 descricao: magia.descricao || '',
                 custo_mana: magia.custo_mana || 0,
                 custo_estamina: magia.custo_estamina || 0,
-                nivel: magia.nivel || 1
+                nivel: magia.nivel || 1,
+                bonus: magia.bonus || []
             })
             .eq('id', magiaId)
             .select()
@@ -128,6 +130,7 @@ async function adicionarHabilidade(fichaId, habilidade) {
                 custo_mana: habilidade.custo_mana || 0,
                 custo_estamina: habilidade.custo_estamina || 0,
                 nivel: habilidade.nivel || 1,
+                bonus: habilidade.bonus || [],
                 criado_em: new Date().toISOString()
             }])
             .select()
@@ -186,7 +189,8 @@ async function atualizarHabilidade(habilidadeId, habilidade) {
                 descricao: habilidade.descricao || '',
                 custo_mana: habilidade.custo_mana || 0,
                 custo_estamina: habilidade.custo_estamina || 0,
-                nivel: habilidade.nivel || 1
+                nivel: habilidade.nivel || 1,
+                bonus: habilidade.bonus || []
             })
             .eq('id', habilidadeId)
             .select()
@@ -231,6 +235,7 @@ async function adicionarConhecimento(fichaId, conhecimento) {
                 nome: conhecimento.nome,
                 descricao: conhecimento.descricao || '',
                 nivel: conhecimento.nivel || 1,
+                bonus: conhecimento.bonus || [],
                 criado_em: new Date().toISOString()
             }])
             .select()
@@ -285,7 +290,8 @@ async function atualizarConhecimento(conhecimentoId, conhecimento) {
             .update({
                 nome: conhecimento.nome,
                 descricao: conhecimento.descricao || '',
-                nivel: conhecimento.nivel || 1
+                nivel: conhecimento.nivel || 1,
+                bonus: conhecimento.bonus || []
             })
             .eq('id', conhecimentoId)
             .select()
@@ -331,6 +337,7 @@ async function adicionarItem(fichaId, item) {
                 quantidade: item.quantidade || 1,
                 descricao: item.descricao || '',
                 peso: item.peso || 0,
+                bonus: item.bonus || [],
                 criado_em: new Date().toISOString()
             }])
             .select()
@@ -384,7 +391,8 @@ async function atualizarItem(itemId, item) {
                 nome: item.nome,
                 quantidade: item.quantidade || 1,
                 descricao: item.descricao || '',
-                peso: item.peso || 0
+                peso: item.peso || 0,
+                bonus: item.bonus || []
             })
             .eq('id', itemId)
             .select()
@@ -506,6 +514,236 @@ async function deletarAnotacao(anotacaoId) {
         return { success: true };
     } catch (error) {
         console.error('Erro ao deletar anotação:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+// ============================================
+// PASSIVAS
+// ============================================
+
+async function adicionarPassiva(fichaId, passiva) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) throw new Error('Usuário não autenticado');
+
+        // First, get the current passiva array
+        const { data: personagem, error: fetchError } = await supabase
+            .from('personagens')
+            .select('passiva')
+            .eq('id', fichaId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        const currentPassivas = JSON.parse(personagem.passiva || '[]');
+        const newPassiva = {
+            id: Date.now().toString(), // Simple ID generation
+            nome: passiva.nome,
+            categoria: passiva.categoria || '',
+            efeito: passiva.efeito || '',
+            bonus: passiva.bonus || [],
+            descricao: passiva.descricao || '',
+            criado_em: new Date().toISOString()
+        };
+        currentPassivas.push(newPassiva);
+
+        const { data, error } = await supabase
+            .from('personagens')
+            .update({ passiva: JSON.stringify(currentPassivas) })
+            .eq('id', fichaId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return { success: true, data: newPassiva };
+    } catch (error) {
+        console.error('Erro ao adicionar passiva:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+async function obterPassivas(fichaId) {
+    try {
+        const { data, error } = await supabase
+            .from('personagens')
+            .select('passiva')
+            .eq('id', fichaId)
+            .single();
+
+        if (error) throw error;
+        return { success: true, data: JSON.parse(data.passiva || '[]') };
+    } catch (error) {
+        console.error('Erro ao obter passivas:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+// Obter Passiva (singular)
+async function obterPassiva(fichaId, passivaId) {
+    try {
+        const { data, error } = await supabase
+            .from('personagens')
+            .select('passiva')
+            .eq('id', fichaId)
+            .single();
+
+        if (error) throw error;
+        const passivas = JSON.parse(data.passiva || '[]');
+        const passiva = passivas.find(p => p.id === passivaId);
+        if (!passiva) throw new Error('Passiva não encontrada');
+        return { success: true, data: passiva };
+    } catch (error) {
+        console.error('Erro ao obter passiva:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+// Atualizar Passiva
+async function atualizarPassiva(fichaId, passivaId, passiva) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) throw new Error('Usuário não autenticado');
+
+        // First, get the current passiva array
+        const { data: personagem, error: fetchError } = await supabase
+            .from('personagens')
+            .select('passiva')
+            .eq('id', fichaId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        const currentPassivas = JSON.parse(personagem.passiva || '[]');
+        const index = currentPassivas.findIndex(p => p.id === passivaId);
+        if (index === -1) throw new Error('Passiva não encontrada');
+
+        currentPassivas[index] = {
+            ...currentPassivas[index],
+            nome: passiva.nome,
+            categoria: passiva.categoria || '',
+            efeito: passiva.efeito || '',
+            bonus: passiva.bonus || [],
+            descricao: passiva.descricao || ''
+        };
+
+        const { data, error } = await supabase
+            .from('personagens')
+            .update({ passiva: JSON.stringify(currentPassivas) })
+            .eq('id', fichaId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return { success: true, data: currentPassivas[index] };
+    } catch (error) {
+        console.error('Erro ao atualizar passiva:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+async function deletarPassiva(passivaId) {
+    try {
+        const { error } = await supabase
+            .from('passivas')
+            .delete()
+            .eq('id', passivaId);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error('Erro ao deletar passiva:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+// ============================================
+// CÁLCULO AUTOMÁTICO DE BÔNUS GLOBAIS
+// ============================================
+
+/**
+ * Calcula todos os bônus das magias, habilidades, conhecimentos, itens e passivas
+ * e atualiza os atributos do personagem
+ */
+async function recalcularBonusGlobais(fichaId) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) throw new Error('Usuário não autenticado');
+
+        // Obter todos os items com bônus
+        const [magias, habilidades, conhecimentos, itens, personagem] = await Promise.all([
+            supabase.from('magias').select('bonus').eq('personagem_id', fichaId),
+            supabase.from('habilidades').select('bonus').eq('personagem_id', fichaId),
+            supabase.from('conhecimentos').select('bonus').eq('personagem_id', fichaId),
+            supabase.from('inventario').select('bonus').eq('personagem_id', fichaId),
+            supabase.from('personagens').select('passiva').eq('id', fichaId).single()
+        ]);
+
+        // Inicializar acumuladores de bônus
+        const bonusTotal = {
+            forca_bonus: 0,
+            agilidade_bonus: 0,
+            sorte_bonus: 0,
+            inteligencia_bonus: 0,
+            corpo_essencia_bonus: 0,
+            exposicao_runica_bonus: 0,
+            vida_maxima_bonus: 0,
+            mana_maxima_bonus: 0,
+            estamina_maxima_bonus: 0
+        };
+
+        // Função auxiliar para somar bônus
+        const somarBonus = (items) => {
+            if (!items.data) return;
+            items.data.forEach(item => {
+                if (item.bonus && Array.isArray(item.bonus)) {
+                    item.bonus.forEach(bonus => {
+                        if (bonusTotal.hasOwnProperty(bonus.atributo)) {
+                            bonusTotal[bonus.atributo] += bonus.valor || 0;
+                        }
+                    });
+                }
+            });
+        };
+
+        // Somar bônus de todas as sources
+        somarBonus(magias);
+        somarBonus(habilidades);
+        somarBonus(conhecimentos);
+        somarBonus(itens);
+
+        // Somar bônus das passivas
+        if (personagem.data?.passiva) {
+            try {
+                const passivas = JSON.parse(personagem.data.passiva || '[]');
+                passivas.forEach(passiva => {
+                    if (passiva.bonus && Array.isArray(passiva.bonus)) {
+                        passiva.bonus.forEach(bonus => {
+                            if (bonusTotal.hasOwnProperty(bonus.atributo)) {
+                                bonusTotal[bonus.atributo] += bonus.valor || 0;
+                            }
+                        });
+                    }
+                });
+            } catch (e) {
+                console.log('Erro ao parsear passivas:', e);
+            }
+        }
+
+        // Atualizar personagem com os bônus calculados
+        const { data, error } = await supabase
+            .from('personagens')
+            .update(bonusTotal)
+            .eq('id', fichaId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        
+        console.log('Bônus recalculados com sucesso:', bonusTotal);
+        return { success: true, data, bonusTotal };
+    } catch (error) {
+        console.error('Erro ao recalcular bônus globais:', error.message);
         return { success: false, error: error.message };
     }
 }

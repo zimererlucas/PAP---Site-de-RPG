@@ -53,7 +53,7 @@
                     <h1>📋 Minhas Fichas</h1>
                 </div>
                 <div class="col text-end">
-                    <a href="criar-ficha.html" class="btn btn-primary">➕ Criar Nova Ficha</a>
+                    <button onclick="createNewFicha()" class="btn btn-primary">➕ Criar Nova Ficha</button>
                 </div>
             </div>
 
@@ -68,7 +68,7 @@
             <div id="emptyState" style="display: none;" class="text-center py-5">
                 <h3>Nenhuma ficha criada ainda</h3>
                 <p class="text-muted">Comece criando sua primeira ficha de personagem!</p>
-                <a href="criar-ficha.html" class="btn btn-primary">➕ Criar Primeira Ficha</a>
+                <button onclick="createNewFicha()" class="btn btn-primary">➕ Criar Primeira Ficha</button>
             </div>
 
             <!-- Fichas Grid -->
@@ -89,6 +89,7 @@
     <script src="../js/auth.js"></script>
     <script src="../js/personagens.js"></script>
     <script src="../js/fichas.js"></script>
+    
 
 </body>
 </html>

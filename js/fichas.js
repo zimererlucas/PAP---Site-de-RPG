@@ -55,7 +55,6 @@ async function loadFichas() {
                     </div>
                     <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
                         <button class="btn btn-sm" style="background-color: rgba(149, 129, 235, 0.53); border-color: rgba(149, 129, 235, 0.53); color: white;" onclick="viewFicha('${ficha.id}')">Visualizar</button>
-                        <button class="btn btn-sm" style="background-color: rgba(149, 129, 235, 0.53); border-color: rgba(149, 129, 235, 0.53); color: white;" onclick="editFicha('${ficha.id}')">Editar</button>
                         <button class="btn btn-sm btn-danger" onclick="deleteFicha('${ficha.id}')">Deletar</button>
                     </div>
                 </div>
@@ -66,6 +65,25 @@ async function loadFichas() {
         console.error('Erro ao carregar fichas:', error);
         alert('Erro ao carregar fichas');
         loadingState.style.display = 'none';
+    }
+}
+
+async function createNewFicha() {
+    const defaultFicha = {
+        nome: 'Nova Ficha'
+    };
+
+    try {
+        const result = await createPersonagem(defaultFicha);
+
+        if (result.success && result.data) {
+            window.location.href = `visualizar-ficha.html?id=${result.data.id}`;
+        } else {
+            alert('Ocorreu um erro ao criar a nova ficha: ' + result.error);
+        }
+    } catch (error) {
+        console.error("Erro ao criar ficha:", error);
+        alert('Ocorreu um erro inesperado ao criar a ficha.');
     }
 }
 
