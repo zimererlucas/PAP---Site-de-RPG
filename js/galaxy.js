@@ -29,24 +29,106 @@ const CONFIG = {
 };
 
 /* ============================================
-   VERIFICAÇÃO WEBGL
+   VERIFICAÇÃO WEBGL E GPU
    ============================================ */
 function checkWebGLSupport() {
     try {
         const canvas = document.createElement('canvas');
-        return !!(window.WebGLRenderingContext && 
-                 (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        
+        if (!gl) return { supported: false, gpuActive: false };
+        
+        // Verificar se a GPU está realmente sendo usada
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown';
+        
+        // Detectar se está usando software rendering (SwiftShader, llvmpipe, etc.)
+        const isSoftwareRenderer = /SwiftShader|llvmpipe|software/i.test(renderer);
+        
+        return {
+            supported: true,
+            gpuActive: !isSoftwareRenderer,
+            renderer: renderer
+        };
     } catch(e) {
-        return false;
+        return { supported: false, gpuActive: false };
     }
+}
+
+function showWebGLWarning(message, type = 'warning') {
+    const warning = document.createElement('div');
+    warning.id = 'webgl-warning';
+    warning.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 193, 7, 0.95);
+            color: #1a1a1a;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 90%;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: slideDown 0.4s ease-out;
+        ">
+            <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+                <span style="font-size: 20px;">⚠️</span>
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                    background: transparent;
+                    border: none;
+                    color: #1a1a1a;
+                    font-size: 18px;
+                    cursor: pointer;
+                    margin-left: 10px;
+                    padding: 0;
+                    line-height: 1;
+                ">✕</button>
+            </div>
+        </div>
+    `;
+    
+    // Adicionar animação
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from { top: -100px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(warning);
+    
+    // Auto-remover após 10 segundos
+    setTimeout(() => {
+        if (warning.parentElement) {
+            warning.style.animation = 'slideDown 0.4s ease-in reverse';
+            setTimeout(() => warning.remove(), 400);
+        }
+    }, 10000);
 }
 
 // Aguardar carregamento do DOM
 window.addEventListener('DOMContentLoaded', function() {
-    if (!checkWebGLSupport()) {
+    const webglStatus = checkWebGLSupport();
+    
+    if (!webglStatus.supported) {
         document.getElementById('webgl-fallback').style.display = 'flex';
         document.getElementById('nebula-canvas').style.display = 'none';
+        showWebGLWarning('WebGL não está disponível no seu navegador. Habilite a aceleração de hardware para melhor experiência visual.');
         return;
+    }
+    
+    if (!webglStatus.gpuActive) {
+        console.warn('⚠️ GPU não detectada ou aceleração desativada. Renderer:', webglStatus.renderer);
+        showWebGLWarning('Aceleração de GPU desativada. Habilite nas configurações do navegador para melhor desempenho visual.');
     }
     
     initNebula();
@@ -65,6 +147,21 @@ function initNebula() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(profile.pixelRatio);
     camera.position.z = 50;
+
+    // Ajustar a altura visual do canvas para o tamanho total da página
+    const resizeCanvasToPage = () => {
+        const pageHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.documentElement.clientHeight,
+            window.innerHeight
+        );
+        canvas.style.height = `${pageHeight}px`;
+    };
+    resizeCanvasToPage();
+
+    // Observar mudanças no layout para manter o canvas acompanhando o tamanho da página
+    const bodyResizeObserver = new ResizeObserver(resizeCanvasToPage);
+    bodyResizeObserver.observe(document.body);
     
     /* ============================================
        CRIAR TEXTURA DO CÍRCULO
@@ -273,6 +370,7 @@ function initNebula() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        resizeCanvasToPage();
     });
     
     animate();

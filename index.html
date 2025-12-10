@@ -16,118 +16,34 @@
 
     <canvas id="nebula-canvas"></canvas>
 
+
     <div id="foreground">
         <nav class="navbar">
             <div class="logo">Gênesis RPG</div>
-
             <ul class="nav-list">
                 <li><a href="pages/fichas.html" class="nav-link">Fichas</a></li>
                 <li><a href="pages/campanhas.html" class="nav-link">Campanhas</a></li>
                 <li><a href="#" class="nav-link">Comunidade</a></li>
-
-                <!-- VISÍVEL somente deslogado -->
                 <li id="loginItem" class="nav-action">
                     <button id="loginBtn" class="nav-btn">Login</button>
                 </li>
-
-                <!-- VISÍVEL somente logado -->
                 <li id="userItem" class="nav-action" style="display:none;">
-                    <span id="userEmail"></span>
                     <button id="logoutBtn" class="nav-btn">Sair</button>
                 </li>
             </ul>
         </nav>
-
         <div id="webgl-fallback">
             <p>WebGL não está disponível. A visualizar versão simplificada.</p>
         </div>
-
         <div id="userPanel" style="display:none; text-align:center; margin-top:20px; color:white;">
             <p id="userEmail"></p>
             <button id="logoutBtn" class="nav-btn">Sair</button>
         </div>
 
-        <script>
-            // Configuração do seu projeto Supabase (use seus valores)
-            const SUPABASE_URL = 'https://rdrbhapthqnpdtqubuwo.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkcmJoYXB0aHFucGR0cXVidXdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTE2MDUsImV4cCI6MjA3NTM4NzYwNX0.QjZOhXNBYU_F5HKjVDRfY6aFNsNSDodX3q4YJbBwM8U';
-
-
-            const { createClient } = supabase;
-            const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-            // elementos
-            const loginItem = document.getElementById('loginItem');
-            const loginBtn = document.getElementById('loginBtn');
-            const userItem = document.getElementById('userItem');
-            const userEmail = document.getElementById('userEmail');
-            const logoutBtn = document.getElementById('logoutBtn');
-
-            // Inicia: verifica usuário ao carregar
-            async function initAuthNavbar() {
-                // Checa sessão atual (se redirecionou após OAuth, Supabase também trata)
-                const { data } = await client.auth.getUser();
-
-                if (data?.user) {
-                    // Mostrar somente botão de logout (ocultar email do usuário)
-                    if (loginItem) loginItem.style.display = 'none';
-                    if (userItem) userItem.style.display = 'flex';
-                    if (userEmail) { userEmail.textContent = ''; userEmail.style.display = 'none'; }
-                    if (logoutBtn) logoutBtn.style.display = 'inline-block';
-                } else {
-                    showLogin();
-                }
-
-                // Adiciona listener de mudança de auth (opcional, mantém a UI sincronizada)
-                client.auth.onAuthStateChange((event, session) => {
-                    if (session?.user) {
-                        // Mostrar somente botão de logout (ocultar email do usuário)
-                        if (loginItem) loginItem.style.display = 'none';
-                        if (userItem) userItem.style.display = 'flex';
-                        if (userEmail) { userEmail.textContent = ''; userEmail.style.display = 'none'; }
-                        if (logoutBtn) logoutBtn.style.display = 'inline-block';
-                    } else {
-                        showLogin();
-                    }
-                });
-            }
-
-            /* showUser removed: logic inlined into initAuthNavbar and auth state handler */
-
-            function showLogin() {
-                if (loginItem) loginItem.style.display = 'flex';
-                if (userItem) userItem.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'none';
-                if (userEmail) { userEmail.textContent = ''; userEmail.style.display = 'none'; }
-            }
-
-            // eventos
-            loginBtn.addEventListener('click', async () => {
-                // inicia OAuth (redireciona)
-                const { error } = await client.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: { redirectTo: window.location.href }
-                });
-                if (error) alert('Erro ao iniciar login: ' + error.message);
-            });
-
-            logoutBtn.addEventListener('click', async () => {
-                await client.auth.signOut();
-                // limpa UI localmente
-                showLogin();
-                // opcional: recarregar para limpar estado
-                // location.reload();
-            });
-
-            // inicializa
-            document.addEventListener('DOMContentLoaded', () => {
-                initAuthNavbar();
-            });
-        </script>
-
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
         <script src="js/galaxy.js"></script>
+        <script src="js/config.js"></script>
         <script src="js/auth.js"></script>
     </div>
 

@@ -450,6 +450,44 @@ canvas#nebula-canvas {
     border-radius: 4px;
     margin-bottom: 15px;
 }
+
+/* Fichas: chips compactos para detalhes de magias/itens */
+.accordion-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 10px 0;
+}
+
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid #667eea;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 0.9em;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 0.75em;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.stat-value {
+    color: #fff;
+    font-weight: 700;
+}
+
+.descricao-detalhe {
+    color: #e0e0e0;
+    margin-bottom: 10px;
+}
     </style>
 </head>
 <body>
@@ -612,6 +650,18 @@ canvas#nebula-canvas {
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Esquiva e Acerto -->
+                                <div class="tempo-reputacao-row" style="margin-top: 15px;">
+                                    <div class="tempo-reacao-box">
+                                        <div class="tempo-reacao-label">🛡️ Esquiva</div>
+                                        <div class="tempo-reacao-valor" id="esquivaValor">0</div>
+                                    </div>
+                                    <div class="tempo-reacao-box">
+                                        <div class="tempo-reacao-label">🎯 Acerto</div>
+                                        <div class="tempo-reacao-valor" id="acertoValor">0</div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Coluna Direita: Status + Navbar -->
@@ -708,8 +758,10 @@ canvas#nebula-canvas {
                                         <button class="btn btn-primary" onclick="abrirModalMagia()" style="background: #667eea; border: none;">+ Adicionar Magia</button>
                                     </div>
                                     <input type="text" id="busca-magias" class="search-input" placeholder="Buscar magia..." oninput="filtrarMagias()">
-                                    <div id="lista-magias">
-                                        <p style="color: #b0b0b0;">Nenhuma magia adicionada ainda.</p>
+                                    <div style="max-height: 450px; overflow-y: auto; border-radius: 8px; padding-right: 10px;">
+                                        <div id="lista-magias">
+                                            <p style="color: #b0b0b0;">Nenhuma magia adicionada ainda.</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="tab-habilidades" class="tab-content">
@@ -718,8 +770,10 @@ canvas#nebula-canvas {
                                         <button class="btn btn-primary" onclick="abrirModalHabilidade()" style="background: #667eea; border: none;">+ Adicionar Habilidade</button>
                                     </div>
                                     <input type="text" id="busca-habilidades" class="search-input" placeholder="Buscar habilidade..." oninput="filtrarHabilidades()">
-                                    <div id="lista-habilidades">
-                                        <p style="color: #b0b0b0;">Nenhuma habilidade adicionada ainda.</p>
+                                    <div style="max-height: 450px; overflow-y: auto; border-radius: 8px; padding-right: 10px;">
+                                        <div id="lista-habilidades">
+                                            <p style="color: #b0b0b0;">Nenhuma habilidade adicionada ainda.</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="tab-conhecimentos" class="tab-content">
@@ -728,8 +782,10 @@ canvas#nebula-canvas {
                                         <button class="btn btn-primary" onclick="abrirModalConhecimento()" style="background: #667eea; border: none;">+ Adicionar Conhecimento</button>
                                     </div>
                                     <input type="text" id="busca-conhecimentos" class="search-input" placeholder="Buscar conhecimento..." oninput="filtrarConhecimentos()">
-                                    <div id="lista-conhecimentos">
-                                        <p style="color: #b0b0b0;">Nenhum conhecimento adicionado ainda.</p>
+                                    <div style="max-height: 450px; overflow-y: auto; border-radius: 8px; padding-right: 10px;">
+                                        <div id="lista-conhecimentos">
+                                            <p style="color: #b0b0b0;">Nenhum conhecimento adicionado ainda.</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="tab-inventario" class="tab-content">
@@ -738,8 +794,10 @@ canvas#nebula-canvas {
                                         <button class="btn btn-primary" onclick="abrirModalItem()" style="background: #667eea; border: none;">+ Adicionar Item</button>
                                     </div>
                                     <input type="text" id="busca-itens" class="search-input" placeholder="Buscar item..." oninput="filtrarItens()">
-                                    <div id="lista-itens">
-                                        <p style="color: #b0b0b0;">Inventário vazio.</p>
+                                    <div style="max-height: 450px; overflow-y: auto; border-radius: 8px; padding-right: 10px;">
+                                        <div id="lista-itens">
+                                            <p style="color: #b0b0b0;">Inventário vazio.</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="tab-anotacoes" class="tab-content">
@@ -748,8 +806,10 @@ canvas#nebula-canvas {
                                         <button class="btn btn-primary" onclick="abrirModalAnotacao()" style="background: #667eea; border: none;">+ Adicionar Anotação</button>
                                     </div>
                                     <input type="text" id="busca-anotacoes" class="search-input" placeholder="Buscar anotação..." oninput="filtrarAnotacoes()">
-                                    <div id="lista-anotacoes">
-                                        <p style="color: #b0b0b0;">Nenhuma anotação adicionada ainda.</p>
+                                    <div style="max-height: 450px; overflow-y: auto; border-radius: 8px; padding-right: 10px;">
+                                        <div id="lista-anotacoes">
+                                            <p style="color: #b0b0b0;">Nenhuma anotação adicionada ainda.</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="tab-passivas" class="tab-content">
@@ -758,8 +818,10 @@ canvas#nebula-canvas {
                                         <button class="btn btn-primary" onclick="abrirModalPassiva()" style="background: #667eea; border: none;">+ Adicionar Passiva</button>
                                     </div>
                                     <input type="text" id="busca-passivas" class="search-input" placeholder="Buscar passiva..." oninput="filtrarPassivas()">
-                                    <div id="lista-passivas">
-                                        <p style="color: #b0b0b0;">Nenhuma passiva adicionada ainda.</p>
+                                    <div style="max-height: 450px; overflow-y: auto; border-radius: 8px; padding-right: 10px;">
+                                        <div id="lista-passivas">
+                                            <p style="color: #b0b0b0;">Nenhuma passiva adicionada ainda.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -996,6 +1058,7 @@ canvas#nebula-canvas {
     <script src="../js/auth.js"></script>
     <script src="../js/personagens.js"></script>
     <script src="../js/ficha-items.js"></script>
+    <script src="../js/ativacoes.js"></script>
     <script src="../js/modais-itens.js"></script>
     <script src="../js/visualizar-ficha.js"></script>
     <script>
@@ -1147,6 +1210,16 @@ canvas#nebula-canvas {
             console.log('Tempo de Reacao:', totalAtributos, '/', 10, '=', tempoReacao);
             const tempoReacaoEl = document.getElementById('tempoReacao');
             if (tempoReacaoEl) tempoReacaoEl.textContent = tempoReacao;
+            
+            // Recalcular Esquiva e Acerto (cada 5 em agilidade = +1)
+            // Nota: Os bônus vêm do banco de dados, aqui apenas recalculamos a base
+            const esquivaBase = Math.floor(agilidadeTotal / 5);
+            const acertoBase = Math.floor(agilidadeTotal / 5);
+            
+            // Para ter os bônus atualizados, precisaríamos fazer uma chamada ao servidor
+            // Por enquanto, apenas atualizamos a parte de base (que depende de agilidade)
+            // Os bônus serão atualizados quando loadFicha for chamado
+            console.log('Esquiva Base:', esquivaBase, 'Acerto Base:', acertoBase);
         }
 
         function toggleEditarInfo() {
@@ -1198,7 +1271,7 @@ canvas#nebula-canvas {
                 });
                 document.getElementById('info-save-btn').style.display = 'none';
             } else {
-                alert('Erro ao salvar: ' + result.error);
+                console.error('Erro ao salvar info:', result.error);
             }
         }
 
@@ -1267,7 +1340,7 @@ canvas#nebula-canvas {
                 toggleEditarAtributos();
                 recalcularTempoReacao();
             } else {
-                alert('Erro ao salvar: ' + result.error);
+                console.error('Erro ao salvar atributos:', result.error);
             }
         }
 
@@ -1366,7 +1439,7 @@ canvas#nebula-canvas {
                 // Recarregar os dados da ficha para garantir que tudo está correto
                 await loadFicha();
             } else {
-                alert('Erro ao salvar: ' + result.error);
+                console.error('Erro ao salvar status:', result.error);
             }
         }
 

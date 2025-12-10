@@ -18,7 +18,7 @@ async function loadFichas() {
         const result = await getPersonagensDoUsuario();
         
         if (!result.success) {
-            alert('Erro ao carregar fichas: ' + result.error);
+            console.error('Erro ao carregar fichas:', result.error);
             loadingState.style.display = 'none';
             return;
         }
@@ -63,7 +63,6 @@ async function loadFichas() {
         
     } catch (error) {
         console.error('Erro ao carregar fichas:', error);
-        alert('Erro ao carregar fichas');
         loadingState.style.display = 'none';
     }
 }
@@ -79,11 +78,10 @@ async function createNewFicha() {
         if (result.success && result.data) {
             window.location.href = `visualizar-ficha.html?id=${result.data.id}`;
         } else {
-            alert('Ocorreu um erro ao criar a nova ficha: ' + result.error);
+            console.error('Ocorreu um erro ao criar a nova ficha:', result.error);
         }
     } catch (error) {
         console.error("Erro ao criar ficha:", error);
-        alert('Ocorreu um erro inesperado ao criar a ficha.');
     }
 }
 
@@ -96,17 +94,15 @@ function editFicha(id) {
 }
 
 async function deleteFicha(id) {
-    if (!confirm('Tem certeza que deseja deletar esta ficha?')) {
-        return;
-    }
+    const confirmed = await showConfirmDialog('Tem certeza que deseja deletar esta ficha?');
+    if (!confirmed) return;
     
     const result = await deletePersonagem(id);
     
     if (result.success) {
-        alert('Ficha deletada com sucesso!');
         await loadFichas();
     } else {
-        alert('Erro ao deletar ficha: ' + result.error);
+        console.error('Erro ao deletar ficha:', result.error);
     }
 }
 
@@ -114,9 +110,8 @@ async function handleLogout() {
     const result = await signOutUser();
     
     if (result.success) {
-        alert('Logout realizado com sucesso!');
         window.location.href = '../index.html';
     } else {
-        alert('Erro ao fazer logout: ' + result.error);
+        console.error('Erro ao fazer logout:', result.error);
     }
 }

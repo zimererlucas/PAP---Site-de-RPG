@@ -31,7 +31,7 @@ async function loadCampanhasNarrador() {
         const result = await getCampanhasDoUsuario();
         
         if (!result.success) {
-            alert('Erro ao carregar campanhas: ' + result.error);
+            console.error('Erro ao carregar campanhas:', result.error);
             loadingState.style.display = 'none';
             return;
         }
@@ -71,7 +71,6 @@ async function loadCampanhasNarrador() {
         
     } catch (error) {
         console.error('Erro ao carregar campanhas:', error);
-        alert('Erro ao carregar campanhas');
         loadingState.style.display = 'none';
     }
 }
@@ -171,32 +170,28 @@ function editCampanha(id) {
 }
 
 async function deleteCampanhaConfirm(id) {
-    if (!confirm('Tem certeza que deseja deletar esta campanha?')) {
-        return;
-    }
+    const confirmed = await showConfirmDialog('Tem certeza que deseja deletar esta campanha?');
+    if (!confirmed) return;
     
     const result = await deleteCampanha(id);
     
     if (result.success) {
-        alert('Campanha deletada com sucesso!');
         await loadCampanhasNarrador();
     } else {
-        alert('Erro ao deletar campanha: ' + result.error);
+        console.error('Erro ao deletar campanha:', result.error);
     }
 }
 
 async function sairDaCampanha(participacaoId) {
-    if (!confirm('Tem certeza que deseja sair desta campanha?')) {
-        return;
-    }
+    const confirmed = await showConfirmDialog('Tem certeza que deseja sair desta campanha?');
+    if (!confirmed) return;
     
     const result = await removerJogadorDaCampanha(participacaoId);
     
     if (result.success) {
-        alert('Você saiu da campanha!');
         await loadCampanhasJogador();
     } else {
-        alert('Erro ao sair da campanha: ' + result.error);
+        console.error('Erro ao sair da campanha:', result.error);
     }
 }
 
@@ -229,7 +224,7 @@ async function handleEntrarCampanha(e) {
     const personagemId = document.getElementById('personagemParticipacao').value;
     
     if (!codigo || !personagemId) {
-        alert('Por favor, preencha todos os campos!');
+        console.warn('Por favor, preencha todos os campos!');
         return;
     }
     
@@ -237,7 +232,7 @@ async function handleEntrarCampanha(e) {
     const campanhaResult = await getCampanhaByCodigo(codigo);
     
     if (!campanhaResult.success) {
-        alert('Campanha não encontrada! Verifique o código.');
+        console.warn('Campanha não encontrada! Verifique o código.');
         return;
     }
     
@@ -247,12 +242,11 @@ async function handleEntrarCampanha(e) {
     const result = await adicionarJogadorACampanha(campanha.id, personagemId);
     
     if (result.success) {
-        alert('Você entrou na campanha com sucesso!');
         document.getElementById('entrarCampanhaForm').reset();
         bootstrap.Modal.getInstance(document.getElementById('entrarCampanhaModal')).hide();
         await loadCampanhasJogador();
     } else {
-        alert('Erro ao entrar na campanha: ' + result.error);
+        console.error('Erro ao entrar na campanha:', result.error);
     }
 }
 
@@ -260,9 +254,8 @@ async function handleLogout() {
     const result = await signOutUser();
     
     if (result.success) {
-        alert('Logout realizado com sucesso!');
         window.location.href = '../index.html';
     } else {
-        alert('Erro ao fazer logout: ' + result.error);
+        console.error('Erro ao fazer logout:', result.error);
     }
 }

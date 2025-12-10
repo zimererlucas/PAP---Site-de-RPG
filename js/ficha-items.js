@@ -536,7 +536,20 @@ async function adicionarPassiva(fichaId, passiva) {
 
         if (fetchError) throw fetchError;
 
-        const currentPassivas = JSON.parse(personagem.passiva || '[]');
+        // Parse com segurança - se não for JSON válido, trata como array vazio
+        let currentPassivas = [];
+        if (personagem.passiva) {
+            try {
+                currentPassivas = JSON.parse(personagem.passiva);
+                if (!Array.isArray(currentPassivas)) {
+                    currentPassivas = [];
+                }
+            } catch (e) {
+                console.warn('Passiva anterior não era JSON válido, resetando para array vazio');
+                currentPassivas = [];
+            }
+        }
+
         const newPassiva = {
             id: Date.now().toString(), // Simple ID generation
             nome: passiva.nome,
@@ -572,7 +585,15 @@ async function obterPassivas(fichaId) {
             .single();
 
         if (error) throw error;
-        return { success: true, data: JSON.parse(data.passiva || '[]') };
+        
+        // Parse com segurança
+        try {
+            const passivas = JSON.parse(data.passiva || '[]');
+            return { success: true, data: Array.isArray(passivas) ? passivas : [] };
+        } catch (e) {
+            console.warn('Passiva armazenada não é JSON válido, retornando array vazio');
+            return { success: true, data: [] };
+        }
     } catch (error) {
         console.error('Erro ao obter passivas:', error.message);
         return { success: false, error: error.message };
@@ -589,7 +610,16 @@ async function obterPassiva(fichaId, passivaId) {
             .single();
 
         if (error) throw error;
-        const passivas = JSON.parse(data.passiva || '[]');
+        
+        // Parse com segurança
+        let passivas = [];
+        try {
+            passivas = JSON.parse(data.passiva || '[]');
+        } catch (e) {
+            console.warn('Passiva armazenada não é JSON válido');
+            return { success: false, error: 'Dados de passiva corrompidos' };
+        }
+        
         const passiva = passivas.find(p => p.id === passivaId);
         if (!passiva) throw new Error('Passiva não encontrada');
         return { success: true, data: passiva };
@@ -614,7 +644,18 @@ async function atualizarPassiva(fichaId, passivaId, passiva) {
 
         if (fetchError) throw fetchError;
 
-        const currentPassivas = JSON.parse(personagem.passiva || '[]');
+        // Parse com segurança
+        let currentPassivas = [];
+        try {
+            currentPassivas = JSON.parse(personagem.passiva || '[]');
+            if (!Array.isArray(currentPassivas)) {
+                currentPassivas = [];
+            }
+        } catch (e) {
+            console.warn('Passiva anterior não era JSON válido, resetando para array vazio');
+            currentPassivas = [];
+        }
+
         const index = currentPassivas.findIndex(p => p.id === passivaId);
         if (index === -1) throw new Error('Passiva não encontrada');
 
@@ -642,12 +683,43 @@ async function atualizarPassiva(fichaId, passivaId, passiva) {
     }
 }
 
-async function deletarPassiva(passivaId) {
+async function deletarPassiva(fichaId, passivaId) {
     try {
-        const { error } = await supabase
-            .from('passivas')
-            .delete()
-            .eq('id', passivaId);
+        const user = await getCurrentUser();
+        if (!user) throw new Error('Usuário não autenticado');
+
+        // Get the current passiva array
+        const { data: personagem, error: fetchError } = await supabase
+            .from('personagens')
+            .select('passiva')
+            .eq('id', fichaId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        // Parse com segurança
+        let currentPassivas = [];
+        if (personagem.passiva) {
+            try {
+                currentPassivas = JSON.parse(personagem.passiva);
+                if (!Array.isArray(currentPassivas)) {
+                    currentPassivas = [];
+                }
+            } catch (e) {
+                console.warn('Passiva anterior não era JSON válido, resetando para array vazio');
+                currentPassivas = [];
+            }
+        }
+
+        // Remove the passiva with matching ID
+        currentPassivas = currentPassivas.filter(p => p.id !== passivaId);
+
+        const { data, error } = await supabase
+            .from('personagens')
+            .update({ passiva: JSON.stringify(currentPassivas) })
+            .eq('id', fichaId)
+            .select()
+            .single();
 
         if (error) throw error;
         return { success: true };
@@ -670,13 +742,13 @@ async function recalcularBonusGlobais(fichaId) {
         const user = await getCurrentUser();
         if (!user) throw new Error('Usuário não autenticado');
 
-        // Obter todos os items com bônus
+        // Obter todos os items ATIVOS com bônus
         const [magias, habilidades, conhecimentos, itens, personagem] = await Promise.all([
-            supabase.from('magias').select('bonus').eq('personagem_id', fichaId),
-            supabase.from('habilidades').select('bonus').eq('personagem_id', fichaId),
-            supabase.from('conhecimentos').select('bonus').eq('personagem_id', fichaId),
-            supabase.from('inventario').select('bonus').eq('personagem_id', fichaId),
-            supabase.from('personagens').select('passiva').eq('id', fichaId).single()
+            supabase.from('magias').select('bonus').eq('personagem_id', fichaId).eq('ativa', true),
+            supabase.from('habilidades').select('bonus').eq('personagem_id', fichaId).eq('ativa', true),
+            supabase.from('conhecimentos').select('bonus').eq('personagem_id', fichaId).eq('ativa', true),
+            supabase.from('inventario').select('bonus').eq('personagem_id', fichaId).eq('ativa', true),
+            supabase.from('personagens').select('passiva, passivas_ativas').eq('id', fichaId).single()
         ]);
 
         // Inicializar acumuladores de bônus
@@ -689,7 +761,9 @@ async function recalcularBonusGlobais(fichaId) {
             exposicao_runica_bonus: 0,
             vida_maxima_bonus: 0,
             mana_maxima_bonus: 0,
-            estamina_maxima_bonus: 0
+            estamina_maxima_bonus: 0,
+            esquiva_bonus: 0,
+            acerto_bonus: 0
         };
 
         // Função auxiliar para somar bônus
@@ -706,28 +780,39 @@ async function recalcularBonusGlobais(fichaId) {
             });
         };
 
-        // Somar bônus de todas as sources
+        // Somar bônus apenas de items ATIVOS
         somarBonus(magias);
         somarBonus(habilidades);
         somarBonus(conhecimentos);
         somarBonus(itens);
 
-        // Somar bônus das passivas
-        if (personagem.data?.passiva) {
-            try {
-                const passivas = JSON.parse(personagem.data.passiva || '[]');
-                passivas.forEach(passiva => {
-                    if (passiva.bonus && Array.isArray(passiva.bonus)) {
-                        passiva.bonus.forEach(bonus => {
-                            if (bonusTotal.hasOwnProperty(bonus.atributo)) {
-                                bonusTotal[bonus.atributo] += bonus.valor || 0;
-                            }
-                        });
+        // Somar bônus das passivas ATIVAS
+        if (personagem.data?.passivas_ativas && Array.isArray(personagem.data.passivas_ativas)) {
+            // Get all passivas
+            let passivas = [];
+            if (personagem.data.passiva) {
+                try {
+                    passivas = JSON.parse(personagem.data.passiva);
+                    if (!Array.isArray(passivas)) {
+                        passivas = [];
                     }
-                });
-            } catch (e) {
-                console.log('Erro ao parsear passivas:', e);
+                } catch (e) {
+                    console.warn('Passivas armazenadas não são JSON válido');
+                    passivas = [];
+                }
             }
+
+            // Filter passivas ATIVAS and sum their bonuses
+            personagem.data.passivas_ativas.forEach(nomePassivaAtiva => {
+                const passiva = passivas.find(p => p.nome === nomePassivaAtiva);
+                if (passiva && passiva.bonus && Array.isArray(passiva.bonus)) {
+                    passiva.bonus.forEach(bonus => {
+                        if (bonusTotal.hasOwnProperty(bonus.atributo)) {
+                            bonusTotal[bonus.atributo] += bonus.valor || 0;
+                        }
+                    });
+                }
+            });
         }
 
         // Atualizar personagem com os bônus calculados
@@ -740,7 +825,7 @@ async function recalcularBonusGlobais(fichaId) {
 
         if (error) throw error;
         
-        console.log('Bônus recalculados com sucesso:', bonusTotal);
+        console.log('✅ Bônus recalculados (apenas ATIVOS, incluindo passivas):', bonusTotal);
         return { success: true, data, bonusTotal };
     } catch (error) {
         console.error('Erro ao recalcular bônus globais:', error.message);

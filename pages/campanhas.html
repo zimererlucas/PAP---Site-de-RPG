@@ -172,6 +172,13 @@
     <script src="../js/personagens.js"></script>
     <script src="../js/campanhas.js"></script>
     <script src="../js/listar-campanhas.js"></script>
+
+    <!-- Verificar se está logado -->
+    <script>
+        (async function() {
+            await requireLogin();
+        })();
+    </script>
 </body>
 
 </html>

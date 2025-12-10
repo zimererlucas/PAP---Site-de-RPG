@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     campanhaId = params.get('id');
     
     if (!campanhaId) {
-        alert('Campanha não encontrada!');
+        console.error('Campanha não encontrada!');
         window.location.href = 'campanhas.html';
         return;
     }
@@ -30,7 +30,7 @@ async function loadCampanha() {
         const result = await getCampanhaById(campanhaId);
         
         if (!result.success) {
-            alert('Erro ao carregar campanha: ' + result.error);
+            console.error('Erro ao carregar campanha:', result.error);
             loadingState.style.display = 'none';
             return;
         }
@@ -50,7 +50,6 @@ async function loadCampanha() {
         
     } catch (error) {
         console.error('Erro ao carregar campanha:', error);
-        alert('Erro ao carregar campanha');
         loadingState.style.display = 'none';
     }
 }
@@ -172,9 +171,8 @@ async function handleLogout() {
     const result = await signOutUser();
     
     if (result.success) {
-        alert('Logout realizado com sucesso!');
         window.location.href = '../index.html';
     } else {
-        alert('Erro ao fazer logout: ' + result.error);
+        console.error('Erro ao fazer logout:', result.error);
     }
 }

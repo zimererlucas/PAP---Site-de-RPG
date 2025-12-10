@@ -141,9 +141,8 @@ async function deleteCampanha(id) {
 
 // --- UI helper: comportamento igual ao deleteFicha ---
 async function deleteCampanhaUI(id) {
-    if (!confirm('Tem certeza que deseja deletar esta campanha?')) {
-        return;
-    }
+    const confirmed = await showConfirmDialog('Tem certeza que deseja deletar esta campanha?');
+    if (!confirmed) return;
 
     // Opcional: mostrar carregando...
     // Ex: mostrar spinner ou desabilitar botões enquanto aguarda.

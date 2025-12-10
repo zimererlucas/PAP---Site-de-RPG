@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     campanhaId = params.get('id');
     
     if (!campanhaId) {
-        alert('Campanha não encontrada!');
+        console.error('Campanha não encontrada!');
         window.location.href = 'campanhas.html';
         return;
     }
@@ -29,7 +29,7 @@ async function loadCampanha() {
         const result = await getCampanhaById(campanhaId);
         
         if (!result.success) {
-            alert('Erro ao carregar campanha: ' + result.error);
+            console.error('Erro ao carregar campanha:', result.error);
             loadingState.style.display = 'none';
             return;
         }
@@ -50,7 +50,7 @@ async function loadCampanha() {
         
     } catch (error) {
         console.error('Erro ao carregar campanha:', error);
-        alert('Erro ao carregar campanha');
+        // alert('Erro ao carregar campanha'); // Removed alert
         loadingState.style.display = 'none';
     }
 }
@@ -127,7 +127,7 @@ async function loadPersonagens() {
 function copiarCodigo() {
     const codigo = document.getElementById('codigo').textContent;
     navigator.clipboard.writeText(codigo).then(() => {
-        alert('Código copiado para a área de transferência!');
+        console.log('Código copiado para a área de transferência');
     });
 }
 
@@ -140,17 +140,16 @@ function viewPersonagem(id) {
 }
 
 async function removerJogador(participacaoId) {
-    if (!confirm('Tem certeza que deseja remover este jogador da campanha?')) {
-        return;
-    }
+    const confirmed = await showConfirmDialog('Tem certeza que deseja remover este jogador da campanha?');
+    if (!confirmed) return;
     
     const result = await removerJogadorDaCampanha(participacaoId);
     
     if (result.success) {
-        alert('Jogador removido com sucesso!');
+        console.log('Jogador removido com sucesso!');
         await loadPersonagens();
     } else {
-        alert('Erro ao remover jogador: ' + result.error);
+        console.error('Erro ao remover jogador:', result.error);
     }
 }
 
@@ -158,9 +157,9 @@ async function handleLogout() {
     const result = await signOutUser();
     
     if (result.success) {
-        alert('Logout realizado com sucesso!');
+        console.log('Logout realizado com sucesso!');
         window.location.href = '../index.html';
     } else {
-        alert('Erro ao fazer logout: ' + result.error);
+        console.error('Erro ao fazer logout:', result.error);
     }
 }

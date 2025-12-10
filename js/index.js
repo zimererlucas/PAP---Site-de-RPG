@@ -55,18 +55,16 @@ function showLoginModal() {
 
 // Fazer logout
 async function handleLogout() {
-    if (!confirm('Tem certeza que deseja sair?')) {
-        return;
-    }
+    const confirmed = await showConfirmDialog('Tem certeza que deseja sair?');
+    if (!confirmed) return;
 
     const result = await signOutUser();
 
     if (result.success) {
-        alert('✅ Logout realizado com sucesso!');
         await updateNavbar();
         // Recarregar página para mostrar login
         window.location.reload();
     } else {
-        alert('❌ Erro ao fazer logout: ' + result.error);
+        console.error('Erro ao fazer logout:', result.error);
     }
 }

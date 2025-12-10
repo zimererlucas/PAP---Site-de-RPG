@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('fichaId definido:', window.fichaId);
     
     if (!fichaId) {
-        alert('Ficha não encontrada!');
+        console.error('Ficha não encontrada!');
         window.location.href = 'fichas.html';
         return;
     }
@@ -143,7 +143,7 @@ async function loadFicha() {
         const result = await getPersonagemById(fichaId);
         
         if (!result.success) {
-            alert('Erro ao carregar ficha: ' + result.error);
+            console.error('Erro ao carregar ficha:', result.error);
             if (loadingState) loadingState.style.display = 'none';
             return;
         }
@@ -260,6 +260,17 @@ async function loadFicha() {
         setElement('tempoReacao', tempoReacaoCalculado);
         setElement('tempoReacaoValor', tempoReacaoCalculado);
         
+        // Calcular Esquiva e Acerto (cada 5 em agilidade = +1)
+        const esquivaBase = Math.floor(agilidadeTotalVal / 5);
+        const esquivaBonus = ficha.esquiva_bonus || 0;
+        const esquivaTotal = esquivaBase + esquivaBonus;
+        setElement('esquivaValor', esquivaTotal);
+        
+        const acertoBase = Math.floor(agilidadeTotalVal / 5);
+        const acertoBonus = ficha.acerto_bonus || 0;
+        const acertoTotal = acertoBase + acertoBonus;
+        setElement('acertoValor', acertoTotal);
+        
         // Reputação
         setElement('reputacao-view', ficha.reputacao || '-');
         const reputacaoSelect = document.getElementById('statusSocial');
@@ -365,7 +376,6 @@ async function loadFicha() {
         
     } catch (error) {
         console.error('Erro ao carregar ficha:', error);
-        alert('Erro ao carregar ficha');
         if (loadingState) loadingState.style.display = 'none';
     }
 }
@@ -376,14 +386,14 @@ function voltarParaFichas() {
 
 function irParaCombate() {
     if (!fichaId) {
-        alert('Erro: ID da ficha não encontrado');
+        console.error('Erro: ID da ficha não encontrado');
         return;
     }
     // Abrir em um pop-up
     const url = `controle-combate.html?id=${fichaId}`;
     const popup = window.open(url, 'combate', 'width=900,height=700,left=100,top=100');
     if (!popup) {
-        alert('Pop-up bloqueado! Por favor, permita pop-ups neste site.');
+        console.warn('Pop-up bloqueado. Permita pop-ups para abrir combate.');
     }
 }
 
@@ -448,7 +458,7 @@ async function salvarReputacao() {
         if (reputacaoView) reputacaoView.textContent = novaReputacao || '-';
         toggleEditarReputacao();
     } else {
-        alert('Erro ao salvar reputação: ' + result.error);
+        console.error('Erro ao salvar reputação:', result.error);
     }
 }
 

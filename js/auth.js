@@ -31,32 +31,27 @@ async function updateNavbar() {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session?.user;
 
+    // Elementos do index.html
+    const loginItem = document.getElementById('loginItem');
+    const userItem = document.getElementById('userItem');
+    const userEmail = document.getElementById('userEmail');
+
     console.log('👤 Estado do Usuário:', user ? 'Logado como ' + user.email : 'Deslogado');
 
     if (userSidebar) userSidebar.classList.remove('open');
 
     if (user) {
         // --- USUÁRIO LOGADO ---
-        if (loginLink) loginLink.style.display = 'none';
-        if (userAvatarWrapper) userAvatarWrapper.style.display = 'block';
-
-        const photoUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
-        const name = user.user_metadata?.full_name || user.email.split('@')[0];
-        
-        if (profilePicture && photoUrl) profilePicture.src = photoUrl;
-        if (sidebarPic && photoUrl) sidebarPic.src = photoUrl;
-        
-        if (sidebarName) sidebarName.textContent = name;
-        if (sidebarEmail) sidebarEmail.textContent = user.email;
-
+        if (loginItem) loginItem.style.display = 'none';
+        if (userItem) userItem.style.display = 'flex';
+        if (userEmail) userEmail.textContent = user.email;
         if (fichasNav) fichasNav.style.display = 'block';
         if (campanhasNav) campanhasNav.style.display = 'block';
-
     } else {
         // --- USUÁRIO DESLOGADO ---
-        if (loginLink) loginLink.style.display = 'block';
-        if (userAvatarWrapper) userAvatarWrapper.style.display = 'none';
-
+        if (loginItem) loginItem.style.display = 'flex';
+        if (userItem) userItem.style.display = 'none';
+        if (userEmail) userEmail.textContent = '';
         if (fichasNav) fichasNav.style.display = 'none';
         if (campanhasNav) campanhasNav.style.display = 'none';
     }
@@ -161,7 +156,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     await updateNavbar();
 })()
 /**
- * Bloqueia páginas que exigem login e redireciona para o index.
+ * Bloqueia páginas que exigem login e mostra aviso.
  * Retorna true se o usuário estiver logado.
  */
 async function requireLogin() {
@@ -169,7 +164,24 @@ async function requireLogin() {
 
     if (!user) {
         console.warn("❌ Acesso negado. Usuário não está logado.");
-        window.location.href = "../index.html"; 
+        
+        // Mostrar aviso customizado
+        const confirmed = await showConfirmDialog(
+            'Você precisa estar logado para acessar esta página!\n\nFaça login com sua conta Google para continuar.',
+            {
+                confirmText: 'Ir para Login',
+                cancelText: 'Cancelar'
+            }
+        );
+        
+        // Se confirmar, inicia login com Google
+        if (confirmed) {
+            await loginWithGoogle();
+        } else {
+            // Se cancelar, volta para a home
+            window.location.href = "../index.html";
+        }
+        
         return false;
     }
 

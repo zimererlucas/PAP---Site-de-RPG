@@ -31,11 +31,11 @@ body {
    ============================================ */
 #nebula-canvas {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0; /* ocupa toda a viewport em qualquer ponto do scroll */
     width: 100vw;
     height: 100vh;
-    z-index: -1;
+    min-height: 100vh; /* garante altura mínima fullscreen */
+    z-index: 0; /* acima do background do body, abaixo do conteúdo */
     pointer-events: none;
     display: block;
 }
