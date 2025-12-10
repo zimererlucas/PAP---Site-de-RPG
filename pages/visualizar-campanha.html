@@ -71,6 +71,23 @@
                     </div>
                 </div>
 
+                <!-- Controle de Turnos -->
+                <div class="card mb-4" id="turnosControl" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="mb-0">⏱️ Controle de Turnos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                            <div>
+                                <p class="mb-2"><strong>Turno Atual:</strong> <span id="turnoAtualDisplay" class="badge bg-primary">0</span></p>
+                                <button class="btn btn-lg btn-success" onclick="passarTurnoUI()" id="botaoPassarTurno">
+                                    ⏭️ Passar Turno
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Personagens da Campanha -->
                 <div class="card">
                     <div class="card-header">
@@ -106,6 +123,8 @@
     <script src="../js/config.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/campanhas.js"></script>
+    <script src="../js/ficha-items.js"></script>
+    <script src="../js/turnos-campanha.js"></script>
     <script src="../js/visualizar-campanha.js"></script>
 </body>
 

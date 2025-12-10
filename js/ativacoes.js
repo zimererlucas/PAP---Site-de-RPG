@@ -42,7 +42,9 @@ async function ativarMagia(fichaId, magiaId) {
             .from('magias')
             .update({
                 ativa: true,
-                ativada_em: new Date().toISOString()
+                ativada_em: new Date().toISOString(),
+                turno_ativacao: null, // Será configurado quando a campanha tiver turnos
+                turnos_restantes: magia.duracao_turnos || null
             })
             .eq('id', magiaId);
 
@@ -96,7 +98,9 @@ async function desativarMagia(fichaId, magiaId) {
             .from('magias')
             .update({
                 ativa: false,
-                ativada_em: null
+                ativada_em: null,
+                turno_ativacao: null,
+                turnos_restantes: null
             })
             .eq('id', magiaId);
 
@@ -156,8 +160,8 @@ async function ativarHabilidade(fichaId, habilidadeId, duracaoTurnos = 0) {
             .update({
                 ativa: true,
                 ativada_em: new Date().toISOString(),
-                duracao_turnos: duracaoTurnos,
-                turnos_restantes: duracaoTurnos
+                turno_ativacao: null, // Será configurado quando a campanha tiver turnos
+                turnos_restantes: habilidade.duracao_turnos || null
             })
             .eq('id', habilidadeId);
 
@@ -179,8 +183,8 @@ async function ativarHabilidade(fichaId, habilidadeId, duracaoTurnos = 0) {
 
         await registrarAtivacao(fichaId, 'habilidade', habilidadeId, habilidade.nome, true, habilidade.custo_mana || 0, habilidade.custo_estamina || 0);
 
-        const mensagem = duracaoTurnos > 0 
-            ? `✅ ${habilidade.nome} ativada por ${duracaoTurnos} turnos! Mana: -${habilidade.custo_mana || 0} | Estamina: -${habilidade.custo_estamina || 0}`
+        const mensagem = habilidade.duracao_turnos 
+            ? `✅ ${habilidade.nome} ativada por ${habilidade.duracao_turnos} turnos! Mana: -${habilidade.custo_mana || 0} | Estamina: -${habilidade.custo_estamina || 0}`
             : `✅ ${habilidade.nome} ativada! Mana: -${habilidade.custo_mana || 0} | Estamina: -${habilidade.custo_estamina || 0}`;
 
         return {
@@ -189,7 +193,7 @@ async function ativarHabilidade(fichaId, habilidadeId, duracaoTurnos = 0) {
             novaMana,
             novaEstamina,
             bonus: habilidade.bonus || [],
-            duracaoTurnos
+            duracaoTurnos: habilidade.duracao_turnos
         };
 
     } catch (error) {
@@ -216,7 +220,8 @@ async function desativarHabilidade(fichaId, habilidadeId) {
             .update({
                 ativa: false,
                 ativada_em: null,
-                turnos_restantes: 0
+                turno_ativacao: null,
+                turnos_restantes: null
             })
             .eq('id', habilidadeId);
 
@@ -325,7 +330,9 @@ async function ativarItem(fichaId, itemId) {
             .from('inventario')
             .update({
                 ativa: true,
-                ativada_em: new Date().toISOString()
+                ativada_em: new Date().toISOString(),
+                turno_ativacao: null, // Será configurado quando a campanha tiver turnos
+                turnos_restantes: item.duracao_turnos || null
             })
             .eq('id', itemId);
 
@@ -362,7 +369,9 @@ async function desativarItem(fichaId, itemId) {
             .from('inventario')
             .update({
                 ativa: false,
-                ativada_em: null
+                ativada_em: null,
+                turno_ativacao: null,
+                turnos_restantes: null
             })
             .eq('id', itemId);
 

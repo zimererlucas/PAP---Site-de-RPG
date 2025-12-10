@@ -1,5 +1,8 @@
 // Variável global para armazenar o ID da ficha
 let fichaId = null;
+let fichaRealtimeChannel = null;
+let fichaRealtimeTimer = null;
+let fichaPollingInterval = null;
 
 // ============================================
 // FUNÇÕES PARA ALTERAR VIDA, MANA E ESTAMINA (ESCOPO GLOBAL)
@@ -109,6 +112,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Carregar ficha
     await loadFicha();
+
+    // Iniciar atualizações em tempo real
+    iniciarRealtimeFicha();
+});
+
+// Ouvir eventos de storage para updates disparados pela tela de campanha
+window.addEventListener('storage', (event) => {
+    if (event.key === 'turno-passado' && event.newValue) {
+        // Recarrega ficha quando um turno é passado na campanha
+        loadFicha();
+    }
 });
 
 function irParaLogin() {
@@ -120,6 +134,56 @@ function fazerLogout() {
     localStorage.removeItem('session');
     window.location.href = 'index.html';
 }
+
+// ============================================
+// ATUALIZAÇÃO EM TEMPO REAL DA FICHA
+// ============================================
+function iniciarRealtimeFicha() {
+    if (!fichaId || !window.supabase) return;
+
+    // Evitar múltiplas inscrições
+    if (fichaRealtimeChannel) {
+        fichaRealtimeChannel.unsubscribe();
+    }
+    if (fichaPollingInterval) {
+        clearInterval(fichaPollingInterval);
+        fichaPollingInterval = null;
+    }
+
+    const handler = () => {
+        // Debounce para evitar chamadas múltiplas seguidas
+        if (fichaRealtimeTimer) clearTimeout(fichaRealtimeTimer);
+        fichaRealtimeTimer = setTimeout(async () => {
+            await loadFicha();
+        }, 250);
+    };
+
+    fichaRealtimeChannel = supabase.channel(`ficha-realtime-${fichaId}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'magias', filter: `personagem_id=eq.${fichaId}` }, handler)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'habilidades', filter: `personagem_id=eq.${fichaId}` }, handler)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'inventario', filter: `personagem_id=eq.${fichaId}` }, handler)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'personagens', filter: `id=eq.${fichaId}` }, handler)
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('🔔 Realtime da ficha habilitado');
+            }
+        });
+
+    // Fallback por polling a cada 2s caso o realtime não dispare
+    fichaPollingInterval = setInterval(() => {
+        loadFicha();
+    }, 2000);
+}
+
+// Limpar inscrição ao sair
+window.addEventListener('beforeunload', () => {
+    if (fichaRealtimeChannel) {
+        fichaRealtimeChannel.unsubscribe();
+    }
+    if (fichaPollingInterval) {
+        clearInterval(fichaPollingInterval);
+    }
+});
 
 function atualizarNavbar() {
     const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -369,6 +433,18 @@ async function loadFicha() {
         // Recalcular bônus globais ao carregar a ficha
         if (typeof recalcularBonusGlobais === 'function') {
             await recalcularBonusGlobais(fichaId);
+        }
+
+        // Recarregar listas dinâmicas (magias, habilidades, itens, etc.) para refletir turnos restantes
+        if (typeof carregarMagias === 'function') {
+            await Promise.all([
+                carregarMagias(),
+                carregarHabilidades(),
+                carregarItens(),
+                carregarConhecimentos?.(),
+                carregarAnotacoes?.(),
+                carregarPassivas?.()
+            ]);
         }
         
         if (loadingState) loadingState.style.display = 'none';

@@ -24,6 +24,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// Restaura o estado aberto/fechado dos accordions após re-render
+function restaurarAccordions(container, abertosIds) {
+    if (!container || !abertosIds || !abertosIds.length) return;
+    abertosIds.forEach(id => {
+        const item = container.querySelector(`.accordion-item[data-id="${id}"]`);
+        if (!item) return;
+        const content = item.querySelector('.accordion-content');
+        const header = item.querySelector('.accordion-header span:last-child');
+        if (content) content.style.display = 'block';
+        if (header) header.style.transform = 'rotate(180deg)';
+    });
+}
+
 // Função para alternar accordion
 function toggleAccordion(button) {
     const content = button.nextElementSibling;
@@ -48,6 +61,14 @@ async function carregarMagias() {
     
     if (!container) return;
 
+    // Guardar quais estavam abertos antes de re-renderizar
+    const abertos = Array.from(container.querySelectorAll('.accordion-item'))
+        .filter(item => {
+            const content = item.querySelector('.accordion-content');
+            return content && content.style.display === 'block';
+        })
+        .map(item => item.dataset.id);
+
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(magia => {
             const bonusText = magia.bonus && Array.isArray(magia.bonus) && magia.bonus.length > 0 
@@ -55,9 +76,9 @@ async function carregarMagias() {
                 : '-';
             
             return `
-            <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" data-id="${magia.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                    <span style="font-weight: bold;">${magia.nome} (Nível ${magia.nivel}) ${magia.ativa ? '🟢' : '🔴'}</span>
+                    <span style="font-weight: bold;">${magia.nome} (Nível ${magia.nivel}) ${magia.ativa ? '🟢' : '🔴'}${magia.ativa && magia.turnos_restantes !== null && magia.turnos_restantes !== undefined ? ` ⏳ ${magia.turnos_restantes}` : ''}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
@@ -67,6 +88,8 @@ async function carregarMagias() {
                         <div class="stat-pill"><span class="stat-label">Mana</span><span class="stat-value">${magia.custo_mana}</span></div>
                         <div class="stat-pill"><span class="stat-label">Estamina</span><span class="stat-value">${magia.custo_estamina || 0}</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
+                        ${magia.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${magia.duracao_turnos} turnos</span></div>` : ''}
+                        ${magia.ativa && magia.turnos_restantes !== null && magia.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${magia.turnos_restantes}</span></div>` : ''}
                     </div>
                     <p class="descricao-detalhe"><strong>Descrição:</strong> ${magia.descricao || '-'}</p>
                     ${renderizarBotaoAtivacao(magia, 'magia')}
@@ -78,6 +101,8 @@ async function carregarMagias() {
             </div>
         `;
         }).join('');
+
+        restaurarAccordions(container, abertos);
     } else {
         container.innerHTML = '<p style="color: #b0b0b0;">Nenhuma magia adicionada ainda.</p>';
     }
@@ -107,6 +132,13 @@ async function carregarHabilidades() {
     
     if (!container) return;
 
+    const abertos = Array.from(container.querySelectorAll('.accordion-item'))
+        .filter(item => {
+            const content = item.querySelector('.accordion-content');
+            return content && content.style.display === 'block';
+        })
+        .map(item => item.dataset.id);
+
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(hab => {
             const bonusText = hab.bonus && Array.isArray(hab.bonus) && hab.bonus.length > 0 
@@ -114,9 +146,9 @@ async function carregarHabilidades() {
                 : '-';
             
             return `
-            <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" data-id="${hab.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                    <span style="font-weight: bold;">${hab.nome} (Nível ${hab.nivel}) ${hab.ativa ? '🟢' : '🔴'}</span>
+                    <span style="font-weight: bold;">${hab.nome} (Nível ${hab.nivel}) ${hab.ativa ? '🟢' : '🔴'}${hab.ativa && hab.turnos_restantes !== null && hab.turnos_restantes !== undefined ? ` ⏳ ${hab.turnos_restantes}` : ''}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
@@ -126,6 +158,8 @@ async function carregarHabilidades() {
                         <div class="stat-pill"><span class="stat-label">Mana</span><span class="stat-value">${hab.custo_mana}</span></div>
                         <div class="stat-pill"><span class="stat-label">Estamina</span><span class="stat-value">${hab.custo_estamina || 0}</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
+                        ${hab.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${hab.duracao_turnos} turnos</span></div>` : ''}
+                        ${hab.ativa && hab.turnos_restantes !== null && hab.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${hab.turnos_restantes}</span></div>` : ''}
                     </div>
                     <p class="descricao-detalhe"><strong>Descrição:</strong> ${hab.descricao || '-'}</p>
                     ${renderizarBotaoAtivacao(hab, 'habilidade')}
@@ -137,6 +171,8 @@ async function carregarHabilidades() {
             </div>
         `;
         }).join('');
+
+        restaurarAccordions(container, abertos);
     } else {
         container.innerHTML = '<p style="color: #b0b0b0;">Nenhuma habilidade adicionada ainda.</p>';
     }
@@ -221,6 +257,13 @@ async function carregarItens() {
     
     if (!container) return;
 
+    const abertos = Array.from(container.querySelectorAll('.accordion-item'))
+        .filter(item => {
+            const content = item.querySelector('.accordion-content');
+            return content && content.style.display === 'block';
+        })
+        .map(item => item.dataset.id);
+
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(item => {
             const bonusText = item.bonus && Array.isArray(item.bonus) && item.bonus.length > 0 
@@ -228,9 +271,9 @@ async function carregarItens() {
                 : '-';
             
             return `
-            <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" data-id="${item.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                    <span style="font-weight: bold;">${item.nome} (x${item.quantidade}) ${item.ativa ? '🟢' : '🔴'}</span>
+                    <span style="font-weight: bold;">${item.nome} (x${item.quantidade}) ${item.ativa ? '🟢' : '🔴'}${item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined ? ` ⏳ ${item.turnos_restantes}` : ''}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
@@ -238,6 +281,8 @@ async function carregarItens() {
                         <div class="stat-pill"><span class="stat-label">Qtd</span><span class="stat-value">${item.quantidade}</span></div>
                         <div class="stat-pill"><span class="stat-label">Peso</span><span class="stat-value">${item.peso} kg</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
+                        ${item.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${item.duracao_turnos} turnos</span></div>` : ''}
+                        ${item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${item.turnos_restantes}</span></div>` : ''}
                     </div>
                     <p class="descricao-detalhe"><strong>Descrição:</strong> ${item.descricao || '-'}</p>
                     ${renderizarBotaoAtivacao(item, 'item')}
@@ -249,6 +294,8 @@ async function carregarItens() {
             </div>
         `;
         }).join('');
+
+        restaurarAccordions(container, abertos);
     } else {
         container.innerHTML = '<p style="color: #b0b0b0;">Inventário vazio.</p>';
     }
@@ -585,6 +632,8 @@ async function salvarMagia() {
     const custo_estamina = document.getElementById('magia-custo-estamina')?.value;
     const nivelInput = document.getElementById('magia-nivel');
     const nivel = nivelInput ? nivelInput.value : 1;
+    const duracaoTurnosInput = document.getElementById('magia-duracao-turnos');
+    const duracao_turnos = duracaoTurnosInput && duracaoTurnosInput.value ? parseInt(duracaoTurnosInput.value) : null;
 
     if (!nome) {
         console.warn('O nome da magia é obrigatório!');
@@ -608,6 +657,7 @@ async function salvarMagia() {
         custo_mana: parseInt(custo_mana) || 0,
         custo_estamina: parseInt(custo_estamina) || 0,
         nivel: parseInt(nivel) || 1,
+        duracao_turnos,
         bonus // Adiciona o array de bônus
     };
 
@@ -647,6 +697,8 @@ async function salvarHabilidade() {
     const custo_estamina = document.getElementById('habilidade-custo-estamina')?.value;
     const habNivelInput = document.getElementById('habilidade-nivel');
     const nivel = habNivelInput ? habNivelInput.value : 1;
+    const duracaoTurnosInput = document.getElementById('habilidade-duracao-turnos');
+    const duracao_turnos = duracaoTurnosInput && duracaoTurnosInput.value ? parseInt(duracaoTurnosInput.value) : null;
 
     if (!nome || !dano) {
         console.warn('Preencha os campos obrigatórios de habilidade!');
@@ -672,6 +724,7 @@ async function salvarHabilidade() {
             custo_mana: parseInt(custo_mana) || 0,
             custo_estamina: parseInt(custo_estamina) || 0,
             nivel: parseInt(nivel) || 1,
+            duracao_turnos,
             bonus
         });
 
@@ -704,6 +757,7 @@ async function salvarHabilidade() {
         custo_mana: parseInt(custo_mana) || 0,
         custo_estamina: parseInt(custo_estamina) || 0,
         nivel: parseInt(nivel) || 1,
+        duracao_turnos,
         bonus
     });
 
@@ -797,6 +851,8 @@ async function salvarItem() {
     const quantidade = document.getElementById('item-quantidade')?.value;
     const descricao = document.getElementById('item-descricao')?.value;
     const peso = document.getElementById('item-peso')?.value;
+    const duracaoTurnosInput = document.getElementById('item-duracao-turnos');
+    const duracao_turnos = duracaoTurnosInput && duracaoTurnosInput.value ? parseInt(duracaoTurnosInput.value) : null;
 
     if (!nome || !quantidade) {
         console.warn('Preencha os campos obrigatórios do item!');
@@ -819,6 +875,7 @@ async function salvarItem() {
             quantidade: parseInt(quantidade) || 1,
             descricao,
             peso: parseFloat(peso) || 0,
+            duracao_turnos,
             bonus
         });
 
@@ -848,6 +905,7 @@ async function salvarItem() {
         quantidade: parseInt(quantidade) || 1,
         descricao,
         peso: parseFloat(peso) || 0,
+        duracao_turnos,
         bonus
     });
 
@@ -1168,6 +1226,8 @@ async function editarMagia(magiaId) {
     document.getElementById('magia-custo-estamina').value = magia.custo_estamina || 0;
     const magiaInputNivel = document.getElementById('magia-nivel');
     if (magiaInputNivel) magiaInputNivel.value = magia.nivel || 1;
+    const magiaDuracaoTurnos = document.getElementById('magia-duracao-turnos');
+    if (magiaDuracaoTurnos) magiaDuracaoTurnos.value = magia.duracao_turnos || '';
 
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('magia-bonus-container');
@@ -1195,6 +1255,8 @@ async function editarHabilidade(habilidadeId) {
     document.getElementById('habilidade-custo-estamina').value = hab.custo_estamina || 0;
     const habInputNivel = document.getElementById('habilidade-nivel');
     if (habInputNivel) habInputNivel.value = hab.nivel || 1;
+    const habDuracaoTurnos = document.getElementById('habilidade-duracao-turnos');
+    if (habDuracaoTurnos) habDuracaoTurnos.value = hab.duracao_turnos || '';
     
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('habilidade-bonus-container');
@@ -1241,6 +1303,8 @@ async function editarItem(itemId) {
     document.getElementById('item-quantidade').value = item.quantidade || 1;
     document.getElementById('item-descricao').value = item.descricao || '';
     document.getElementById('item-peso').value = item.peso || 0;
+    const itemDuracaoTurnos = document.getElementById('item-duracao-turnos');
+    if (itemDuracaoTurnos) itemDuracaoTurnos.value = item.duracao_turnos || '';
     
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('item-bonus-container');
@@ -1301,6 +1365,10 @@ function renderizarBotaoAtivacao(item, tipo) {
     const statusTexto = item.ativa ? '✅ Ativo' : '❌ Inativo';
     const botaoTexto = item.ativa ? '🔴 Desativar' : '🟢 Ativar';
     const botaoCor = item.ativa ? '#ff6b6b' : '#51cf66';
+    const duracaoTexto = item.duracao_turnos ? `• ⏱️ ${item.duracao_turnos}t` : '';
+    const restantesTexto = item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined
+        ? ` | ⏳ ${item.turnos_restantes}`
+        : '';
     
     // Se tem custo de mana/estamina, mostrar aviso
     const custoBadge = (item.custo_mana || item.custo_estamina) 
@@ -1309,7 +1377,7 @@ function renderizarBotaoAtivacao(item, tipo) {
 
     return `
         <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px;">
-            <span style="font-size: 12px; color: #e0e0e0;">${statusTexto} ${custoBadge}</span>
+            <span style="font-size: 12px; color: #e0e0e0;">${statusTexto} ${duracaoTexto}${restantesTexto} ${custoBadge}</span>
             <button onclick="alternarAtivacao('${tipo}', '${item.id}')" style="background: ${botaoCor}; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;">
                 ${botaoTexto}
             </button>

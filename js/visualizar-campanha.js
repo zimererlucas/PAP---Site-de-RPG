@@ -45,6 +45,9 @@ async function loadCampanha() {
         loadingState.style.display = 'none';
         campanhaContent.style.display = 'block';
         
+        // Atualizar exibição de turnos
+        await atualizarExibicaoTurnos(campanha);
+        
         // Carregar personagens
         await loadPersonagens();
         
@@ -161,5 +164,51 @@ async function handleLogout() {
         window.location.href = '../index.html';
     } else {
         console.error('Erro ao fazer logout:', result.error);
+    }
+}
+
+// ============================================
+// SISTEMA DE TURNOS
+// ============================================
+
+async function passarTurnoUI() {
+    const botao = document.getElementById('botaoPassarTurno');
+    botao.disabled = true;
+    botao.textContent = '⏳ Processando...';
+    
+    try {
+        const resultado = await passarTurnoCampanha(campanhaId);
+        
+        if (resultado.success) {
+            console.log('✅', resultado.mensagem);
+            document.getElementById('turnoAtualDisplay').textContent = resultado.turno_novo;
+            
+            // Recarregar personagens após processar turnos
+            await loadPersonagens();
+
+            // Disparar evento cross-aba para forçar reload das fichas abertas
+            localStorage.setItem('turno-passado', `${campanhaId}-${Date.now()}`);
+        } else {
+            alert('❌ Erro: ' + resultado.error);
+        }
+    } catch (erro) {
+        console.error('Erro ao passar turno:', erro);
+        alert('Erro ao passar turno: ' + erro.message);
+    } finally {
+        botao.disabled = false;
+        botao.textContent = '⏭️ Passar Turno';
+    }
+}
+
+async function atualizarExibicaoTurnos(campanha) {
+    const turnosControl = document.getElementById('turnosControl');
+    const usuarioAtual = await getCurrentUser();
+    
+    // Mostrar controle de turnos apenas se for o narrador
+    if (usuarioAtual && campanha.narrador_id === usuarioAtual.id) {
+        turnosControl.style.display = 'block';
+        document.getElementById('turnoAtualDisplay').textContent = campanha.turno_atual || 0;
+    } else {
+        turnosControl.style.display = 'none';
     }
 }

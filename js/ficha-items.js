@@ -20,6 +20,7 @@ async function adicionarMagia(fichaId, magia) {
                 custo_estamina: magia.custo_estamina || 0,
                 nivel: magia.nivel || 1,
                 bonus: magia.bonus || [],
+                duracao_turnos: magia.duracao_turnos || null,
                 criado_em: new Date().toISOString()
             }])
             .select()
@@ -80,7 +81,8 @@ async function atualizarMagia(magiaId, magia) {
                 custo_mana: magia.custo_mana || 0,
                 custo_estamina: magia.custo_estamina || 0,
                 nivel: magia.nivel || 1,
-                bonus: magia.bonus || []
+                bonus: magia.bonus || [],
+                duracao_turnos: magia.duracao_turnos || null
             })
             .eq('id', magiaId)
             .select()
@@ -131,6 +133,7 @@ async function adicionarHabilidade(fichaId, habilidade) {
                 custo_estamina: habilidade.custo_estamina || 0,
                 nivel: habilidade.nivel || 1,
                 bonus: habilidade.bonus || [],
+                duracao_turnos: habilidade.duracao_turnos || null,
                 criado_em: new Date().toISOString()
             }])
             .select()
@@ -190,7 +193,8 @@ async function atualizarHabilidade(habilidadeId, habilidade) {
                 custo_mana: habilidade.custo_mana || 0,
                 custo_estamina: habilidade.custo_estamina || 0,
                 nivel: habilidade.nivel || 1,
-                bonus: habilidade.bonus || []
+                bonus: habilidade.bonus || [],
+                duracao_turnos: habilidade.duracao_turnos || null
             })
             .eq('id', habilidadeId)
             .select()
@@ -338,6 +342,7 @@ async function adicionarItem(fichaId, item) {
                 descricao: item.descricao || '',
                 peso: item.peso || 0,
                 bonus: item.bonus || [],
+                duracao_turnos: item.duracao_turnos || null,
                 criado_em: new Date().toISOString()
             }])
             .select()
@@ -392,7 +397,8 @@ async function atualizarItem(itemId, item) {
                 quantidade: item.quantidade || 1,
                 descricao: item.descricao || '',
                 peso: item.peso || 0,
-                bonus: item.bonus || []
+                bonus: item.bonus || [],
+                duracao_turnos: item.duracao_turnos || null
             })
             .eq('id', itemId)
             .select()
