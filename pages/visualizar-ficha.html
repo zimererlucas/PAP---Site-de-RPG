@@ -662,6 +662,30 @@ canvas#nebula-canvas {
                                         <div class="tempo-reacao-valor" id="acertoValor">0</div>
                                     </div>
                                 </div>
+
+                                <!-- Histórico de Rolagens -->
+                                <div style="margin-top: 20px; background: #0f1929; border: 1px solid #667eea; border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);">
+                                    <div class="section-title" style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+                                        <span>📜 Histórico de Rolagens</span>
+                                    </div>
+                                    <div style="overflow-x: auto; max-height: 260px; overflow-y: auto;">
+                                        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                            <thead>
+                                                <tr style="background: #111c2f;">
+                                                    <th style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">Hora</th>
+                                                    <th style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">Dado</th>
+                                                    <th style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">Total</th>
+                                                    <th style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">Detalhe</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="diceHistoryBody">
+                                                <tr>
+                                                    <td colspan="4" style="padding: 10px; text-align: center; color: #9fa6c3;">Sem rolagens registradas ainda.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Coluna Direita: Status + Navbar -->
@@ -845,8 +869,11 @@ canvas#nebula-canvas {
                     <input type="text" id="magia-nome" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Dano (ex: 1d6, 2d8)</label>
-                    <input type="text" id="magia-dano" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" placeholder="1d6">
+                    <label style="color: #667eea; display: block; margin-bottom: 10px; font-weight: bold;">🎲 Dados (Dice Rolls)</label>
+                    <div id="magia-dados-container" style="border: 1px solid #667eea; padding: 10px; border-radius: 4px; background: #0f1929; margin-bottom: 10px;">
+                        <!-- Dados dinâmicos serão adicionados aqui -->
+                    </div>
+                    <button type="button" onclick="adicionarDadoUI('magia')" style="width: 100%; padding: 8px; background: #16213e; color: #667eea; border: 1px dashed #667eea; border-radius: 4px; cursor: pointer;">+ Adicionar Dado</button>
                 </div>
                 <div style="margin-bottom: 15px;">
                     <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Efeito</label>
@@ -901,10 +928,16 @@ canvas#nebula-canvas {
                     <input type="text" id="habilidade-nome" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" required>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Dano (ex: 1d6, 2d8)</label>
-                    <input type="text" id="habilidade-dano" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" placeholder="1d6">
+                    <label style="color: #667eea; display: block; margin-bottom: 10px; font-weight: bold;">🎲 Dados (Dice Rolls)</label>
+                    <div id="habilidade-dados-container" style="border: 1px solid #667eea; padding: 10px; border-radius: 4px; background: #0f1929; margin-bottom: 10px;">
+                        <!-- Dados dinâmicos serão adicionados aqui -->
+                    </div>
+                    <button type="button" onclick="adicionarDadoUI('habilidade')" style="width: 100%; padding: 8px; background: #16213e; color: #667eea; border: 1px dashed #667eea; border-radius: 4px; cursor: pointer;">+ Adicionar Dado</button>
                 </div>
                 <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Efeito</label>
+                    <input type="text" id="habilidade-efeito" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                </div>
                     <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Efeito</label>
                     <input type="text" id="habilidade-efeito" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
                 </div>
@@ -994,6 +1027,13 @@ canvas#nebula-canvas {
                     <input type="number" id="item-peso" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" value="0" step="0.1">
                 </div>
                 <div style="margin-bottom: 15px;">
+                    <label style="color: #667eea; display: block; margin-bottom: 10px; font-weight: bold;">🎲 Dados (Dice Rolls)</label>
+                    <div id="item-dados-container" style="border: 1px solid #667eea; padding: 10px; border-radius: 4px; background: #0f1929; margin-bottom: 10px;">
+                        <!-- Dados dinâmicos serão adicionados aqui -->
+                    </div>
+                    <button type="button" onclick="adicionarDadoUI('item')" style="width: 100%; padding: 8px; background: #16213e; color: #667eea; border: 1px dashed #667eea; border-radius: 4px; cursor: pointer;">+ Adicionar Dado</button>
+                </div>
+                <div style="margin-bottom: 15px;">
                     <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">⏱️ Duração em Turnos (opcional)</label>
                     <input type="number" id="item-duracao-turnos" style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;" placeholder="Ex: 3" min="0">
                     <small style="color: #999; display: block; margin-top: 5px;">Deixe vazio se não tiver duração limitada</small>
@@ -1074,6 +1114,7 @@ canvas#nebula-canvas {
     <script src="../js/personagens.js"></script>
     <script src="../js/ficha-items.js"></script>
     <script src="../js/ativacoes.js"></script>
+    <script src="../js/dados.js"></script>
     <script src="../js/modais-itens.js"></script>
     <script src="../js/visualizar-ficha.js"></script>
     <script>

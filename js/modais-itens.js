@@ -75,6 +75,14 @@ async function carregarMagias() {
                 ? magia.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
             
+            const dadosDisplay = magia.dados && Array.isArray(magia.dados) && magia.dados.length > 0 
+                ? formatarDados(magia.dados)
+                : '-';
+
+            const botoesDados = magia.dados && Array.isArray(magia.dados) && magia.dados.length > 0 
+                ? renderBotoesDados(magia.dados, 'magia', magia.nome)
+                : '';
+            
             return `
             <div class="accordion-item" data-id="${magia.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
@@ -83,7 +91,7 @@ async function carregarMagias() {
                 </button>
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
                     <div class="accordion-stats">
-                        <div class="stat-pill"><span class="stat-label">Dano</span><span class="stat-value">${magia.dano || '-'}</span></div>
+                        <div class="stat-pill"><span class="stat-label">🎲 Dados</span><span class="stat-value">${dadosDisplay}</span></div>
                         <div class="stat-pill"><span class="stat-label">Efeito</span><span class="stat-value">${magia.efeito || '-'}</span></div>
                         <div class="stat-pill"><span class="stat-label">Mana</span><span class="stat-value">${magia.custo_mana}</span></div>
                         <div class="stat-pill"><span class="stat-label">Estamina</span><span class="stat-value">${magia.custo_estamina || 0}</span></div>
@@ -92,6 +100,7 @@ async function carregarMagias() {
                         ${magia.ativa && magia.turnos_restantes !== null && magia.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${magia.turnos_restantes}</span></div>` : ''}
                     </div>
                     <p class="descricao-detalhe"><strong>Descrição:</strong> ${magia.descricao || '-'}</p>
+                    ${botoesDados}
                     ${renderizarBotaoAtivacao(magia, 'magia')}
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarMagia('${magia.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
@@ -144,6 +153,14 @@ async function carregarHabilidades() {
             const bonusText = hab.bonus && Array.isArray(hab.bonus) && hab.bonus.length > 0 
                 ? hab.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
+
+            const dadosDisplay = hab.dados && Array.isArray(hab.dados) && hab.dados.length > 0
+                ? formatarDados(hab.dados)
+                : '-';
+
+            const botoesDados = hab.dados && Array.isArray(hab.dados) && hab.dados.length > 0
+                ? renderBotoesDados(hab.dados, 'habilidade', hab.nome)
+                : '';
             
             return `
             <div class="accordion-item" data-id="${hab.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
@@ -153,7 +170,7 @@ async function carregarHabilidades() {
                 </button>
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
                     <div class="accordion-stats">
-                        <div class="stat-pill"><span class="stat-label">Dano</span><span class="stat-value">${hab.dano || '-'}</span></div>
+                        <div class="stat-pill"><span class="stat-label">🎲 Dados</span><span class="stat-value">${dadosDisplay}</span></div>
                         <div class="stat-pill"><span class="stat-label">Efeito</span><span class="stat-value">${hab.efeito || '-'}</span></div>
                         <div class="stat-pill"><span class="stat-label">Mana</span><span class="stat-value">${hab.custo_mana}</span></div>
                         <div class="stat-pill"><span class="stat-label">Estamina</span><span class="stat-value">${hab.custo_estamina || 0}</span></div>
@@ -162,6 +179,7 @@ async function carregarHabilidades() {
                         ${hab.ativa && hab.turnos_restantes !== null && hab.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${hab.turnos_restantes}</span></div>` : ''}
                     </div>
                     <p class="descricao-detalhe"><strong>Descrição:</strong> ${hab.descricao || '-'}</p>
+                    ${botoesDados}
                     ${renderizarBotaoAtivacao(hab, 'habilidade')}
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarHabilidade('${hab.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
@@ -269,6 +287,14 @@ async function carregarItens() {
             const bonusText = item.bonus && Array.isArray(item.bonus) && item.bonus.length > 0 
                 ? item.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
+
+            const dadosDisplay = item.dados && Array.isArray(item.dados) && item.dados.length > 0
+                ? formatarDados(item.dados)
+                : '-';
+
+            const botoesDados = item.dados && Array.isArray(item.dados) && item.dados.length > 0
+                ? renderBotoesDados(item.dados, 'item', item.nome)
+                : '';
             
             return `
             <div class="accordion-item" data-id="${item.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
@@ -280,11 +306,13 @@ async function carregarItens() {
                     <div class="accordion-stats">
                         <div class="stat-pill"><span class="stat-label">Qtd</span><span class="stat-value">${item.quantidade}</span></div>
                         <div class="stat-pill"><span class="stat-label">Peso</span><span class="stat-value">${item.peso} kg</span></div>
+                        <div class="stat-pill"><span class="stat-label">🎲 Dados</span><span class="stat-value">${dadosDisplay}</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
                         ${item.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${item.duracao_turnos} turnos</span></div>` : ''}
                         ${item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${item.turnos_restantes}</span></div>` : ''}
                     </div>
                     <p class="descricao-detalhe"><strong>Descrição:</strong> ${item.descricao || '-'}</p>
+                    ${botoesDados}
                     ${renderizarBotaoAtivacao(item, 'item')}
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarItem('${item.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
@@ -509,6 +537,112 @@ function adicionarBonus(tipo, bonus = { atributo: '', valor: 0 }) {
 
 
 // ============================================
+// FUNÇÕES DE DADOS (DICE ROLLS)
+// ============================================
+
+/**
+ * Adiciona um novo campo de dado ao modal
+ * @param {String} tipo - Tipo do item ('magia', 'habilidade', 'item')
+ * @param {Object} dado - Objeto com {quantidade, lados} (opcional)
+ */
+function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20 }) {
+    const container = document.getElementById(`${tipo}-dados-container`);
+    if (!container) return;
+
+    const dadoId = `dado-${tipo}-${Date.now()}`;
+    const dadoWrapper = document.createElement('div');
+    dadoWrapper.className = 'dado-item';
+    dadoWrapper.id = dadoId;
+    dadoWrapper.style.display = 'flex';
+    dadoWrapper.style.gap = '10px';
+    dadoWrapper.style.marginBottom = '10px';
+    dadoWrapper.style.alignItems = 'center';
+
+    // Input de quantidade
+    const inputQtd = document.createElement('input');
+    inputQtd.type = 'number';
+    inputQtd.className = 'dado-quantidade';
+    inputQtd.value = dado.quantidade || 1;
+    inputQtd.min = 1;
+    inputQtd.max = 100;
+    inputQtd.style = "flex: 0.5; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; text-align: center;";
+    inputQtd.placeholder = "Qtd";
+
+    // Label "d"
+    const labelD = document.createElement('span');
+    labelD.textContent = 'd';
+    labelD.style = "color: #667eea; font-weight: bold; font-size: 14px;";
+
+    // Input de lados
+    const inputLados = document.createElement('input');
+    inputLados.type = 'number';
+    inputLados.className = 'dado-lados';
+    inputLados.value = dado.lados || 20;
+    inputLados.min = 1;
+    inputLados.max = 1000;
+    inputLados.style = "flex: 1; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;";
+    inputLados.placeholder = "Lados";
+
+    // Botão remover
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '🗑️';
+    removeBtn.style = "flex: 0.3; padding: 8px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;";
+    removeBtn.onclick = () => document.getElementById(dadoId).remove();
+
+    dadoWrapper.appendChild(inputQtd);
+    dadoWrapper.appendChild(labelD);
+    dadoWrapper.appendChild(inputLados);
+    dadoWrapper.appendChild(removeBtn);
+    container.appendChild(dadoWrapper);
+}
+
+/**
+ * Coleta todos os dados do modal
+ * @param {String} tipo - Tipo do item
+ * @returns {Array} Array de objetos {quantidade, lados}
+ */
+function coletarDados(tipo) {
+    const container = document.getElementById(`${tipo}-dados-container`);
+    if (!container) return [];
+
+    const dados = [];
+    const items = container.querySelectorAll('.dado-item');
+
+    items.forEach(item => {
+        const quantidade = parseInt(item.querySelector('.dado-quantidade').value) || 1;
+        const lados = parseInt(item.querySelector('.dado-lados').value) || 20;
+
+        if (quantidade > 0 && lados > 0) {
+            dados.push({ quantidade, lados });
+        }
+    });
+
+    return dados;
+}
+
+/**
+ * Restaura dados salvos no modal ao editar
+ * @param {String} tipo - Tipo do item
+ * @param {Array} dados - Array de objetos {quantidade, lados}
+ */
+function restaurarDados(tipo, dados) {
+    const container = document.getElementById(`${tipo}-dados-container`);
+    if (!container) return;
+
+    // Limpar container
+    container.innerHTML = '';
+
+    // Restaurar cada dado
+    if (dados && Array.isArray(dados)) {
+        dados.forEach(dado => {
+            adicionarDadoUI(tipo, dado);
+        });
+    }
+}
+
+
+// ============================================
 // MODAIS - ABRIR
 // ============================================
 
@@ -526,6 +660,7 @@ function fecharModalMagia() {
     document.getElementById('modal-magia').style.display = 'none';
     document.getElementById('form-magia').reset();
     document.getElementById('magia-bonus-container').innerHTML = ''; // Limpar bônus
+    document.getElementById('magia-dados-container').innerHTML = ''; // Limpar dados
     editandoMagiaId = null;
     document.body.style.overflow = 'auto';
 }
@@ -542,6 +677,7 @@ function abrirModalHabilidade() {
 
 function fecharModalHabilidade() {
     document.getElementById('modal-habilidade').style.display = 'none';
+    document.getElementById('habilidade-dados-container').innerHTML = ''; // Limpar dados
     document.getElementById('form-habilidade').reset();
     document.getElementById('habilidade-bonus-container').innerHTML = '';
     editandoHabilidadeId = null;
@@ -579,6 +715,7 @@ function abrirModalItem() {
 function fecharModalItem() {
     document.getElementById('modal-item').style.display = 'none';
     document.getElementById('form-item').reset();
+    document.getElementById('item-dados-container').innerHTML = ''; // Limpar dados
     document.getElementById('item-bonus-container').innerHTML = '';
     editandoItemId = null;
     document.body.style.overflow = 'auto';
@@ -625,7 +762,6 @@ function fecharModalPassiva() {
 
 async function salvarMagia() {
     const nome = document.getElementById('magia-nome')?.value;
-    const dano = document.getElementById('magia-dano')?.value;
     const efeito = document.getElementById('magia-efeito')?.value;
     const descricao = document.getElementById('magia-descricao')?.value;
     const custo_mana = document.getElementById('magia-custo-mana')?.value;
@@ -640,6 +776,9 @@ async function salvarMagia() {
         return;
     }
 
+    // Coletar dados
+    const dados = coletarDados('magia');
+
     // Coletar bônus
     const bonusContainer = document.getElementById('magia-bonus-container');
     const bonusItems = bonusContainer.querySelectorAll('.bonus-item');
@@ -651,13 +790,13 @@ async function salvarMagia() {
 
     const dadosMagia = {
         nome,
-        dano,
         efeito,
         descricao,
         custo_mana: parseInt(custo_mana) || 0,
         custo_estamina: parseInt(custo_estamina) || 0,
         nivel: parseInt(nivel) || 1,
         duracao_turnos,
+        dados: dados.length > 0 ? dados : null,
         bonus // Adiciona o array de bônus
     };
 
@@ -690,7 +829,6 @@ async function salvarMagia() {
 
 async function salvarHabilidade() {
     const nome = document.getElementById('habilidade-nome')?.value;
-    const dano = document.getElementById('habilidade-dano')?.value;
     const efeito = document.getElementById('habilidade-efeito')?.value;
     const descricao = document.getElementById('habilidade-descricao')?.value;
     const custo_mana = document.getElementById('habilidade-custo-mana')?.value;
@@ -700,10 +838,13 @@ async function salvarHabilidade() {
     const duracaoTurnosInput = document.getElementById('habilidade-duracao-turnos');
     const duracao_turnos = duracaoTurnosInput && duracaoTurnosInput.value ? parseInt(duracaoTurnosInput.value) : null;
 
-    if (!nome || !dano) {
+    if (!nome) {
         console.warn('Preencha os campos obrigatórios de habilidade!');
         return;
     }
+
+    // Coletar dados
+    const dados = coletarDados('habilidade');
 
     // Coletar bônus
     const bonusContainer = document.getElementById('habilidade-bonus-container');
@@ -718,13 +859,13 @@ async function salvarHabilidade() {
     if (editandoHabilidadeId) {
         const resultado = await atualizarHabilidade(editandoHabilidadeId, {
             nome,
-            dano,
             efeito,
             descricao,
             custo_mana: parseInt(custo_mana) || 0,
             custo_estamina: parseInt(custo_estamina) || 0,
             nivel: parseInt(nivel) || 1,
             duracao_turnos,
+            dados: dados.length > 0 ? dados : null,
             bonus
         });
 
@@ -751,13 +892,13 @@ async function salvarHabilidade() {
     }
     const resultado = await adicionarHabilidade(fichaId, {
         nome,
-        dano,
         efeito,
         descricao,
         custo_mana: parseInt(custo_mana) || 0,
         custo_estamina: parseInt(custo_estamina) || 0,
         nivel: parseInt(nivel) || 1,
         duracao_turnos,
+        dados: dados.length > 0 ? dados : null,
         bonus
     });
 
@@ -859,6 +1000,9 @@ async function salvarItem() {
         return;
     }
 
+    // Coletar dados
+    const dados = coletarDados('item');
+
     // Coletar bônus
     const bonusContainer = document.getElementById('item-bonus-container');
     const bonusItems = bonusContainer?.querySelectorAll('.bonus-item') || [];
@@ -876,6 +1020,7 @@ async function salvarItem() {
             descricao,
             peso: parseFloat(peso) || 0,
             duracao_turnos,
+            dados: dados.length > 0 ? dados : null,
             bonus
         });
 
@@ -906,6 +1051,7 @@ async function salvarItem() {
         descricao,
         peso: parseFloat(peso) || 0,
         duracao_turnos,
+        dados: dados.length > 0 ? dados : null,
         bonus
     });
 
@@ -1219,7 +1365,6 @@ async function editarMagia(magiaId) {
     editandoMagiaId = magiaId;
 
     document.getElementById('magia-nome').value = magia.nome;
-    document.getElementById('magia-dano').value = magia.dano;
     document.getElementById('magia-efeito').value = magia.efeito || '';
     document.getElementById('magia-descricao').value = magia.descricao || '';
     document.getElementById('magia-custo-mana').value = magia.custo_mana || 0;
@@ -1228,6 +1373,13 @@ async function editarMagia(magiaId) {
     if (magiaInputNivel) magiaInputNivel.value = magia.nivel || 1;
     const magiaDuracaoTurnos = document.getElementById('magia-duracao-turnos');
     if (magiaDuracaoTurnos) magiaDuracaoTurnos.value = magia.duracao_turnos || '';
+
+    // Restaurar dados
+    if (magia.dados && Array.isArray(magia.dados)) {
+        restaurarDados('magia', magia.dados);
+    } else {
+        document.getElementById('magia-dados-container').innerHTML = '';
+    }
 
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('magia-bonus-container');
@@ -1248,7 +1400,6 @@ async function editarHabilidade(habilidadeId) {
     const hab = resultado.data;
     editandoHabilidadeId = habilidadeId;
     document.getElementById('habilidade-nome').value = hab.nome;
-    document.getElementById('habilidade-dano').value = hab.dano;
     document.getElementById('habilidade-efeito').value = hab.efeito || '';
     document.getElementById('habilidade-descricao').value = hab.descricao || '';
     document.getElementById('habilidade-custo-mana').value = hab.custo_mana || 0;
@@ -1257,6 +1408,13 @@ async function editarHabilidade(habilidadeId) {
     if (habInputNivel) habInputNivel.value = hab.nivel || 1;
     const habDuracaoTurnos = document.getElementById('habilidade-duracao-turnos');
     if (habDuracaoTurnos) habDuracaoTurnos.value = hab.duracao_turnos || '';
+    
+    // Restaurar dados
+    if (hab.dados && Array.isArray(hab.dados)) {
+        restaurarDados('habilidade', hab.dados);
+    } else {
+        document.getElementById('habilidade-dados-container').innerHTML = '';
+    }
     
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('habilidade-bonus-container');

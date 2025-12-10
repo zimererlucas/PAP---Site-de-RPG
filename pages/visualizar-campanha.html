@@ -71,18 +71,88 @@
                     </div>
                 </div>
 
-                <!-- Controle de Turnos -->
-                <div class="card mb-4" id="turnosControl" style="display: none;">
-                    <div class="card-header">
-                        <h5 class="mb-0">⏱️ Controle de Turnos</h5>
+                <!-- Linha: Controle de Turnos + Histórico de Rolagens -->
+                <div class="row mb-4 g-3">
+                    <div class="col-lg-6">
+                        <!-- Controle de Turnos -->
+                        <div class="card h-100" id="turnosControl" style="display: none;">
+                            <div class="card-header">
+                                <h5 class="mb-0">⏱️ Controle de Turnos</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <strong>Turno Atual:</strong>
+                                        <span id="turnoAtualDisplay" class="badge bg-primary" style="font-size: 1rem;">0</span>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-success" onclick="passarTurnoUI()" id="botaoPassarTurno">
+                                            ⏭️ Passar
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="resetarTurnosUI()" id="botaoResetarTurnos">
+                                            🔄 Resetar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                                        <h6 class="mb-0">Iniciativa</h6>
+                                        <small class="text-muted">Ordem das ações</small>
+                                    </div>
+                                    <div class="table-responsive mb-2">
+                                        <table class="table table-sm mb-1 table-dark">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 80px;">Ordem</th>
+                                                    <th>Personagem / Ação</th>
+                                                    <th style="width: 140px;">Observação</th>
+                                                    <th style="width: 70px;"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="campanhaIniciativaBody">
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted">Sem iniciativas.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <input type="number" id="iniciativaOrdem" class="form-control form-control-sm" placeholder="Ordem" style="max-width: 90px;">
+                                        <input type="text" id="iniciativaNome" class="form-control form-control-sm" placeholder="Personagem ou ação" style="flex: 1 1 160px;">
+                                        <input type="text" id="iniciativaObs" class="form-control form-control-sm" placeholder="Observação" style="flex: 1 1 140px;">
+                                        <button class="btn btn-sm btn-primary" onclick="adicionarIniciativa()">➕ Adicionar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3">
-                            <div>
-                                <p class="mb-2"><strong>Turno Atual:</strong> <span id="turnoAtualDisplay" class="badge bg-primary">0</span></p>
-                                <button class="btn btn-lg btn-success" onclick="passarTurnoUI()" id="botaoPassarTurno">
-                                    ⏭️ Passar Turno
-                                </button>
+
+                    <div class="col-lg-6">
+                        <!-- Histórico de Rolagens da Campanha -->
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">📜 Histórico de Rolagens da Campanha</h5>
+                            </div>
+                            <div class="card-body" style="max-height: 320px; min-height: 320px; overflow: auto;">
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0 table-dark">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 80px;">Hora</th>
+                                                <th style="width: 180px;">Personagem</th>
+                                                <th style="width: 160px;">Dado</th>
+                                                <th style="width: 80px;">Total</th>
+                                                <th>Detalhe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="campanhaDiceHistoryBody">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">Sem rolagens ainda.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>

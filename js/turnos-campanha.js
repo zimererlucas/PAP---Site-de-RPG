@@ -257,6 +257,106 @@ async function ativarItemComDuracao(personagemId, itemId, tabela, duracaoTurnos,
 }
 
 /**
+ * Reseta todos os turnos da campanha para 0 e desativa itens com duração
+ * @param {string} campanhaId - ID da campanha
+ * @returns {Promise} Resultado da operação
+ */
+async function resetarTurnosCampanha(campanhaId) {
+    try {
+        // 1. Obter dados da campanha
+        const { data: campanha, error: erroCampanha } = await supabase
+            .from('campanhas')
+            .select('turno_atual, narrador_id')
+            .eq('id', campanhaId)
+            .single();
+
+        if (erroCampanha) throw erroCampanha;
+
+        // 2. Verificar se o usuário é o narrador da campanha
+        const usuario = await getCurrentUser();
+        if (!usuario || usuario.id !== campanha.narrador_id) {
+            return {
+                success: false,
+                error: 'Apenas o narrador da campanha pode resetar turnos'
+            };
+        }
+
+        // 3. Resetar turno da campanha para 0
+        const { error: erroAtualizar } = await supabase
+            .from('campanhas')
+            .update({ turno_atual: 0 })
+            .eq('id', campanhaId);
+
+        if (erroAtualizar) throw erroAtualizar;
+
+        // 4. Buscar personagens da campanha
+        const { data: personagensCampanha, error: erroPersonagens } = await supabase
+            .from('campanha_personagens')
+            .select('personagem_id')
+            .eq('campanha_id', campanhaId);
+
+        if (erroPersonagens) throw erroPersonagens;
+
+        // 5. Desativar todos os itens com duração de todos os personagens
+        if (personagensCampanha && personagensCampanha.length > 0) {
+            for (const cp of personagensCampanha) {
+                // Desativar magias
+                await supabase
+                    .from('magias')
+                    .update({
+                        ativa: false,
+                        turno_ativacao: null,
+                        turnos_restantes: null,
+                        deativada_em: new Date().toISOString()
+                    })
+                    .eq('personagem_id', cp.personagem_id)
+                    .gt('duracao_turnos', 0);
+
+                // Desativar habilidades
+                await supabase
+                    .from('habilidades')
+                    .update({
+                        ativa: false,
+                        turno_ativacao: null,
+                        turnos_restantes: null,
+                        deativada_em: new Date().toISOString()
+                    })
+                    .eq('personagem_id', cp.personagem_id)
+                    .gt('duracao_turnos', 0);
+
+                // Desativar itens
+                await supabase
+                    .from('inventario')
+                    .update({
+                        ativa: false,
+                        turno_ativacao: null,
+                        turnos_restantes: null,
+                        deativada_em: new Date().toISOString()
+                    })
+                    .eq('personagem_id', cp.personagem_id)
+                    .gt('duracao_turnos', 0);
+
+                // Resetar último turno processado
+                await supabase
+                    .from('personagens')
+                    .update({ ultimo_turno_processado: 0 })
+                    .eq('id', cp.personagem_id);
+            }
+        }
+
+        return {
+            success: true,
+            mensagem: `✅ Turnos resetados para 0! Todos os itens com duração foram desativados.`,
+            turno_novo: 0
+        };
+
+    } catch (error) {
+        console.error('Erro ao resetar turnos da campanha:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
  * Obtém o turno atual de uma campanha
  * @param {string} campanhaId - ID da campanha
  */

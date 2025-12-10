@@ -3,6 +3,7 @@ let fichaId = null;
 let fichaRealtimeChannel = null;
 let fichaRealtimeTimer = null;
 let fichaPollingInterval = null;
+const HISTORICO_DADOS_MAX = 50;
 
 // ============================================
 // FUNÇÕES PARA ALTERAR VIDA, MANA E ESTAMINA (ESCOPO GLOBAL)
@@ -106,6 +107,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.location.href = 'fichas.html';
         return;
     }
+
+    carregarHistoricoDados();
     
     // Atualizar navbar
     atualizarNavbar();
@@ -122,6 +125,12 @@ window.addEventListener('storage', (event) => {
     if (event.key === 'turno-passado' && event.newValue) {
         // Recarrega ficha quando um turno é passado na campanha
         loadFicha();
+    }
+    if (event.key && event.key.startsWith('dice-history')) {
+        const key = getHistoricoKey();
+        if (key && event.key === key) {
+            carregarHistoricoDados();
+        }
     }
 });
 
@@ -540,4 +549,107 @@ async function salvarReputacao() {
 
 function cancelarEditarReputacao() {
     toggleEditarReputacao();
+}
+
+// ============================================
+// HISTÓRICO DE ROLAGENS DE DADOS
+// ============================================
+
+document.addEventListener('diceRolled', (event) => {
+    const { tipo, nome, dados, resultado } = event.detail || {};
+    if (!resultado) return;
+
+    registrarHistoricoDado({
+        timestamp: Date.now(),
+        tipo: tipo || '-',
+        nome: nome || '-',
+        total: resultado.total,
+        detalhes: resultado.resultado_formatado,
+        dados: dados || []
+    });
+});
+
+function getHistoricoKey() {
+    return fichaId ? `dice-history-${fichaId}` : null;
+}
+
+function carregarHistoricoDados() {
+    const tbody = document.getElementById('diceHistoryBody');
+    if (!tbody) return;
+
+    const key = getHistoricoKey();
+    if (!key) {
+        renderHistoricoDados([]);
+        return;
+    }
+
+    try {
+        const historico = JSON.parse(localStorage.getItem(key) || '[]');
+        renderHistoricoDados(Array.isArray(historico) ? historico : []);
+    } catch (err) {
+        console.error('Erro ao carregar histórico de dados:', err);
+        renderHistoricoDados([]);
+    }
+}
+
+function registrarHistoricoDado(entry) {
+    const key = getHistoricoKey();
+    if (!key) return;
+
+    let historico = [];
+
+    try {
+        historico = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!Array.isArray(historico)) historico = [];
+    } catch (err) {
+        historico = [];
+    }
+
+    historico.unshift(entry);
+    if (historico.length > HISTORICO_DADOS_MAX) {
+        historico.length = HISTORICO_DADOS_MAX;
+    }
+
+    localStorage.setItem(key, JSON.stringify(historico));
+    renderHistoricoDados(historico);
+}
+
+function renderHistoricoDados(historico) {
+    const tbody = document.getElementById('diceHistoryBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (!historico || historico.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 4;
+        cell.style.textAlign = 'center';
+        cell.textContent = 'Sem rolagens registradas ainda.';
+        row.appendChild(cell);
+        tbody.appendChild(row);
+        return;
+    }
+
+    historico.forEach((item) => {
+        const row = document.createElement('tr');
+
+        const dataCell = document.createElement('td');
+        dataCell.textContent = new Date(item.timestamp).toLocaleTimeString('pt-BR', { hour12: false });
+        row.appendChild(dataCell);
+
+        const itemCell = document.createElement('td');
+        itemCell.textContent = item.nome || '-';
+        row.appendChild(itemCell);
+
+        const totalCell = document.createElement('td');
+        totalCell.textContent = item.total ?? '-';
+        row.appendChild(totalCell);
+
+        const detalhesCell = document.createElement('td');
+        detalhesCell.textContent = item.detalhes || '-';
+        row.appendChild(detalhesCell);
+
+        tbody.appendChild(row);
+    });
 }

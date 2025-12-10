@@ -13,13 +13,13 @@ async function adicionarMagia(fichaId, magia) {
             .insert([{
                 personagem_id: fichaId,
                 nome: magia.nome,
-                dano: magia.dano || '0',
                 efeito: magia.efeito || '',
                 descricao: magia.descricao || '',
                 custo_mana: magia.custo_mana || 0,
                 custo_estamina: magia.custo_estamina || 0,
                 nivel: magia.nivel || 1,
                 bonus: magia.bonus || [],
+                dados: magia.dados || null,
                 duracao_turnos: magia.duracao_turnos || null,
                 criado_em: new Date().toISOString()
             }])
@@ -75,13 +75,13 @@ async function atualizarMagia(magiaId, magia) {
             .from('magias')
             .update({
                 nome: magia.nome,
-                dano: magia.dano || '0',
                 efeito: magia.efeito || '',
                 descricao: magia.descricao || '',
                 custo_mana: magia.custo_mana || 0,
                 custo_estamina: magia.custo_estamina || 0,
                 nivel: magia.nivel || 1,
                 bonus: magia.bonus || [],
+                dados: magia.dados || null,
                 duracao_turnos: magia.duracao_turnos || null
             })
             .eq('id', magiaId)
@@ -126,13 +126,13 @@ async function adicionarHabilidade(fichaId, habilidade) {
             .insert([{
                 personagem_id: fichaId,
                 nome: habilidade.nome,
-                dano: habilidade.dano || '0',
                 efeito: habilidade.efeito || '',
                 descricao: habilidade.descricao || '',
                 custo_mana: habilidade.custo_mana || 0,
                 custo_estamina: habilidade.custo_estamina || 0,
                 nivel: habilidade.nivel || 1,
                 bonus: habilidade.bonus || [],
+                dados: habilidade.dados || null,
                 duracao_turnos: habilidade.duracao_turnos || null,
                 criado_em: new Date().toISOString()
             }])
@@ -187,13 +187,13 @@ async function atualizarHabilidade(habilidadeId, habilidade) {
             .from('habilidades')
             .update({
                 nome: habilidade.nome,
-                dano: habilidade.dano || '0',
                 efeito: habilidade.efeito || '',
                 descricao: habilidade.descricao || '',
                 custo_mana: habilidade.custo_mana || 0,
                 custo_estamina: habilidade.custo_estamina || 0,
                 nivel: habilidade.nivel || 1,
                 bonus: habilidade.bonus || [],
+                dados: habilidade.dados || null,
                 duracao_turnos: habilidade.duracao_turnos || null
             })
             .eq('id', habilidadeId)
@@ -342,6 +342,7 @@ async function adicionarItem(fichaId, item) {
                 descricao: item.descricao || '',
                 peso: item.peso || 0,
                 bonus: item.bonus || [],
+                dados: item.dados || null,
                 duracao_turnos: item.duracao_turnos || null,
                 criado_em: new Date().toISOString()
             }])
@@ -398,6 +399,7 @@ async function atualizarItem(itemId, item) {
                 descricao: item.descricao || '',
                 peso: item.peso || 0,
                 bonus: item.bonus || [],
+                dados: item.dados || null,
                 duracao_turnos: item.duracao_turnos || null
             })
             .eq('id', itemId)
