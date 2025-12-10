@@ -9,13 +9,14 @@
 // 2. ELEMENTOS DO DOM (INTERFACE)
 // ===============================================
 const loginLink = document.getElementById('login-link');
+const loginBtn = document.getElementById('loginBtn');
 const userAvatarWrapper = document.getElementById('user-avatar-wrapper');
 const profilePicture = document.getElementById('profile-picture');
 const userSidebar = document.getElementById('user-sidebar');
 const sidebarPic = document.getElementById('sidebar-pic');
 const sidebarName = document.getElementById('sidebar-name');
 const sidebarEmail = document.getElementById('sidebar-email');
-const logoutButton = document.getElementById('logout-button');
+const logoutBtn = document.getElementById('logoutBtn');
 const fichasNav = document.getElementById('fichasNav');
 const campanhasNav = document.getElementById('campanhasNav');
 
@@ -123,8 +124,13 @@ document.addEventListener('click', (event) => {
 });
 
 // Botão de Sair (Logout)
-if (logoutButton) {
-    logoutButton.addEventListener('click', signOutUser);
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', signOutUser);
+}
+
+// Botão de Login
+if (loginBtn) {
+    loginBtn.addEventListener('click', loginWithGoogle);
 }
 
 // ===============================================
