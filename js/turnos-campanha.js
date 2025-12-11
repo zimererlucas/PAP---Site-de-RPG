@@ -85,6 +85,8 @@ async function passarTurnoCampanha(campanhaId) {
  */
 async function processarDuracaoPersonagem(personagemId, turnoAtual) {
     try {
+        console.log(`🎯 [DEBUG] Processando duração para personagem ${personagemId} no turno ${turnoAtual}`);
+        
         // Obter último turno processado
         const { data: personagem, error: erroPersonagem } = await supabase
             .from('personagens')
@@ -96,8 +98,11 @@ async function processarDuracaoPersonagem(personagemId, turnoAtual) {
 
         const ultimoTurnoProcessado = personagem.ultimo_turno_processado || 0;
 
+        console.log(`🎯 [DEBUG] Último turno processado: ${ultimoTurnoProcessado}, Turno atual: ${turnoAtual}`);
+
         // Se já foi processado neste turno, sair
         if (ultimoTurnoProcessado >= turnoAtual) {
+            console.log(`🎯 [DEBUG] Personagem já processado neste turno. Pulando.`);
             return;
         }
 
@@ -116,11 +121,13 @@ async function processarDuracaoPersonagem(personagemId, turnoAtual) {
             .update({ ultimo_turno_processado: turnoAtual })
             .eq('id', personagemId);
 
+        console.log(`✅ [DEBUG] Personagem ${personagemId} processado com sucesso`);
+
         // Recalcular bônus
         await recalcularBonusGlobais(personagemId);
 
     } catch (error) {
-        console.error(`Erro ao processar duração para personagem ${personagemId}:`, error.message);
+        console.error(`❌ [DEBUG] Erro ao processar duração para personagem ${personagemId}:`, error.message);
     }
 }
 
@@ -131,6 +138,8 @@ async function processarDuracaoPersonagem(personagemId, turnoAtual) {
  */
 async function decrementarDuracoes(personagemId, tabela) {
     try {
+        console.log(`🎯 [DEBUG] Decrementando durações em ${tabela} para personagem ${personagemId}`);
+        
         // Obter todos os itens ativos com duração
         const { data: itens, error: erroItens } = await supabase
             .from(tabela)
@@ -142,10 +151,14 @@ async function decrementarDuracoes(personagemId, tabela) {
 
         if (erroItens) throw erroItens;
 
+        console.log(`🎯 [DEBUG] Encontrados ${itens?.length || 0} itens ativos em ${tabela}:`, itens);
+
         // Decrementar cada item
-        for (const item of itens) {
+        for (const item of itens || []) {
             const novosTurnos = item.turnos_restantes - 1;
             const estaInativo = novosTurnos === 0;
+
+            console.log(`🎯 [DEBUG] ${item.nome}: ${item.turnos_restantes} -> ${novosTurnos} (${estaInativo ? 'DESATIVANDO' : 'ATIVO'})`);
 
             const { error } = await supabase
                 .from(tabela)
@@ -165,7 +178,7 @@ async function decrementarDuracoes(personagemId, tabela) {
         }
 
     } catch (error) {
-        console.error(`Erro ao decrementar durações em ${tabela}:`, error.message);
+        console.error(`❌ [DEBUG] Erro ao decrementar durações em ${tabela}:`, error.message);
     }
 }
 

@@ -181,17 +181,13 @@ async function handleLogout() {
 // ============================================
 
 function passarTurnoUI() {
-    const botao = document.getElementById('botaoPassarTurno');
-    botao.disabled = true;
-    botao.textContent = '⏳ Processando...';
+    if (!campanhaId) return;
 
-    // Incrementar o turno localmente imediatamente
-    let turnoAtual = parseInt(document.getElementById('turnoAtualDisplay').textContent) || 0;
-    turnoAtual++;
-    document.getElementById('turnoAtualDisplay').textContent = turnoAtual;
+    console.log('🎯 [DEBUG] Passando turno da campanha:', campanhaId);
 
     // Enviar para servidor sem esperar (fire-and-forget)
     passarTurnoCampanha(campanhaId).then(resultado => {
+        console.log('🎯 [DEBUG] Resultado passarTurnoCampanha:', resultado);
         if (resultado.success) {
             console.log('✅', resultado.mensagem);
             // Recarregar personagens após processar turnos (background)
@@ -199,30 +195,15 @@ function passarTurnoUI() {
             // Disparar evento cross-aba para forçar reload das fichas abertas
             localStorage.setItem('turno-passado', `${campanhaId}-${Date.now()}`);
         } else {
-            alert('❌ Erro: ' + resultado.error);
-            // Reverter turno em caso de erro
-            turnoAtual--;
-            document.getElementById('turnoAtualDisplay').textContent = turnoAtual;
+            console.error('❌ Erro ao passar turno:', resultado.error);
         }
     }).catch(erro => {
-        console.error('Erro ao passar turno:', erro);
-        alert('Erro ao passar turno: ' + erro.message);
-        // Reverter turno em caso de erro
-        turnoAtual--;
-        document.getElementById('turnoAtualDisplay').textContent = turnoAtual;
-    }).finally(() => {
-        botao.disabled = false;
-        botao.textContent = '⏭️ Passar';
+        console.error('🎯 [DEBUG] Erro CATCH ao passar turno:', erro);
     });
 }
 
 function resetarTurnosUI() {
-    const botao = document.getElementById('botaoResetarTurnos');
-    botao.disabled = true;
-    botao.textContent = '🔄 Resetando...';
-
-    // Resetar o turno localmente imediatamente
-    document.getElementById('turnoAtualDisplay').textContent = '0';
+    if (!campanhaId) return;
 
     // Enviar para servidor sem esperar (fire-and-forget)
     resetarTurnosCampanha(campanhaId).then(resultado => {
@@ -233,14 +214,10 @@ function resetarTurnosUI() {
             // Disparar evento cross-aba para forçar reload das fichas abertas
             localStorage.setItem('turno-passado', `${campanhaId}-${Date.now()}`);
         } else {
-            alert('❌ Erro: ' + resultado.error);
+            console.error('❌ Erro ao resetar turnos:', resultado.error);
         }
     }).catch(erro => {
         console.error('Erro ao resetar turnos:', erro);
-        alert('Erro ao resetar turnos: ' + erro.message);
-    }).finally(() => {
-        botao.disabled = false;
-        botao.textContent = '🔄 Resetar';
     });
 }
 
@@ -251,7 +228,6 @@ async function atualizarExibicaoTurnos(campanha) {
     // Mostrar controle de turnos apenas se for o narrador
     if (usuarioAtual && campanha.narrador_id === usuarioAtual.id) {
         turnosControl.style.display = 'block';
-        document.getElementById('turnoAtualDisplay').textContent = campanha.turno_atual || 0;
     } else {
         turnosControl.style.display = 'none';
     }
@@ -265,15 +241,21 @@ function getIniciativaKey() {
     return campanhaId ? `campanha-iniciativa-${campanhaId}` : null;
 }
 
+function getIniciativaStateKey() {
+    return campanhaId ? `campanha-iniciativa-state-${campanhaId}` : null;
+}
+
 function carregarIniciativa() {
     const key = getIniciativaKey();
     if (!key) return;
     try {
         const data = JSON.parse(localStorage.getItem(key) || '[]');
         renderIniciativa(Array.isArray(data) ? data : []);
+        atualizarDisplayTurno();
     } catch (err) {
         console.error('Erro ao carregar iniciativa:', err);
         renderIniciativa([]);
+        atualizarDisplayTurno();
     }
 }
 
@@ -281,6 +263,43 @@ function salvarIniciativa(lista) {
     const key = getIniciativaKey();
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(lista));
+}
+
+function getIniciativaState() {
+    const key = getIniciativaStateKey();
+    if (!key) return { turnoAtual: 1, rodadaAtual: 1 };
+    try {
+        const state = JSON.parse(localStorage.getItem(key) || '{"turnoAtual":1,"rodadaAtual":1}');
+        return state;
+    } catch (_) {
+        return { turnoAtual: 1, rodadaAtual: 1 };
+    }
+}
+
+function salvarIniciativaState(state) {
+    const key = getIniciativaStateKey();
+    if (!key) return;
+    localStorage.setItem(key, JSON.stringify(state));
+}
+
+function atualizarDisplayTurno() {
+    const state = getIniciativaState();
+    const key = getIniciativaKey();
+    let total = 0;
+    try {
+        const lista = JSON.parse(localStorage.getItem(key) || '[]');
+        total = Array.isArray(lista) ? lista.length : 0;
+    } catch (_) {
+        total = 0;
+    }
+
+    const rodadaDisplay = document.getElementById('rodadaAtualDisplay');
+    const turnoDisplay = document.getElementById('turnoAtualDisplay');
+    const turnoInfo = document.getElementById('turnoInfoDisplay');
+    
+    if (rodadaDisplay) rodadaDisplay.textContent = state.rodadaAtual;
+    if (turnoDisplay) turnoDisplay.textContent = `${state.turnoAtual} / ${total}`;
+    if (turnoInfo) turnoInfo.textContent = `${state.turnoAtual} / ${total}`;
 }
 
 function renderIniciativa(lista) {
@@ -296,18 +315,28 @@ function renderIniciativa(lista) {
         cell.textContent = 'Sem iniciativas.';
         row.appendChild(cell);
         tbody.appendChild(row);
+        atualizarDisplayTurno();
         return;
     }
 
+    const state = getIniciativaState();
+
     lista.forEach((item, index) => {
         const row = document.createElement('tr');
+        
+        // Destacar turno atual
+        if (state.turnoAtual === index + 1) {
+            row.style.backgroundColor = 'rgba(25, 135, 84, 0.2)';
+        }
 
-        const ordem = document.createElement('td');
-        ordem.textContent = item.ordem ?? '-';
-        row.appendChild(ordem);
+        const numero = document.createElement('td');
+        numero.textContent = index + 1;
+        numero.style.fontWeight = state.turnoAtual === index + 1 ? 'bold' : 'normal';
+        row.appendChild(numero);
 
         const nome = document.createElement('td');
         nome.textContent = item.nome || '-';
+        nome.style.fontWeight = state.turnoAtual === index + 1 ? 'bold' : 'normal';
         row.appendChild(nome);
 
         const obs = document.createElement('td');
@@ -324,15 +353,15 @@ function renderIniciativa(lista) {
 
         tbody.appendChild(row);
     });
+
+    atualizarDisplayTurno();
 }
 
 function adicionarIniciativa() {
-    const ordemInput = document.getElementById('iniciativaOrdem');
     const nomeInput = document.getElementById('iniciativaNome');
     const obsInput = document.getElementById('iniciativaObs');
-    if (!ordemInput || !nomeInput || !obsInput) return;
+    if (!nomeInput || !obsInput) return;
 
-    const ordem = parseInt(ordemInput.value, 10);
     const nome = nomeInput.value.trim();
     const obs = obsInput.value.trim();
 
@@ -350,20 +379,11 @@ function adicionarIniciativa() {
         lista = [];
     }
 
-    lista.push({ ordem: isNaN(ordem) ? null : ordem, nome, obs });
-
-    // ordenar por ordem crescente, mantendo sem ordem no fim
-    lista = lista.sort((a, b) => {
-        if (a.ordem == null && b.ordem == null) return 0;
-        if (a.ordem == null) return 1;
-        if (b.ordem == null) return -1;
-        return a.ordem - b.ordem;
-    });
+    lista.push({ nome, obs });
 
     salvarIniciativa(lista);
     renderIniciativa(lista);
 
-    ordemInput.value = '';
     nomeInput.value = '';
     obsInput.value = '';
 }
@@ -381,7 +401,77 @@ function removerIniciativa(index) {
     }
 
     lista.splice(index, 1);
+    
+    // Ajustar turno atual se necessário
+    const state = getIniciativaState();
+    if (state.turnoAtual > lista.length && lista.length > 0) {
+        state.turnoAtual = lista.length;
+        salvarIniciativaState(state);
+    } else if (lista.length === 0) {
+        state.turnoAtual = 1;
+        state.rodadaAtual = 1;
+        salvarIniciativaState(state);
+    }
+    
     salvarIniciativa(lista);
+    renderIniciativa(lista);
+}
+
+function avancarTurnoIniciativa() {
+    const key = getIniciativaKey();
+    if (!key) return;
+
+    let lista = [];
+    try {
+        lista = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!Array.isArray(lista)) lista = [];
+    } catch (_) {
+        lista = [];
+    }
+
+    if (lista.length === 0) {
+        alert('Adicione personagens à iniciativa primeiro.');
+        return;
+    }
+
+    const state = getIniciativaState();
+    
+    // Incrementar turno
+    state.turnoAtual++;
+    
+    // Se turno ultrapassar o número de pessoas, resetar turno e incrementar rodada
+    if (state.turnoAtual > lista.length) {
+        state.turnoAtual = 1;
+        state.rodadaAtual++;
+        
+        // Passar turno da campanha automaticamente (reduz durações)
+        if (campanhaId) {
+            passarTurnoUI();
+        }
+    }
+    
+    salvarIniciativaState(state);
+    renderIniciativa(lista);
+}
+
+function resetarIniciativa() {
+    const confirmed = confirm('Resetar iniciativa? Isso voltará para Rodada 1, Turno 1.');
+    if (!confirmed) return;
+    
+    const state = { turnoAtual: 1, rodadaAtual: 1 };
+    salvarIniciativaState(state);
+    
+    const key = getIniciativaKey();
+    if (!key) return;
+    
+    let lista = [];
+    try {
+        lista = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!Array.isArray(lista)) lista = [];
+    } catch (_) {
+        lista = [];
+    }
+    
     renderIniciativa(lista);
 }
 
