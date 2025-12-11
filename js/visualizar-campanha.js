@@ -466,9 +466,6 @@ function avancarTurnoIniciativa() {
 }
 
 function resetarIniciativa() {
-    const confirmed = confirm('Resetar iniciativa? Isso voltará para Rodada 1, Turno 1.');
-    if (!confirmed) return;
-    
     const state = { turnoAtual: 1, rodadaAtual: 1 };
     salvarIniciativaState(state);
     
