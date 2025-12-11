@@ -330,7 +330,7 @@ function renderIniciativa(lista) {
         }
 
         const numero = document.createElement('td');
-        numero.textContent = index + 1;
+        numero.textContent = item.ordem != null ? item.ordem : (index + 1);
         numero.style.fontWeight = state.turnoAtual === index + 1 ? 'bold' : 'normal';
         row.appendChild(numero);
 
@@ -358,12 +358,14 @@ function renderIniciativa(lista) {
 }
 
 function adicionarIniciativa() {
+    const ordemInput = document.getElementById('iniciativaOrdem');
     const nomeInput = document.getElementById('iniciativaNome');
     const obsInput = document.getElementById('iniciativaObs');
     if (!nomeInput || !obsInput) return;
 
     const nome = nomeInput.value.trim();
     const obs = obsInput.value.trim();
+    const ordemValor = ordemInput ? parseInt(ordemInput.value, 10) : NaN;
 
     if (!nome) {
         alert('Informe o personagem ou ação.');
@@ -379,11 +381,20 @@ function adicionarIniciativa() {
         lista = [];
     }
 
-    lista.push({ nome, obs });
+    lista.push({ ordem: isNaN(ordemValor) ? null : ordemValor, nome, obs });
+
+    // ordenar por ordem crescente, mantendo sem ordem no fim
+    lista = lista.sort((a, b) => {
+        if (a.ordem == null && b.ordem == null) return 0;
+        if (a.ordem == null) return 1;
+        if (b.ordem == null) return -1;
+        return a.ordem - b.ordem;
+    });
 
     salvarIniciativa(lista);
     renderIniciativa(lista);
 
+    if (ordemInput) ordemInput.value = '';
     nomeInput.value = '';
     obsInput.value = '';
 }

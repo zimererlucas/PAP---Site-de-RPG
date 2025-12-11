@@ -103,15 +103,12 @@
                                 </div>
 
                                 <div class="mt-2">
-                                    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                                        <h6 class="mb-0">Iniciativa</h6>
-                                        <small class="text-muted">Turno Atual: <span id="turnoInfoDisplay">1 / 0</span></small>
-                                    </div>
+                                    
                                     <div class="table-responsive mb-2">
                                         <table class="table table-sm mb-1 table-dark">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 60px;">#</th>
+                                                    <th style="width: 80px;">Ordem</th>
                                                     <th>Personagem / Ação</th>
                                                     <th style="width: 140px;">Observação</th>
                                                     <th style="width: 70px;"></th>
@@ -125,6 +122,7 @@
                                         </table>
                                     </div>
                                     <div class="d-flex flex-wrap gap-2">
+                                        <input type="number" id="iniciativaOrdem" class="form-control form-control-sm" placeholder="Ordem" style="max-width: 90px;">
                                         <input type="text" id="iniciativaNome" class="form-control form-control-sm" placeholder="Personagem ou ação" style="flex: 1 1 200px;">
                                         <input type="text" id="iniciativaObs" class="form-control form-control-sm" placeholder="Observação" style="flex: 1 1 140px;">
                                         <button class="btn btn-sm btn-primary" onclick="adicionarIniciativa()">➕ Adicionar</button>
