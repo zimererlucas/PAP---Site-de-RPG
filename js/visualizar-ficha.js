@@ -147,8 +147,35 @@ function fazerLogout() {
 // ============================================
 // ATUALIZAÇÃO EM TEMPO REAL DA FICHA
 // ============================================
+
+// Rastrear campos sendo editados
+let camposEditandoAtivo = new Set();
+
+// Adicionar listeners para detectar quando um campo está sendo editado
+function monitorarEdicaoCampos() {
+    document.addEventListener('focus', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            const id = e.target.id;
+            if (id) camposEditandoAtivo.add(id);
+        }
+    }, true);
+
+    document.addEventListener('blur', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            const id = e.target.id;
+            if (id) {
+                // Remover após um pequeno delay para permitir salvar
+                setTimeout(() => camposEditandoAtivo.delete(id), 500);
+            }
+        }
+    }, true);
+}
+
 function iniciarRealtimeFicha() {
     if (!fichaId || !window.supabase) return;
+
+    // Monitorar campos sendo editados
+    monitorarEdicaoCampos();
 
     // Evitar múltiplas inscrições
     if (fichaRealtimeChannel) {
@@ -178,10 +205,10 @@ function iniciarRealtimeFicha() {
             }
         });
 
-    // Fallback por polling a cada 2s caso o realtime não dispare
-    fichaPollingInterval = setInterval(() => {
-        loadFicha();
-    }, 2000);
+    // Remover polling automático - só atualiza quando há mudanças reais
+    // fichaPollingInterval = setInterval(() => {
+    //     loadFicha();
+    // }, 2000);
 }
 
 // Limpar inscrição ao sair
@@ -229,6 +256,13 @@ async function loadFicha() {
             if (el) el.textContent = value || '-';
         };
         
+        // Função auxiliar para setar valor de input APENAS se não estiver sendo editado
+        const setInputSafe = (id, value) => {
+            if (camposEditandoAtivo.has(id)) return; // Skip se está sendo editado
+            const el = document.getElementById(id);
+            if (el) el.value = value || '';
+        };
+        
         // Header
         setElement('nomePersonagemHeader', ficha.nome || 'Ficha de Personagem');
         setElement('racaPersonagemHeader', ficha.raca || '-');
@@ -241,18 +275,12 @@ async function loadFicha() {
         setElement('altura-view', ficha.altura || '-');
         setElement('peso-view', ficha.peso || '-');
         
-        const nomeInput = document.getElementById('nome');
-        const racaInput = document.getElementById('raca');
-        const idadeInput = document.getElementById('idade');
-        const nivelInput = document.getElementById('nivel');
-        const alturaInput = document.getElementById('altura');
-        const pesoInput = document.getElementById('peso');
-        if (nomeInput) nomeInput.value = ficha.nome || '';
-        if (racaInput) racaInput.value = ficha.raca || '';
-        if (idadeInput) idadeInput.value = ficha.idade || '';
-        if (nivelInput) nivelInput.value = ficha.nivel || 0;
-        if (alturaInput) alturaInput.value = ficha.altura || '';
-        if (pesoInput) pesoInput.value = ficha.peso || '';
+        setInputSafe('nome', ficha.nome);
+        setInputSafe('raca', ficha.raca);
+        setInputSafe('idade', ficha.idade);
+        setInputSafe('nivel', ficha.nivel || 0);
+        setInputSafe('altura', ficha.altura);
+        setInputSafe('peso', ficha.peso);
         
         // Atributos - Força
         const forcaBaseVal = ficha.forca_base || 0;
@@ -261,10 +289,8 @@ async function loadFicha() {
         setElement('forcaBase-view', forcaBaseVal);
         setElement('forcaBonus-view', forcaBonusVal);
         setElement('forcaTotal', forcaTotalVal);
-        const forcaBaseInput = document.getElementById('forcaBase');
-        const forcaBonusInput = document.getElementById('forcaBonus');
-        if (forcaBaseInput) forcaBaseInput.value = forcaBaseVal;
-        if (forcaBonusInput) forcaBonusInput.value = forcaBonusVal;
+        setInputSafe('forcaBase', forcaBaseVal);
+        setInputSafe('forcaBonus', forcaBonusVal);
         
         // Atributos - Agilidade
         const agilidadeBaseVal = ficha.agilidade_base || 0;
@@ -273,10 +299,8 @@ async function loadFicha() {
         setElement('agilidadeBase-view', agilidadeBaseVal);
         setElement('agilidadeBonus-view', agilidadeBonusVal);
         setElement('agilidadeTotal', agilidadeTotalVal);
-        const agilidadeBaseInput = document.getElementById('agilidadeBase');
-        const agilidadeBonusInput = document.getElementById('agilidadeBonus');
-        if (agilidadeBaseInput) agilidadeBaseInput.value = agilidadeBaseVal;
-        if (agilidadeBonusInput) agilidadeBonusInput.value = agilidadeBonusVal;
+        setInputSafe('agilidadeBase', agilidadeBaseVal);
+        setInputSafe('agilidadeBonus', agilidadeBonusVal);
         
         // Atributos - Sorte
         const sorteBaseVal = ficha.sorte_base || 0;
@@ -285,10 +309,8 @@ async function loadFicha() {
         setElement('sorteBase-view', sorteBaseVal);
         setElement('sorteBonus-view', sorteBonusVal);
         setElement('sorteTotal', sorteTotalVal);
-        const sorteBaseInput = document.getElementById('sorteBase');
-        const sorteBonusInput = document.getElementById('sorteBonus');
-        if (sorteBaseInput) sorteBaseInput.value = sorteBaseVal;
-        if (sorteBonusInput) sorteBonusInput.value = sorteBonusVal;
+        setInputSafe('sorteBase', sorteBaseVal);
+        setInputSafe('sorteBonus', sorteBonusVal);
         
         // Atributos - Inteligência
         const inteligenciaBaseVal = ficha.inteligencia_base || 0;
@@ -297,10 +319,8 @@ async function loadFicha() {
         setElement('inteligenciaBase-view', inteligenciaBaseVal);
         setElement('inteligenciaBonus-view', inteligenciaBonusVal);
         setElement('inteligenciaTotal', inteligenciaTotalVal);
-        const inteligenciaBaseInput = document.getElementById('inteligenciaBase');
-        const inteligenciaBonusInput = document.getElementById('inteligenciaBonus');
-        if (inteligenciaBaseInput) inteligenciaBaseInput.value = inteligenciaBaseVal;
-        if (inteligenciaBonusInput) inteligenciaBonusInput.value = inteligenciaBonusVal;
+        setInputSafe('inteligenciaBase', inteligenciaBaseVal);
+        setInputSafe('inteligenciaBonus', inteligenciaBonusVal);
         
         // Atributos - Corpo Essência
         const corpoEssenciaBaseVal = ficha.corpo_essencia_base || 0;
@@ -309,10 +329,8 @@ async function loadFicha() {
         setElement('corpoEssenciaBase-view', corpoEssenciaBaseVal);
         setElement('corpoEssenciaBonus-view', corpoEssenciaBonusVal);
         setElement('corpoEssenciaTotal', corpoEssenciaTotalVal);
-        const corpoEssenciaBaseInput = document.getElementById('corpoEssenciaBase');
-        const corpoEssenciaBonusInput = document.getElementById('corpoEssenciaBonus');
-        if (corpoEssenciaBaseInput) corpoEssenciaBaseInput.value = corpoEssenciaBaseVal;
-        if (corpoEssenciaBonusInput) corpoEssenciaBonusInput.value = corpoEssenciaBonusVal;
+        setInputSafe('corpoEssenciaBase', corpoEssenciaBaseVal);
+        setInputSafe('corpoEssenciaBonus', corpoEssenciaBonusVal);
         
         // Atributos - Exposição Rúnica
         const exposicaoRunicaBaseVal = ficha.exposicao_runica_base || 0;
@@ -321,6 +339,8 @@ async function loadFicha() {
         setElement('exposicaoRunicaBase-view', exposicaoRunicaBaseVal);
         setElement('exposicaoRunicaBonus-view', exposicaoRunicaBonusVal);
         setElement('exposicaoRunicaTotal', exposicaoRunicaTotalVal);
+        setInputSafe('exposicaoRunicaBase', exposicaoRunicaBaseVal);
+        setInputSafe('exposicaoRunicaBonus', exposicaoRunicaBonusVal);
         const exposicaoRunicaBaseInput = document.getElementById('exposicaoRunicaBase');
         const exposicaoRunicaBonusInput = document.getElementById('exposicaoRunicaBonus');
         if (exposicaoRunicaBaseInput) exposicaoRunicaBaseInput.value = exposicaoRunicaBaseVal;
@@ -346,8 +366,7 @@ async function loadFicha() {
         
         // Reputação
         setElement('reputacao-view', ficha.reputacao || '-');
-        const reputacaoSelect = document.getElementById('statusSocial');
-        if (reputacaoSelect) reputacaoSelect.value = ficha.reputacao || '';
+        setInputSafe('statusSocial', ficha.reputacao || '');
         
         // Status - Nível
         setElement('nivel', ficha.nivel || 0);
@@ -358,8 +377,7 @@ async function loadFicha() {
         const vidaMaximaTotal = vidaMaximaBase + vidaMaximaBonus;
         setElement('vidaAtual', ficha.vida_atual || 0);
         setElement('vidaMaxima-view', vidaMaximaTotal);
-        const vidaMaximaInput = document.getElementById('vidaMaxima');
-        if (vidaMaximaInput) vidaMaximaInput.value = vidaMaximaBase;
+        setInputSafe('vidaMaxima', vidaMaximaBase);
         const vidaBar = document.getElementById('vidaBar');
         const vidaPercent = document.getElementById('vidaPercent');
         if (vidaBar && vidaMaximaTotal) {
@@ -374,8 +392,7 @@ async function loadFicha() {
         const estaminaMaximaTotal = estaminaMaximaBase + estaminaMaximaBonus;
         setElement('estaminaAtual', ficha.estamina_atual || 0);
         setElement('estaminaMaxima-view', estaminaMaximaTotal);
-        const estaminaMaximaInput = document.getElementById('estaminaMaxima');
-        if (estaminaMaximaInput) estaminaMaximaInput.value = estaminaMaximaBase;
+        setInputSafe('estaminaMaxima', estaminaMaximaBase);
         const estaminaBar = document.getElementById('estaminaBar');
         const estaminaPercent = document.getElementById('estaminaPercent');
         if (estaminaBar && estaminaMaximaTotal) {
@@ -390,8 +407,7 @@ async function loadFicha() {
         const manaMaximaTotal = manaMaximaBase + manaMaximaBonus;
         setElement('manaAtual', ficha.mana_atual || 0);
         setElement('manaMaxima-view', manaMaximaTotal);
-        const manaMaximaInput = document.getElementById('manaMaxima');
-        if (manaMaximaInput) manaMaximaInput.value = manaMaximaBase;
+        setInputSafe('manaMaxima', manaMaximaBase);
         const manaBar = document.getElementById('manaBar');
         const manaPercent = document.getElementById('manaPercent');
         if (manaBar && manaMaximaTotal) {
@@ -403,10 +419,8 @@ async function loadFicha() {
         // Poderes
         setElement('poderMagico-view', ficha.poder_magico || 0);
         setElement('controle-view', ficha.controle || 0);
-        const poderMagicoInput = document.getElementById('poderMagico');
-        const controleInput = document.getElementById('controle');
-        if (poderMagicoInput) poderMagicoInput.value = ficha.poder_magico || 0;
-        if (controleInput) controleInput.value = ficha.controle || 0;
+        setInputSafe('poderMagico', ficha.poder_magico || 0);
+        setInputSafe('controle', ficha.controle || 0);
         
         // Habilidades
         setElement('fragmentoDivino', ficha.fragmento_divino || '-');
