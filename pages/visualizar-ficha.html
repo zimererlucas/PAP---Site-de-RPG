@@ -1128,56 +1128,52 @@
                     <input type="text" id="habilidade-efeito"
                         style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
                 </div>
-                <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Efeito</label>
-                <input type="text" id="habilidade-efeito"
-                    style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
+                    <textarea id="habilidade-descricao"
+                        style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 80px;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Mana</label>
+                    <input type="number" id="habilidade-custo-mana"
+                        style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
+                        value="0">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Estamina</label>
+                    <input type="number" id="habilidade-custo-estamina"
+                        style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
+                        value="0">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Nível</label>
+                    <input type="number" id="habilidade-nivel"
+                        style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
+                        value="1">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">⏱️ Duração em Turnos (opcional)</label>
+                    <input type="number" id="habilidade-duracao-turnos"
+                        style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
+                        placeholder="Ex: 3" min="0">
+                    <small style="color: #999; display: block; margin-top: 5px;">Deixe vazio se não tiver duração
+                        limitada</small>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #667eea; display: block; margin-bottom: 10px; font-weight: bold;">🎁 Bônus</label>
+                    <div id="habilidade-bonus-container"></div>
+                    <button type="button" onclick="adicionarBonus('habilidade')"
+                        style="width: 100%; padding: 8px; background: #16213e; color: #667eea; border: 1px dashed #667eea; border-radius: 4px; cursor: pointer;">+
+                        Adicionar Bônus</button>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="salvarHabilidade()"
+                        style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    <button type="button" onclick="fecharModalHabilidade()"
+                        style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                </div>
+            </form>
         </div>
-        <div style="margin-bottom: 15px;">
-            <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Descrição</label>
-            <textarea id="habilidade-descricao"
-                style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; min-height: 80px;"></textarea>
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Mana</label>
-            <input type="number" id="habilidade-custo-mana"
-                style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
-                value="0">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Custo de Estamina</label>
-            <input type="number" id="habilidade-custo-estamina"
-                style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
-                value="0">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">Nível</label>
-            <input type="number" id="habilidade-nivel"
-                style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
-                value="1">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">⏱️ Duração em Turnos (opcional)</label>
-            <input type="number" id="habilidade-duracao-turnos"
-                style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
-                placeholder="Ex: 3" min="0">
-            <small style="color: #999; display: block; margin-top: 5px;">Deixe vazio se não tiver duração
-                limitada</small>
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="color: #667eea; display: block; margin-bottom: 10px; font-weight: bold;">🎁 Bônus</label>
-            <div id="habilidade-bonus-container"></div>
-            <button type="button" onclick="adicionarBonus('habilidade')"
-                style="width: 100%; padding: 8px; background: #16213e; color: #667eea; border: 1px dashed #667eea; border-radius: 4px; cursor: pointer;">+
-                Adicionar Bônus</button>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button type="button" onclick="salvarHabilidade()"
-                style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
-            <button type="button" onclick="fecharModalHabilidade()"
-                style="flex: 1; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
-        </div>
-        </form>
-    </div>
     </div>
 
     <!-- Modal Conhecimento -->

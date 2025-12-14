@@ -17,7 +17,7 @@ async function getCampanhaDiceChannel(campanhaId) {
 
 /**
  * Rola um ou mais dados e retorna o resultado
- * @param {Array} dados - Array com objetos {quantidade, lados}
+ * @param {Array} dados - Array com objetos {quantidade, lados, bonus}
  * @returns {Object} { total, detalhes, resultado_formatado }
  */
 function rolarDados(dados) {
@@ -30,37 +30,30 @@ function rolarDados(dados) {
         };
     }
 
-    let total = 0;
-    let detalhes = [];
+    let totalRolagens = 0;
+    const detalhes = [];
+    const partes = [];
 
     dados.forEach(d => {
         const quantidade = parseInt(d.quantidade) || 1;
         const lados = parseInt(d.lados) || 20;
+        const bonus = parseInt(d.bonus) || 0;
+        const resultadosDeste = [];
 
         for (let i = 0; i < quantidade; i++) {
             const resultado = Math.floor(Math.random() * lados) + 1;
-            total += resultado;
+            totalRolagens += resultado;
             detalhes.push({ lados, resultado });
+            resultadosDeste.push(resultado);
         }
+
+        const bonusText = bonus ? (bonus > 0 ? ` + ${bonus}` : ` - ${Math.abs(bonus)}`) : '';
+        partes.push(`${quantidade}d${lados}[${resultadosDeste.join(', ')}]${bonusText}`);
     });
 
-    // Formatar resultado: "1d20[15] + 2d8[4, 6] = 25"
-    let resultado_formatado = '';
-    let dataIndex = 0;
-
-    dados.forEach((d, idx) => {
-        const quantidade = parseInt(d.quantidade) || 1;
-        const lados = parseInt(d.lados) || 20;
-        const resultadosDeste = detalhes.slice(dataIndex, dataIndex + quantidade);
-        const soma = resultadosDeste.reduce((acc, r) => acc + r.resultado, 0);
-
-        if (idx > 0) resultado_formatado += ' + ';
-        resultado_formatado += `${quantidade}d${lados}[${resultadosDeste.map(r => r.resultado).join(', ')}]`;
-
-        dataIndex += quantidade;
-    });
-
-    resultado_formatado += ` = ${total}`;
+    const totalBonus = dados.reduce((acc, d) => acc + (parseInt(d.bonus) || 0), 0);
+    const total = totalRolagens + totalBonus;
+    const resultado_formatado = `${partes.join(' + ')} = ${total}`;
 
     return {
         success: true,
@@ -137,8 +130,12 @@ function renderBotoesDados(dados, tipo, nome) {
     `;
 
     const botoesIndividuais = dados.map((dado) => {
-        const label = `${parseInt(dado.quantidade) || 1}d${parseInt(dado.lados) || 20}`;
-        const payload = JSON.stringify([{ quantidade: parseInt(dado.quantidade) || 1, lados: parseInt(dado.lados) || 20 }]).replace(/"/g, '&quot;');
+        const quantidade = parseInt(dado.quantidade) || 1;
+        const lados = parseInt(dado.lados) || 20;
+        const bonus = parseInt(dado.bonus) || 0;
+        const labelBonus = bonus ? (bonus > 0 ? `+${bonus}` : `${bonus}`) : '';
+        const label = `${quantidade}d${lados}${labelBonus}`;
+        const payload = JSON.stringify([{ quantidade, lados, bonus }]).replace(/"/g, '&quot;');
         return `
             <button
                 onclick="rolarDadosUI('${tipo}', '${nome} - ${label}', ${payload})"
@@ -221,21 +218,27 @@ async function rolarDadosUI(tipo, nome, dados) {
 
 /**
  * Converte array de dados para string legível
- * @param {Array} dados - Array com objetos {quantidade, lados}
- * @returns {String} Exemplo: "1d20 + 2d8 + 1d100"
+ * @param {Array} dados - Array com objetos {quantidade, lados, bonus}
+ * @returns {String} Exemplo: "1d20+5 + 2d8-1 + 1d100"
  */
 function formatarDados(dados) {
     if (!dados || !Array.isArray(dados) || dados.length === 0) {
         return 'Nenhum dado';
     }
     return dados
-        .map(d => `${parseInt(d.quantidade) || 1}d${parseInt(d.lados) || 20}`)
+        .map(d => {
+            const quantidade = parseInt(d.quantidade) || 1;
+            const lados = parseInt(d.lados) || 20;
+            const bonus = parseInt(d.bonus) || 0;
+            const bonusLabel = bonus ? (bonus > 0 ? `+${bonus}` : `${bonus}`) : '';
+            return `${quantidade}d${lados}${bonusLabel}`;
+        })
         .join(' + ');
 }
 
 /**
  * Valida se os dados estão no formato correto
- * @param {Array} dados - Array com objetos {quantidade, lados}
+ * @param {Array} dados - Array com objetos {quantidade, lados, bonus}
  * @returns {Boolean}
  */
 function validarDados(dados) {

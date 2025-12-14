@@ -543,9 +543,9 @@ function adicionarBonus(tipo, bonus = { atributo: '', valor: 0 }) {
 /**
  * Adiciona um novo campo de dado ao modal
  * @param {String} tipo - Tipo do item ('magia', 'habilidade', 'item')
- * @param {Object} dado - Objeto com {quantidade, lados} (opcional)
+ * @param {Object} dado - Objeto com {quantidade, lados, bonus} (opcional)
  */
-function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20 }) {
+function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20, bonus: 0 }) {
     const container = document.getElementById(`${tipo}-dados-container`);
     if (!container) return;
 
@@ -583,6 +583,15 @@ function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20 }) {
     inputLados.style = "flex: 1; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;";
     inputLados.placeholder = "Lados";
 
+    // Input de bônus (positivo ou negativo)
+    const inputBonus = document.createElement('input');
+    inputBonus.type = 'number';
+    inputBonus.className = 'dado-bonus';
+    inputBonus.value = dado.bonus !== undefined && dado.bonus !== null ? dado.bonus : 0;
+    inputBonus.step = '1';
+    inputBonus.style = "flex: 0.8; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; text-align: center;";
+    inputBonus.placeholder = "+/-";
+
     // Botão remover
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
@@ -593,6 +602,7 @@ function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20 }) {
     dadoWrapper.appendChild(inputQtd);
     dadoWrapper.appendChild(labelD);
     dadoWrapper.appendChild(inputLados);
+    dadoWrapper.appendChild(inputBonus);
     dadoWrapper.appendChild(removeBtn);
     container.appendChild(dadoWrapper);
 }
@@ -600,7 +610,7 @@ function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20 }) {
 /**
  * Coleta todos os dados do modal
  * @param {String} tipo - Tipo do item
- * @returns {Array} Array de objetos {quantidade, lados}
+ * @returns {Array} Array de objetos {quantidade, lados, bonus}
  */
 function coletarDados(tipo) {
     const container = document.getElementById(`${tipo}-dados-container`);
@@ -612,9 +622,11 @@ function coletarDados(tipo) {
     items.forEach(item => {
         const quantidade = parseInt(item.querySelector('.dado-quantidade').value) || 1;
         const lados = parseInt(item.querySelector('.dado-lados').value) || 20;
+        const bonusInput = item.querySelector('.dado-bonus');
+        const bonus = bonusInput ? (parseInt(bonusInput.value) || 0) : 0;
 
         if (quantidade > 0 && lados > 0) {
-            dados.push({ quantidade, lados });
+            dados.push({ quantidade, lados, bonus });
         }
     });
 
@@ -624,7 +636,7 @@ function coletarDados(tipo) {
 /**
  * Restaura dados salvos no modal ao editar
  * @param {String} tipo - Tipo do item
- * @param {Array} dados - Array de objetos {quantidade, lados}
+ * @param {Array} dados - Array de objetos {quantidade, lados, bonus}
  */
 function restaurarDados(tipo, dados) {
     const container = document.getElementById(`${tipo}-dados-container`);
@@ -636,7 +648,11 @@ function restaurarDados(tipo, dados) {
     // Restaurar cada dado
     if (dados && Array.isArray(dados)) {
         dados.forEach(dado => {
-            adicionarDadoUI(tipo, dado);
+            adicionarDadoUI(tipo, {
+                quantidade: dado.quantidade,
+                lados: dado.lados,
+                bonus: dado.bonus || 0
+            });
         });
     }
 }
