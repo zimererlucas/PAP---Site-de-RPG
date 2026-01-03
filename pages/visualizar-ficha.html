@@ -135,41 +135,6 @@
             gap: 30px;
         }
 
-        /* Grid para as seções de tempo de reação e reputação */
-        .tempo-reputacao-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        /* Caixa de tempo de reação */
-        .tempo-reacao-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 8px;
-            border: 2px solid var(--accent);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .tempo-reacao-label {
-            font-size: 0.85em;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .tempo-reacao-valor {
-            font-size: 3em;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
         /* Caixa de reputação */
         .reputacao-box {
             background: rgba(0, 0, 0, 0.3);
@@ -194,6 +159,41 @@
             font-size: 1.2em;
             color: #ffd700;
             font-weight: 600;
+        }
+
+        /* Grid para Esquiva e Acerto */
+        .combat-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        /* Caixa de estatística de combate */
+        .combat-stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .combat-stat-label {
+            font-size: 0.85em;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .combat-stat-valor {
+            font-size: 3em;
+            color: var(--accent);
+            font-weight: 700;
         }
 
         /* Grid para informações */
@@ -660,31 +660,31 @@
                                         </div>
                                         <div class="atributo-row">
                                             <div class="atributo-emoji">🧿</div>
-                                            <div class="atributo-nome">Corpo Essência</div>
-                                            <div class="atributo-calculo"><span id="corpoEssenciaBase-view">0</span> +
-                                                <span id="corpoEssenciaBonus-view">0</span> = <strong><span
-                                                        id="corpoEssenciaTotal">0</span></strong></div>
+                                            <div class="atributo-nome">Foco</div>
+                                            <div class="atributo-calculo"><span id="focoBase-view">0</span> +
+                                                <span id="focoBonus-view">0</span> = <strong><span
+                                                        id="focoTotal">0</span></strong></div>
                                             <div class="atributo-calculo-edit" style="display: none;"><input
-                                                    type="number" id="corpoEssenciaBase"
+                                                    type="number" id="focoBase"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                                + <input type="number" id="corpoEssenciaBonus"
+                                                + <input type="number" id="focoBonus"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
                                                     disabled> = <strong><span
-                                                        id="corpoEssenciaTotal-edit">0</span></strong></div>
+                                                        id="focoTotal-edit">0</span></strong></div>
                                         </div>
                                         <div class="atributo-row">
                                             <div class="atributo-emoji">🀄</div>
-                                            <div class="atributo-nome">Exposição Rúnica</div>
-                                            <div class="atributo-calculo"><span id="exposicaoRunicaBase-view">0</span> +
-                                                <span id="exposicaoRunicaBonus-view">0</span> = <strong><span
-                                                        id="exposicaoRunicaTotal">0</span></strong></div>
+                                            <div class="atributo-nome">Arcanismo</div>
+                                            <div class="atributo-calculo"><span id="arcanismoBase-view">0</span> +
+                                                <span id="arcanismoBonus-view">0</span> = <strong><span
+                                                        id="arcanismoTotal">0</span></strong></div>
                                             <div class="atributo-calculo-edit" style="display: none;"><input
-                                                    type="number" id="exposicaoRunicaBase"
+                                                    type="number" id="arcanismoBase"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                                + <input type="number" id="exposicaoRunicaBonus"
+                                                + <input type="number" id="arcanismoBonus"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
                                                     disabled> = <strong><span
-                                                        id="exposicaoRunicaTotal-edit">0</span></strong></div>
+                                                        id="arcanismoTotal-edit">0</span></strong></div>
                                         </div>
                                     </div>
                                     <div id="atributos-save-btn" style="display: none; margin-top: 10px;">
@@ -695,50 +695,44 @@
                                     </div>
                                 </div>
 
-                                <!-- Tempo de Reação e Reputação lado a lado -->
-                                <div class="tempo-reputacao-row">
-                                    <div class="tempo-reacao-box">
-                                        <div class="tempo-reacao-label">⏱️ Tempo de Reação</div>
-                                        <div class="tempo-reacao-valor" id="tempoReacaoValor">0</div>
+                                <!-- Reputação -->
+                                <div class="reputacao-box" style="margin-top: 15px;">
+                                    <div class="reputacao-label">🎖️ Status Social <button
+                                            onclick="toggleEditarReputacao()"
+                                            style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 14px;">✏️</button>
                                     </div>
-                                    <div class="reputacao-box">
-                                        <div class="reputacao-label">🎖️ Status Social <button
-                                                onclick="toggleEditarReputacao()"
-                                                style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 14px;">✏️</button>
-                                        </div>
-                                        <div class="reputacao-valor" id="reputacao-view">-</div>
-                                        <select id="statusSocial"
-                                            style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                            <option value="">Selecione...</option>
-                                            <option value="Repugnante">Repugnante</option>
-                                            <option value="Asqueroso">Asqueroso</option>
-                                            <option value="Desprezível">Desprezível</option>
-                                            <option value="Ofensivo">Ofensivo</option>
-                                            <option value="Questionável">Questionável</option>
-                                            <option value="Neutro">Neutro</option>
-                                            <option value="Aceitável">Aceitável</option>
-                                            <option value="Admirável">Admirável</option>
-                                            <option value="Sublime">Sublime</option>
-                                            <option value="Sagrado">Sagrado</option>
-                                        </select>
-                                        <div id="reputacao-save-btn" style="display: none; margin-top: 10px;">
-                                            <button onclick="salvarReputacao()"
-                                                style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
-                                            <button onclick="cancelarEditarReputacao()"
-                                                style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
-                                        </div>
+                                    <div class="reputacao-valor" id="reputacao-view">-</div>
+                                    <select id="statusSocial"
+                                        style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                        <option value="">Selecione...</option>
+                                        <option value="Repugnante">Repugnante</option>
+                                        <option value="Asqueroso">Asqueroso</option>
+                                        <option value="Desprezível">Desprezível</option>
+                                        <option value="Ofensivo">Ofensivo</option>
+                                        <option value="Questionável">Questionável</option>
+                                        <option value="Neutro">Neutro</option>
+                                        <option value="Aceitável">Aceitável</option>
+                                        <option value="Admirável">Admirável</option>
+                                        <option value="Sublime">Sublime</option>
+                                        <option value="Sagrado">Sagrado</option>
+                                    </select>
+                                    <div id="reputacao-save-btn" style="display: none; margin-top: 10px;">
+                                        <button onclick="salvarReputacao()"
+                                            style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
+                                        <button onclick="cancelarEditarReputacao()"
+                                            style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
                                     </div>
                                 </div>
 
                                 <!-- Esquiva e Acerto -->
-                                <div class="tempo-reputacao-row" style="margin-top: 15px;">
-                                    <div class="tempo-reacao-box">
-                                        <div class="tempo-reacao-label">🛡️ Esquiva</div>
-                                        <div class="tempo-reacao-valor" id="esquivaValor">0</div>
+                                <div class="combat-stats-row">
+                                    <div class="combat-stat-box">
+                                        <div class="combat-stat-label">🛡️ Esquiva</div>
+                                        <div class="combat-stat-valor" id="esquivaValor">0</div>
                                     </div>
-                                    <div class="tempo-reacao-box">
-                                        <div class="tempo-reacao-label">🎯 Acerto</div>
-                                        <div class="tempo-reacao-valor" id="acertoValor">0</div>
+                                    <div class="combat-stat-box">
+                                        <div class="combat-stat-label">🎯 Acerto</div>
+                                        <div class="combat-stat-valor" id="acertoValor">0</div>
                                     </div>
                                 </div>
 
@@ -870,20 +864,6 @@
                                     </div>
                                 </div>
 
-                                <div class="info-grid" style="margin-top: 15px;">
-                                    <div class="info-item">
-                                        <div class="info-item-label">Poder Mágico</div>
-                                        <div class="info-item-value" id="poderMagico-view">0</div>
-                                        <input type="number" id="poderMagico"
-                                            style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                    </div>
-                                    <div class="info-item">
-                                        <div class="info-item-label">Controle</div>
-                                        <div class="info-item-value" id="controle-view">0</div>
-                                        <input type="number" id="controle"
-                                            style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                    </div>
-                                </div>
                                 <div id="status-save-btn" style="display: none; margin-top: 10px;">
                                     <button onclick="salvarStatus()"
                                         style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
@@ -1513,9 +1493,9 @@
             const agilidadeTotal = parseInt(document.getElementById('agilidadeTotal').textContent) || 0;
             const sorteTotal = parseInt(document.getElementById('sorteTotal').textContent) || 0;
             const inteligenciaTotal = parseInt(document.getElementById('inteligenciaTotal').textContent) || 0;
-            const corpoEssenciaTotal = parseInt(document.getElementById('corpoEssenciaTotal').textContent) || 0;
-            const exposicaoRunicaTotal = parseInt(document.getElementById('exposicaoRunicaTotal').textContent) || 0;
-            const totalAtributos = forcaTotal + agilidadeTotal + sorteTotal + inteligenciaTotal + corpoEssenciaTotal + exposicaoRunicaTotal;
+            const focoTotal = parseInt(document.getElementById('focoTotal').textContent) || 0;
+            const arcanismoTotal = parseInt(document.getElementById('arcanismoTotal').textContent) || 0;
+            const totalAtributos = forcaTotal + agilidadeTotal + sorteTotal + inteligenciaTotal + focoTotal + arcanismoTotal;
             const tempoReacao = Math.floor(totalAtributos / 10);
             console.log('Tempo de Reacao:', totalAtributos, '/', 10, '=', tempoReacao);
             const tempoReacaoEl = document.getElementById('tempoReacao');
@@ -1629,8 +1609,8 @@
                 { nome: 'agilidade', campo: 'agilidade' },
                 { nome: 'sorte', campo: 'sorte' },
                 { nome: 'inteligencia', campo: 'inteligencia' },
-                { nome: 'corpoEssencia', campo: 'corpo_essencia' },
-                { nome: 'exposicaoRunica', campo: 'exposicao_runica' }
+                { nome: 'foco', campo: 'foco' },
+                { nome: 'arcanismo', campo: 'arcanismo' }
             ];
             const updateData = {};
             atributos.forEach(attr => {
@@ -1648,7 +1628,6 @@
             console.log('Resultado:', result);
             if (result.success) {
                 toggleEditarAtributos();
-                recalcularTempoReacao();
             } else {
                 console.error('Erro ao salvar atributos:', result.error);
             }
@@ -1665,10 +1644,6 @@
             const manaEdit = document.getElementById('mana-edit');
             const estaminaView = document.getElementById('estamina-view');
             const estaminaEdit = document.getElementById('estamina-edit');
-            const poderMagicoView = document.getElementById('poderMagico-view');
-            const poderMagicoInput = document.getElementById('poderMagico');
-            const controleView = document.getElementById('controle-view');
-            const controleInput = document.getElementById('controle');
             const saveBtn = document.getElementById('status-save-btn');
 
             if (vidaView && vidaEdit) {
@@ -1698,26 +1673,6 @@
                 estaminaView.style.display = estaminaView.style.display === 'none' ? 'inline' : 'none';
                 estaminaEdit.style.display = estaminaEdit.style.display === 'none' ? 'inline' : 'none';
             }
-            if (poderMagicoView && poderMagicoInput) {
-                if (poderMagicoView.style.display === 'none') {
-                    poderMagicoView.style.display = 'block';
-                    poderMagicoInput.style.display = 'none';
-                } else {
-                    poderMagicoView.style.display = 'none';
-                    poderMagicoInput.style.display = 'block';
-                    poderMagicoInput.value = poderMagicoView.textContent;
-                }
-            }
-            if (controleView && controleInput) {
-                if (controleView.style.display === 'none') {
-                    controleView.style.display = 'block';
-                    controleInput.style.display = 'none';
-                } else {
-                    controleView.style.display = 'none';
-                    controleInput.style.display = 'block';
-                    controleInput.value = controleView.textContent;
-                }
-            }
             if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
         }
 
@@ -1729,15 +1684,11 @@
             const vidaMaxima = parseInt(document.getElementById('vidaMaxima').value);
             const manaMaxima = parseInt(document.getElementById('manaMaxima').value);
             const estaminaMaxima = parseInt(document.getElementById('estaminaMaxima').value);
-            const poderMagico = parseInt(document.getElementById('poderMagico').value);
-            const controle = parseInt(document.getElementById('controle').value);
 
             const updateData = {
                 vida_maxima: vidaMaxima,
                 mana_maxima: manaMaxima,
-                estamina_maxima: estaminaMaxima,
-                poder_magico: poderMagico,
-                controle: controle
+                estamina_maxima: estaminaMaxima
             };
 
             console.log('Salvando status:', updateData);

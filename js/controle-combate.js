@@ -37,9 +37,6 @@ async function carregarDados() {
         document.getElementById('manaAtual').value = fichaData.mana_atual || 0;
         document.getElementById('estaminaAtual').value = fichaData.estamina_atual || 0;
         
-        document.getElementById('acertoTR').textContent = fichaData.tempo_reacao || 0;
-        document.getElementById('esquivaTR').textContent = fichaData.tempo_reacao || 0;
-        
         atualizarAcerto();
         atualizarEsquiva();
         

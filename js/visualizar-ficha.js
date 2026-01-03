@@ -322,36 +322,29 @@ async function loadFicha() {
         setInputSafe('inteligenciaBase', inteligenciaBaseVal);
         setInputSafe('inteligenciaBonus', inteligenciaBonusVal);
         
-        // Atributos - Corpo Essência
-        const corpoEssenciaBaseVal = ficha.corpo_essencia_base || 0;
-        const corpoEssenciaBonusVal = ficha.corpo_essencia_bonus || 0;
-        const corpoEssenciaTotalVal = corpoEssenciaBaseVal + corpoEssenciaBonusVal;
-        setElement('corpoEssenciaBase-view', corpoEssenciaBaseVal);
-        setElement('corpoEssenciaBonus-view', corpoEssenciaBonusVal);
-        setElement('corpoEssenciaTotal', corpoEssenciaTotalVal);
-        setInputSafe('corpoEssenciaBase', corpoEssenciaBaseVal);
-        setInputSafe('corpoEssenciaBonus', corpoEssenciaBonusVal);
+        // Atributos - Foco
+        const focoBaseVal = ficha.foco_base || 0;
+        const focoBonusVal = ficha.foco_bonus || 0;
+        const focoTotalVal = focoBaseVal + focoBonusVal;
+        setElement('focoBase-view', focoBaseVal);
+        setElement('focoBonus-view', focoBonusVal);
+        setElement('focoTotal', focoTotalVal);
+        setInputSafe('focoBase', focoBaseVal);
+        setInputSafe('focoBonus', focoBonusVal);
         
-        // Atributos - Exposição Rúnica
-        const exposicaoRunicaBaseVal = ficha.exposicao_runica_base || 0;
-        const exposicaoRunicaBonusVal = ficha.exposicao_runica_bonus || 0;
-        const exposicaoRunicaTotalVal = exposicaoRunicaBaseVal + exposicaoRunicaBonusVal;
-        setElement('exposicaoRunicaBase-view', exposicaoRunicaBaseVal);
-        setElement('exposicaoRunicaBonus-view', exposicaoRunicaBonusVal);
-        setElement('exposicaoRunicaTotal', exposicaoRunicaTotalVal);
-        setInputSafe('exposicaoRunicaBase', exposicaoRunicaBaseVal);
-        setInputSafe('exposicaoRunicaBonus', exposicaoRunicaBonusVal);
-        const exposicaoRunicaBaseInput = document.getElementById('exposicaoRunicaBase');
-        const exposicaoRunicaBonusInput = document.getElementById('exposicaoRunicaBonus');
-        if (exposicaoRunicaBaseInput) exposicaoRunicaBaseInput.value = exposicaoRunicaBaseVal;
-        if (exposicaoRunicaBonusInput) exposicaoRunicaBonusInput.value = exposicaoRunicaBonusVal;
-        
-        // Calcular Tempo de Reação (casa da dezena do total de atributos)
-        const totalAtributos = forcaTotalVal + agilidadeTotalVal + sorteTotalVal + inteligenciaTotalVal + corpoEssenciaTotalVal + exposicaoRunicaTotalVal;
-        const tempoReacaoCalculado = Math.floor(totalAtributos / 10);
-        console.log('Tempo de Reacao no loadFicha:', { forcaTotalVal, agilidadeTotalVal, sorteTotalVal, inteligenciaTotalVal, corpoEssenciaTotalVal, exposicaoRunicaTotalVal, totalAtributos, tempoReacaoCalculado });
-        setElement('tempoReacao', tempoReacaoCalculado);
-        setElement('tempoReacaoValor', tempoReacaoCalculado);
+        // Atributos - Arcanismo
+        const arcanismoBaseVal = ficha.arcanismo_base || 0;
+        const arcanismoBonusVal = ficha.arcanismo_bonus || 0;
+        const arcanismoTotalVal = arcanismoBaseVal + arcanismoBonusVal;
+        setElement('arcanismoBase-view', arcanismoBaseVal);
+        setElement('arcanismoBonus-view', arcanismoBonusVal);
+        setElement('arcanismoTotal', arcanismoTotalVal);
+        setInputSafe('arcanismoBase', arcanismoBaseVal);
+        setInputSafe('arcanismoBonus', arcanismoBonusVal);
+        const arcanismoBaseInput = document.getElementById('arcanismoBase');
+        const arcanismoBonusInput = document.getElementById('arcanismoBonus');
+        if (arcanismoBaseInput) arcanismoBaseInput.value = arcanismoBaseVal;
+        if (arcanismoBonusInput) arcanismoBonusInput.value = arcanismoBonusVal;
         
         // Calcular Esquiva e Acerto (cada 5 em agilidade = +1)
         const esquivaBase = Math.floor(agilidadeTotalVal / 5);
@@ -415,12 +408,6 @@ async function loadFicha() {
             manaBar.style.width = manaPercentage + '%';
             if (manaPercent) manaPercent.textContent = Math.round(manaPercentage) + '%';
         }
-        
-        // Poderes
-        setElement('poderMagico-view', ficha.poder_magico || 0);
-        setElement('controle-view', ficha.controle || 0);
-        setInputSafe('poderMagico', ficha.poder_magico || 0);
-        setInputSafe('controle', ficha.controle || 0);
         
         // Habilidades
         setElement('fragmentoDivino', ficha.fragmento_divino || '-');

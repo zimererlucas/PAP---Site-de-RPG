@@ -44,8 +44,8 @@ ALTER TABLE personagens ADD COLUMN IF NOT EXISTS estamina_maxima_bonus INT DEFAU
 -- - agilidade_bonus
 -- - sorte_bonus
 -- - inteligencia_bonus
--- - corpo_essencia_bonus
--- - exposicao_runica_bonus
+-- - foco_bonus
+-- - arcanismo_bonus
 -- - vida_maxima_bonus
 -- - mana_maxima_bonus
 -- - estamina_maxima_bonus
