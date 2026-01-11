@@ -69,7 +69,7 @@ async function loginWithGoogle() {
         provider: 'google',
         options: {
             // Garante que o redirecionamento volta para a URL principal do Vercel
-            redirectTo: window.location.origin 
+            redirectTo: 'https://genesisrpg.vercel.app/' 
         }
     });
 
