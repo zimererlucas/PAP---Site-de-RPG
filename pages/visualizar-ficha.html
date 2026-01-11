@@ -135,31 +135,7 @@
             gap: 30px;
         }
 
-        /* Caixa de reputação */
-        .reputacao-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 3px solid var(--accent);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
 
-        .reputacao-label {
-            font-size: 0.85em;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .reputacao-valor {
-            font-size: 1.2em;
-            color: #ffd700;
-            font-weight: 600;
-        }
 
         /* Grid para Esquiva e Acerto */
         .combat-stats-row {
@@ -649,7 +625,8 @@
                                             <div class="atributo-nome">Inteligência</div>
                                             <div class="atributo-calculo"><span id="inteligenciaBase-view">0</span> +
                                                 <span id="inteligenciaBonus-view">0</span> = <strong><span
-                                                        id="inteligenciaTotal">0</span></strong></div>
+                                                        id="inteligenciaTotal">0</span></strong>
+                                            </div>
                                             <div class="atributo-calculo-edit" style="display: none;"><input
                                                     type="number" id="inteligenciaBase"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
@@ -663,28 +640,30 @@
                                             <div class="atributo-nome">Foco</div>
                                             <div class="atributo-calculo"><span id="focoBase-view">0</span> +
                                                 <span id="focoBonus-view">0</span> = <strong><span
-                                                        id="focoTotal">0</span></strong></div>
+                                                        id="focoTotal">0</span></strong>
+                                            </div>
                                             <div class="atributo-calculo-edit" style="display: none;"><input
                                                     type="number" id="focoBase"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
                                                 + <input type="number" id="focoBonus"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
-                                                    disabled> = <strong><span
-                                                        id="focoTotal-edit">0</span></strong></div>
+                                                    disabled> = <strong><span id="focoTotal-edit">0</span></strong>
+                                            </div>
                                         </div>
                                         <div class="atributo-row">
                                             <div class="atributo-emoji">🀄</div>
                                             <div class="atributo-nome">Arcanismo</div>
                                             <div class="atributo-calculo"><span id="arcanismoBase-view">0</span> +
                                                 <span id="arcanismoBonus-view">0</span> = <strong><span
-                                                        id="arcanismoTotal">0</span></strong></div>
+                                                        id="arcanismoTotal">0</span></strong>
+                                            </div>
                                             <div class="atributo-calculo-edit" style="display: none;"><input
                                                     type="number" id="arcanismoBase"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
                                                 + <input type="number" id="arcanismoBonus"
                                                     style="width: 40px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
-                                                    disabled> = <strong><span
-                                                        id="arcanismoTotal-edit">0</span></strong></div>
+                                                    disabled> = <strong><span id="arcanismoTotal-edit">0</span></strong>
+                                            </div>
                                         </div>
                                     </div>
                                     <div id="atributos-save-btn" style="display: none; margin-top: 10px;">
@@ -696,33 +675,7 @@
                                 </div>
 
                                 <!-- Reputação -->
-                                <div class="reputacao-box" style="margin-top: 15px;">
-                                    <div class="reputacao-label">🎖️ Status Social <button
-                                            onclick="toggleEditarReputacao()"
-                                            style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 14px;">✏️</button>
-                                    </div>
-                                    <div class="reputacao-valor" id="reputacao-view">-</div>
-                                    <select id="statusSocial"
-                                        style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                        <option value="">Selecione...</option>
-                                        <option value="Repugnante">Repugnante</option>
-                                        <option value="Asqueroso">Asqueroso</option>
-                                        <option value="Desprezível">Desprezível</option>
-                                        <option value="Ofensivo">Ofensivo</option>
-                                        <option value="Questionável">Questionável</option>
-                                        <option value="Neutro">Neutro</option>
-                                        <option value="Aceitável">Aceitável</option>
-                                        <option value="Admirável">Admirável</option>
-                                        <option value="Sublime">Sublime</option>
-                                        <option value="Sagrado">Sagrado</option>
-                                    </select>
-                                    <div id="reputacao-save-btn" style="display: none; margin-top: 10px;">
-                                        <button onclick="salvarReputacao()"
-                                            style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
-                                        <button onclick="cancelarEditarReputacao()"
-                                            style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
-                                    </div>
-                                </div>
+                                <!-- Reputação removida -->
 
                                 <!-- Esquiva e Acerto -->
                                 <div class="combat-stats-row">
@@ -1132,7 +1085,8 @@
                         value="1">
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">⏱️ Duração em Turnos (opcional)</label>
+                    <label style="color: #e0e0e0; display: block; margin-bottom: 5px;">⏱️ Duração em Turnos
+                        (opcional)</label>
                     <input type="number" id="habilidade-duracao-turnos"
                         style="width: 100%; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;"
                         placeholder="Ex: 3" min="0">
@@ -1140,7 +1094,8 @@
                         limitada</small>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label style="color: #667eea; display: block; margin-bottom: 10px; font-weight: bold;">🎁 Bônus</label>
+                    <label style="color: #667eea; display: block; margin-bottom: 10px; font-weight: bold;">🎁
+                        Bônus</label>
                     <div id="habilidade-bonus-container"></div>
                     <button type="button" onclick="adicionarBonus('habilidade')"
                         style="width: 100%; padding: 8px; background: #16213e; color: #667eea; border: 1px dashed #667eea; border-radius: 4px; cursor: pointer;">+

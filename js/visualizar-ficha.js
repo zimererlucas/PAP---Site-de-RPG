@@ -12,14 +12,14 @@ const HISTORICO_DADOS_MAX = 50;
 function alterarVida(valor) {
     const vidaAtualEl = document.getElementById('vidaAtual');
     const vidaMaximaEl = document.getElementById('vidaMaxima-view');
-    
+
     if (!vidaAtualEl || !vidaMaximaEl) return;
-    
+
     let vidaAtual = parseInt(vidaAtualEl.textContent) || 0;
     let vidaMaxima = parseInt(vidaMaximaEl.textContent) || 0;
-    
+
     vidaAtual = Math.max(0, Math.min(vidaMaxima, vidaAtual + valor));
-    
+
     vidaAtualEl.textContent = vidaAtual;
     atualizarBarraVida();
 }
@@ -27,14 +27,14 @@ function alterarVida(valor) {
 function alterarMana(valor) {
     const manaAtualEl = document.getElementById('manaAtual');
     const manaMaximaEl = document.getElementById('manaMaxima-view');
-    
+
     if (!manaAtualEl || !manaMaximaEl) return;
-    
+
     let manaAtual = parseInt(manaAtualEl.textContent) || 0;
     let manaMaxima = parseInt(manaMaximaEl.textContent) || 0;
-    
+
     manaAtual = Math.max(0, Math.min(manaMaxima, manaAtual + valor));
-    
+
     manaAtualEl.textContent = manaAtual;
     atualizarBarraMana();
 }
@@ -42,14 +42,14 @@ function alterarMana(valor) {
 function alterarEstamina(valor) {
     const estaminaAtualEl = document.getElementById('estaminaAtual');
     const estaminaMaximaEl = document.getElementById('estaminaMaxima-view');
-    
+
     if (!estaminaAtualEl || !estaminaMaximaEl) return;
-    
+
     let estaminaAtual = parseInt(estaminaAtualEl.textContent) || 0;
     let estaminaMaxima = parseInt(estaminaMaximaEl.textContent) || 0;
-    
+
     estaminaAtual = Math.max(0, Math.min(estaminaMaxima, estaminaAtual + valor));
-    
+
     estaminaAtualEl.textContent = estaminaAtual;
     atualizarBarraEstamina();
 }
@@ -58,10 +58,10 @@ function atualizarBarraVida() {
     const vidaAtual = parseInt(document.getElementById('vidaAtual').textContent) || 0;
     const vidaMaxima = parseInt(document.getElementById('vidaMaxima-view').textContent) || 1;
     const percent = Math.round((vidaAtual / vidaMaxima) * 100);
-    
+
     const vidaBar = document.getElementById('vidaBar');
     const vidaPercent = document.getElementById('vidaPercent');
-    
+
     if (vidaBar) vidaBar.style.width = percent + '%';
     if (vidaPercent) vidaPercent.textContent = percent + '%';
 }
@@ -70,10 +70,10 @@ function atualizarBarraMana() {
     const manaAtual = parseInt(document.getElementById('manaAtual').textContent) || 0;
     const manaMaxima = parseInt(document.getElementById('manaMaxima-view').textContent) || 1;
     const percent = Math.round((manaAtual / manaMaxima) * 100);
-    
+
     const manaBar = document.getElementById('manaBar');
     const manaPercent = document.getElementById('manaPercent');
-    
+
     if (manaBar) manaBar.style.width = percent + '%';
     if (manaPercent) manaPercent.textContent = percent + '%';
 }
@@ -82,26 +82,26 @@ function atualizarBarraEstamina() {
     const estaminaAtual = parseInt(document.getElementById('estaminaAtual').textContent) || 0;
     const estaminaMaxima = parseInt(document.getElementById('estaminaMaxima-view').textContent) || 1;
     const percent = Math.round((estaminaAtual / estaminaMaxima) * 100);
-    
+
     const estaminaBar = document.getElementById('estaminaBar');
     const estaminaPercent = document.getElementById('estaminaPercent');
-    
+
     if (estaminaBar) estaminaBar.style.width = percent + '%';
     if (estaminaPercent) estaminaPercent.textContent = percent + '%';
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     // Verificar se usuário está logado
     const isLoggedIn = await requireLogin();
     if (!isLoggedIn) return;
-    
+
     // Obter ID da ficha da URL
     const params = new URLSearchParams(window.location.search);
     fichaId = params.get('id');
     window.fichaId = fichaId; // Tornar acessível globalmente
-    
+
     console.log('fichaId definido:', window.fichaId);
-    
+
     if (!fichaId) {
         console.error('Ficha não encontrada!');
         window.location.href = 'fichas.html';
@@ -109,10 +109,26 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     carregarHistoricoDados();
-    
+
+    // Identificar campanha do personagem para broadcast de dados
+    try {
+        const { data: participacoes } = await supabase
+            .from('campanha_personagens')
+            .select('campanha_id')
+            .eq('personagem_id', fichaId)
+            .limit(1);
+
+        if (participacoes && participacoes.length > 0) {
+            window.currentCampanhaId = participacoes[0].campanha_id;
+            console.log('📡 Conectado à campanha:', window.currentCampanhaId);
+        }
+    } catch (err) {
+        console.warn('Erro ao verificar campanha do personagem:', err);
+    }
+
     // Atualizar navbar
     atualizarNavbar();
-    
+
     // Carregar ficha
     await loadFicha();
 
@@ -225,7 +241,7 @@ function atualizarNavbar() {
     const user = JSON.parse(localStorage.getItem('user') || 'null');
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
-    
+
     if (user) {
         if (loginBtn) loginBtn.style.display = 'none';
         if (logoutBtn) logoutBtn.style.display = 'block';
@@ -238,35 +254,35 @@ function atualizarNavbar() {
 async function loadFicha() {
     const loadingState = document.getElementById('loadingState');
     const fichaContent = document.getElementById('fichaContent');
-    
+
     try {
         const result = await getPersonagemById(fichaId);
-        
+
         if (!result.success) {
             console.error('Erro ao carregar ficha:', result.error);
             if (loadingState) loadingState.style.display = 'none';
             return;
         }
-        
+
         const ficha = result.data;
-        
+
         // Função auxiliar para setar textContent com segurança
         const setElement = (id, value) => {
             const el = document.getElementById(id);
             if (el) el.textContent = value || '-';
         };
-        
+
         // Função auxiliar para setar valor de input APENAS se não estiver sendo editado
         const setInputSafe = (id, value) => {
             if (camposEditandoAtivo.has(id)) return; // Skip se está sendo editado
             const el = document.getElementById(id);
             if (el) el.value = value || '';
         };
-        
+
         // Header
         setElement('nomePersonagemHeader', ficha.nome || 'Ficha de Personagem');
         setElement('racaPersonagemHeader', ficha.raca || '-');
-        
+
         // Informações pessoais (view e input)
         setElement('nome-view', ficha.nome || '-');
         setElement('raca-view', ficha.raca || '-');
@@ -274,14 +290,14 @@ async function loadFicha() {
         setElement('nivel-view', ficha.nivel || 0);
         setElement('altura-view', ficha.altura || '-');
         setElement('peso-view', ficha.peso || '-');
-        
+
         setInputSafe('nome', ficha.nome);
         setInputSafe('raca', ficha.raca);
         setInputSafe('idade', ficha.idade);
         setInputSafe('nivel', ficha.nivel || 0);
         setInputSafe('altura', ficha.altura);
         setInputSafe('peso', ficha.peso);
-        
+
         // Atributos - Força
         const forcaBaseVal = ficha.forca_base || 0;
         const forcaBonusVal = ficha.forca_bonus || 0;
@@ -291,7 +307,7 @@ async function loadFicha() {
         setElement('forcaTotal', forcaTotalVal);
         setInputSafe('forcaBase', forcaBaseVal);
         setInputSafe('forcaBonus', forcaBonusVal);
-        
+
         // Atributos - Agilidade
         const agilidadeBaseVal = ficha.agilidade_base || 0;
         const agilidadeBonusVal = ficha.agilidade_bonus || 0;
@@ -301,7 +317,7 @@ async function loadFicha() {
         setElement('agilidadeTotal', agilidadeTotalVal);
         setInputSafe('agilidadeBase', agilidadeBaseVal);
         setInputSafe('agilidadeBonus', agilidadeBonusVal);
-        
+
         // Atributos - Sorte
         const sorteBaseVal = ficha.sorte_base || 0;
         const sorteBonusVal = ficha.sorte_bonus || 0;
@@ -311,7 +327,7 @@ async function loadFicha() {
         setElement('sorteTotal', sorteTotalVal);
         setInputSafe('sorteBase', sorteBaseVal);
         setInputSafe('sorteBonus', sorteBonusVal);
-        
+
         // Atributos - Inteligência
         const inteligenciaBaseVal = ficha.inteligencia_base || 0;
         const inteligenciaBonusVal = ficha.inteligencia_bonus || 0;
@@ -321,7 +337,7 @@ async function loadFicha() {
         setElement('inteligenciaTotal', inteligenciaTotalVal);
         setInputSafe('inteligenciaBase', inteligenciaBaseVal);
         setInputSafe('inteligenciaBonus', inteligenciaBonusVal);
-        
+
         // Atributos - Foco
         const focoBaseVal = ficha.foco_base || 0;
         const focoBonusVal = ficha.foco_bonus || 0;
@@ -331,7 +347,7 @@ async function loadFicha() {
         setElement('focoTotal', focoTotalVal);
         setInputSafe('focoBase', focoBaseVal);
         setInputSafe('focoBonus', focoBonusVal);
-        
+
         // Atributos - Arcanismo
         const arcanismoBaseVal = ficha.arcanismo_base || 0;
         const arcanismoBonusVal = ficha.arcanismo_bonus || 0;
@@ -345,25 +361,23 @@ async function loadFicha() {
         const arcanismoBonusInput = document.getElementById('arcanismoBonus');
         if (arcanismoBaseInput) arcanismoBaseInput.value = arcanismoBaseVal;
         if (arcanismoBonusInput) arcanismoBonusInput.value = arcanismoBonusVal;
-        
-        // Calcular Esquiva e Acerto (cada 5 em agilidade = +1)
-        const esquivaBase = Math.floor(agilidadeTotalVal / 5);
+
+        // Calcular Esquiva e Acerto (1 de agilidade = 1 de acerto e esquiva)
+        const esquivaBase = agilidadeTotalVal;
         const esquivaBonus = ficha.esquiva_bonus || 0;
         const esquivaTotal = esquivaBase + esquivaBonus;
         setElement('esquivaValor', esquivaTotal);
-        
-        const acertoBase = Math.floor(agilidadeTotalVal / 5);
+
+        const acertoBase = agilidadeTotalVal;
         const acertoBonus = ficha.acerto_bonus || 0;
         const acertoTotal = acertoBase + acertoBonus;
         setElement('acertoValor', acertoTotal);
-        
-        // Reputação
-        setElement('reputacao-view', ficha.reputacao || '-');
-        setInputSafe('statusSocial', ficha.reputacao || '');
-        
+
+
+
         // Status - Nível
         setElement('nivel', ficha.nivel || 0);
-        
+
         // Status - Vida
         const vidaMaximaBase = ficha.vida_maxima || 0;
         const vidaMaximaBonus = ficha.vida_maxima_bonus || 0;
@@ -378,7 +392,7 @@ async function loadFicha() {
             vidaBar.style.width = vidaPercentage + '%';
             if (vidaPercent) vidaPercent.textContent = Math.round(vidaPercentage) + '%';
         }
-        
+
         // Status - Estamina
         const estaminaMaximaBase = ficha.estamina_maxima || 0;
         const estaminaMaximaBonus = ficha.estamina_maxima_bonus || 0;
@@ -393,7 +407,7 @@ async function loadFicha() {
             estaminaBar.style.width = estaminaPercentage + '%';
             if (estaminaPercent) estaminaPercent.textContent = Math.round(estaminaPercentage) + '%';
         }
-        
+
         // Status - Mana
         const manaMaximaBase = ficha.mana_maxima || 0;
         const manaMaximaBonus = ficha.mana_maxima_bonus || 0;
@@ -408,7 +422,7 @@ async function loadFicha() {
             manaBar.style.width = manaPercentage + '%';
             if (manaPercent) manaPercent.textContent = Math.round(manaPercentage) + '%';
         }
-        
+
         // Habilidades
         setElement('fragmentoDivino', ficha.fragmento_divino || '-');
 
@@ -436,10 +450,10 @@ async function loadFicha() {
                 passivasList.appendChild(li);
             }
         }
-        
+
         // Guardar dados da ficha para usar no modal de combate
         window.fichaData = ficha;
-        
+
         // Recalcular bônus globais ao carregar a ficha
         if (typeof recalcularBonusGlobais === 'function') {
             await recalcularBonusGlobais(fichaId);
@@ -456,10 +470,10 @@ async function loadFicha() {
                 carregarPassivas?.()
             ]);
         }
-        
+
         if (loadingState) loadingState.style.display = 'none';
         if (fichaContent) fichaContent.style.display = 'block';
-        
+
     } catch (error) {
         console.error('Erro ao carregar ficha:', error);
         if (loadingState) loadingState.style.display = 'none';
@@ -506,51 +520,6 @@ function switchTab(tabName) {
     event.target.classList.add('active');
 }
 
-function toggleEditarReputacao() {
-    const reputacaoView = document.getElementById('reputacao-view');
-    const statusSocialSelect = document.getElementById('statusSocial');
-    const saveBtn = document.getElementById('reputacao-save-btn');
-
-    if (reputacaoView && statusSocialSelect) {
-        if (reputacaoView.style.display === 'none') {
-            reputacaoView.style.display = 'block';
-            statusSocialSelect.style.display = 'none';
-        } else {
-            reputacaoView.style.display = 'none';
-            statusSocialSelect.style.display = 'block';
-            statusSocialSelect.value = reputacaoView.textContent.trim();
-        }
-    }
-    if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
-}
-
-async function salvarReputacao() {
-    if (!window.fichaId) {
-        console.log('fichaId não definido');
-        return;
-    }
-    const statusSocialSelect = document.getElementById('statusSocial');
-    if (!statusSocialSelect) return;
-
-    const novaReputacao = statusSocialSelect.value;
-    const updateData = { reputacao: novaReputacao };
-
-    console.log('Salvando reputação:', updateData);
-    const result = await updatePersonagem(window.fichaId, updateData);
-    console.log('Resultado:', result);
-
-    if (result.success) {
-        const reputacaoView = document.getElementById('reputacao-view');
-        if (reputacaoView) reputacaoView.textContent = novaReputacao || '-';
-        toggleEditarReputacao();
-    } else {
-        console.error('Erro ao salvar reputação:', result.error);
-    }
-}
-
-function cancelarEditarReputacao() {
-    toggleEditarReputacao();
-}
 
 // ============================================
 // HISTÓRICO DE ROLAGENS DE DADOS

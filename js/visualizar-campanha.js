@@ -296,7 +296,7 @@ function atualizarDisplayTurno() {
     const rodadaDisplay = document.getElementById('rodadaAtualDisplay');
     const turnoDisplay = document.getElementById('turnoAtualDisplay');
     const turnoInfo = document.getElementById('turnoInfoDisplay');
-    
+
     if (rodadaDisplay) rodadaDisplay.textContent = state.rodadaAtual;
     if (turnoDisplay) turnoDisplay.textContent = `${state.turnoAtual} / ${total}`;
     if (turnoInfo) turnoInfo.textContent = `${state.turnoAtual} / ${total}`;
@@ -323,7 +323,7 @@ function renderIniciativa(lista) {
 
     lista.forEach((item, index) => {
         const row = document.createElement('tr');
-        
+
         // Destacar turno atual
         if (state.turnoAtual === index + 1) {
             row.style.backgroundColor = 'rgba(25, 135, 84, 0.2)';
@@ -412,7 +412,7 @@ function removerIniciativa(index) {
     }
 
     lista.splice(index, 1);
-    
+
     // Ajustar turno atual se necessário
     const state = getIniciativaState();
     if (state.turnoAtual > lista.length && lista.length > 0) {
@@ -423,7 +423,7 @@ function removerIniciativa(index) {
         state.rodadaAtual = 1;
         salvarIniciativaState(state);
     }
-    
+
     salvarIniciativa(lista);
     renderIniciativa(lista);
 }
@@ -446,21 +446,21 @@ function avancarTurnoIniciativa() {
     }
 
     const state = getIniciativaState();
-    
+
     // Incrementar turno
     state.turnoAtual++;
-    
+
     // Se turno ultrapassar o número de pessoas, resetar turno e incrementar rodada
     if (state.turnoAtual > lista.length) {
         state.turnoAtual = 1;
         state.rodadaAtual++;
-        
+
         // Passar turno da campanha automaticamente (reduz durações)
         if (campanhaId) {
             passarTurnoUI();
         }
     }
-    
+
     salvarIniciativaState(state);
     renderIniciativa(lista);
 }
@@ -468,10 +468,10 @@ function avancarTurnoIniciativa() {
 function resetarIniciativa() {
     const state = { turnoAtual: 1, rodadaAtual: 1 };
     salvarIniciativaState(state);
-    
+
     const key = getIniciativaKey();
     if (!key) return;
-    
+
     let lista = [];
     try {
         lista = JSON.parse(localStorage.getItem(key) || '[]');
@@ -479,7 +479,7 @@ function resetarIniciativa() {
     } catch (_) {
         lista = [];
     }
-    
+
     renderIniciativa(lista);
 }
 
@@ -565,22 +565,30 @@ function renderHistoricoCampanha(historico) {
 
         const hora = document.createElement('td');
         hora.textContent = new Date(item.timestamp).toLocaleTimeString('pt-BR', { hour12: false });
+        hora.style.color = '#e0e0e0';
         row.appendChild(hora);
 
         const personagem = document.createElement('td');
         personagem.textContent = item.personagem || 'Personagem';
+        personagem.style.color = '#ffffff';
+        personagem.style.fontWeight = 'bold';
         row.appendChild(personagem);
 
         const nome = document.createElement('td');
         nome.textContent = item.nome || '-';
+        nome.style.color = '#e0e0e0';
         row.appendChild(nome);
 
         const total = document.createElement('td');
         total.textContent = item.total ?? '-';
+        total.style.color = '#ffd700';
+        total.style.fontWeight = 'bold';
         row.appendChild(total);
 
         const detalhes = document.createElement('td');
         detalhes.textContent = item.detalhes || '-';
+        detalhes.style.color = '#aaaaaa';
+        detalhes.style.fontSize = '0.9em';
         row.appendChild(detalhes);
 
         tbody.appendChild(row);

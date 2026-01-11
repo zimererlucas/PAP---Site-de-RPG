@@ -184,14 +184,17 @@ async function rolarDadosUI(tipo, nome, dados) {
 
     // Broadcast opcional para campanha ativa
     try {
-        const campanhaAtiva = localStorage.getItem('campanha-atual');
+        // Priorizar campanha definida na variável global (para fichas abertas fora do contexto de campanha)
+        // Se não houver, tentar pegar do localStorage (navegação do narrador/jogador na tela de campanha)
+        const campanhaAtiva = window.currentCampanhaId || localStorage.getItem('campanha-atual');
+
         if (campanhaAtiva) {
             const channel = await getCampanhaDiceChannel(campanhaAtiva);
             if (channel) {
                 const user = JSON.parse(localStorage.getItem('user') || 'null');
                 const jogador = user?.username || user?.email || 'Jogador';
                 const personagem = (window.fichaData && window.fichaData.nome) ? window.fichaData.nome : 'Personagem';
-                channel.send({
+                await channel.send({
                     type: 'broadcast',
                     event: 'dice-roll',
                     payload: {
