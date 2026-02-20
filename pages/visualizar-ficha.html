@@ -15,6 +15,9 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/navbar.css">
+
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link rel="stylesheet" href="../css/galaxy.css">
     <link rel="stylesheet" href="../css/glassmorphism.css">
 
@@ -476,6 +479,123 @@
             color: #e0e0e0;
             margin-bottom: 10px;
         }
+
+        /* Estilos para Markdown */
+        .descricao-detalhe p {
+            margin-bottom: 8px;
+        }
+
+        .descricao-detalhe ul,
+        .descricao-detalhe ol {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+
+        .descricao-detalhe li {
+            margin-bottom: 4px;
+        }
+
+        .descricao-detalhe code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: #ff9f43;
+        }
+
+        .descricao-detalhe h1,
+        .descricao-detalhe h2,
+        .descricao-detalhe h3 {
+            color: var(--accent);
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .descricao-detalhe strong {
+            color: #fff;
+        }
+
+        .edit-hint {
+            font-size: 0.75em;
+            color: var(--muted);
+            margin-top: 5px;
+            display: block;
+        }
+
+        .ficha-header-left .edit-overlay:hover {
+            opacity: 1 !important;
+        }
+
+        /* Modal de Corte de Imagem */
+        .cropper-modal-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            padding: 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cropper-wrapper {
+            max-width: 90%;
+            max-height: 70vh;
+            background: #1a2a4e;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .cropper-wrapper img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .cropper-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .cropper-btn {
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+
+        .cropper-save {
+            background: #667eea;
+            color: white;
+        }
+
+        .cropper-cancel {
+            background: #ff4444;
+            color: white;
+        }
+
+        .cropper-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .loading-overlay-cropper {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+        }
     </style>
 </head>
 
@@ -500,13 +620,92 @@
                 <div class="ficha-container">
                     <!-- Header -->
                     <div class="ficha-header">
-                        <div class="ficha-header-left">
-                            <h1 id="nomePersonagemHeader">-</h1>
-                            <p id="racaPersonagemHeader">-</p>
-                        </div>
-                        <div class="ficha-header-right">
-                            <div class="btn-group-compact">
-                                <button class="btn btn-info" onclick="irParaCombate()">⚔️ Combate</button>
+                        <div class="ficha-header-left"
+                            style="display: flex; align-items: flex-start; gap: 40px; width: 100%;">
+                            <!-- Foto do Personagem -->
+                            <div style="position: relative; width: 200px; height: 200px; flex-shrink: 0;">
+                                <img id="fotoPersonagem"
+                                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                    alt="" class="zoomable-image"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 4px solid #667eea; cursor: pointer; background: linear-gradient(135deg, #1a2a4e 0%, #667eea 100%);"
+                                    onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.background='linear-gradient(135deg, #1a2a4e 0%, #667eea 100%)'">
+                                <div class="edit-overlay" onclick="document.getElementById('fotoInput').click()"
+                                    style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; cursor: pointer;">
+                                    <span style="font-size: 2em;">📷</span>
+                                </div>
+                                <input type="file" id="fotoInput" accept="image/*" style="display: none;">
+                            </div>
+
+                            <!-- Coluna de Informações -->
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <div>
+                                        <!-- Nome -->
+                                        <h1 id="nome-view"
+                                            style="font-size: 2.2em; margin: 0; color: #fff; font-weight: 700;">-</h1>
+                                        <input type="text" id="nome" class="info-item-input"
+                                            style="display: none; font-size: 2.5em; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; font-weight: 700; margin-bottom: 10px;">
+
+                                        <!-- Raça -->
+                                        <p id="raca-view"
+                                            style="font-size: 1.5em; color: var(--muted); margin: 5px 0 15px 0;">-</p>
+                                        <input type="text" id="raca" class="info-item-input"
+                                            style="display: none; font-size: 1.2em; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;">
+                                    </div>
+                                    <button onclick="toggleEditarInfo()"
+                                        style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 24px; padding: 10px; transition: transform 0.2s;"
+                                        onmouseover="this.style.transform='scale(1.2)'"
+                                        onmouseout="this.style.transform='scale(1)'">✏️</button>
+                                </div>
+
+                                <!-- Linha Horizontal de Detalhes -->
+                                <div id="personal-info-row"
+                                    style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 5px;">
+                                    <div class="info-item-horizontal">
+                                        <div class="info-item-label"
+                                            style="font-size: 0.75em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px;">
+                                            Idade</div>
+                                        <div class="info-item-value" id="idade-view"
+                                            style="font-size: 1.3em; color: #fff; font-weight: 600;">-</div>
+                                        <input type="number" id="idade" class="info-item-input"
+                                            style="display: none; width: 80px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                    </div>
+                                    <div class="info-item-horizontal">
+                                        <div class="info-item-label"
+                                            style="font-size: 0.75em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px;">
+                                            Nível</div>
+                                        <div class="info-item-value" id="nivel-view"
+                                            style="font-size: 1.3em; color: #fff; font-weight: 600;">0</div>
+                                        <input type="number" id="nivel" class="info-item-input"
+                                            style="display: none; width: 80px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                    </div>
+                                    <div class="info-item-horizontal">
+                                        <div class="info-item-label"
+                                            style="font-size: 0.75em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px;">
+                                            Altura</div>
+                                        <div class="info-item-value" id="altura-view"
+                                            style="font-size: 1.3em; color: #fff; font-weight: 600;">-</div>
+                                        <input type="text" id="altura" class="info-item-input"
+                                            style="display: none; width: 90px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                    </div>
+                                    <div class="info-item-horizontal">
+                                        <div class="info-item-label"
+                                            style="font-size: 0.75em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px;">
+                                            Peso</div>
+                                        <div class="info-item-value" id="peso-view"
+                                            style="font-size: 1.3em; color: #fff; font-weight: 600;">-</div>
+                                        <input type="text" id="peso" class="info-item-input"
+                                            style="display: none; width: 90px; padding: 4px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
+                                    </div>
+                                </div>
+
+                                <!-- Botões de Ação para Edição -->
+                                <div id="info-save-btn" style="display: none; margin-top: 20px;">
+                                    <button onclick="salvarInfo()"
+                                        style="padding: 8px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">Salvar</button>
+                                    <button onclick="cancelarEditarInfo()"
+                                        style="padding: 8px 20px; background: #ff4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 10px; box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);">Cancelar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -517,58 +716,6 @@
                         <div class="ficha-top-row">
                             <!-- Coluna Esquerda: Informações Pessoais + Atributos -->
                             <div>
-                                <!-- Informações Pessoais -->
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <div class="section-title">👤 Informações Pessoais</div>
-                                        <button onclick="toggleEditarInfo()"
-                                            style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 18px;">✏️</button>
-                                    </div>
-                                    <div class="info-grid">
-                                        <div class="info-item">
-                                            <div class="info-item-label">Nome</div>
-                                            <div class="info-item-value" id="nome-view">-</div>
-                                            <input type="text" id="nome" class="info-item-input"
-                                                style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-item-label">Raça</div>
-                                            <div class="info-item-value" id="raca-view">-</div>
-                                            <input type="text" id="raca" class="info-item-input"
-                                                style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-item-label">Idade</div>
-                                            <div class="info-item-value" id="idade-view">-</div>
-                                            <input type="number" id="idade" class="info-item-input"
-                                                style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-item-label">Nível</div>
-                                            <div class="info-item-value" id="nivel-view">0</div>
-                                            <input type="number" id="nivel" class="info-item-input"
-                                                style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-item-label">Altura</div>
-                                            <div class="info-item-value"><span id="altura-view">-</span> cm</div>
-                                            <input type="number" id="altura" class="info-item-input"
-                                                style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-item-label">Peso</div>
-                                            <div class="info-item-value"><span id="peso-view">-</span> kg</div>
-                                            <input type="number" id="peso" class="info-item-input"
-                                                style="display: none; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;">
-                                        </div>
-                                    </div>
-                                    <div id="info-save-btn" style="display: none; margin-top: 10px;">
-                                        <button onclick="salvarInfo()"
-                                            style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar</button>
-                                        <button onclick="cancelarEditarInfo()"
-                                            style="padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancelar</button>
-                                    </div>
-                                </div>
 
                                 <!-- Atributos -->
                                 <div>
@@ -1497,8 +1644,8 @@
                 raca: document.getElementById('raca').value,
                 idade: parseInt(document.getElementById('idade').value),
                 nivel: parseInt(document.getElementById('nivel').value),
-                altura: parseInt(document.getElementById('altura').value),
-                peso: parseInt(document.getElementById('peso').value)
+                altura: document.getElementById('altura').value,
+                peso: document.getElementById('peso').value
             };
             console.log('Salvando info:', updateData);
             const result = await updatePersonagem(window.fichaId, updateData);
@@ -1703,6 +1850,26 @@
             }
         })();
     </script>
+    <!-- Cropper Modal -->
+    <div id="cropperModal" class="cropper-modal-container">
+        <div class="cropper-wrapper">
+            <img id="imageToCrop" src="">
+        </div>
+        <div class="cropper-actions">
+            <button onclick="cancelCrop()" class="cropper-btn cropper-cancel">Cancelar</button>
+            <button onclick="saveCrop()" class="cropper-btn cropper-save">Confirmar Corte</button>
+        </div>
+        <div id="cropperLoading" class="loading-overlay-cropper">
+            <span>Processando imagem...</span>
+        </div>
+    </div>
+
+    <!-- Cropper.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="../js/viewer-imagem.js"></script>
 </body>
 
 </html>

@@ -134,6 +134,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Iniciar atualizações em tempo real
     iniciarRealtimeFicha();
+
+    // Configurar upload de imagem
+    setupImageUpload();
 });
 
 // Ouvir eventos de storage para updates disparados pela tela de campanha
@@ -282,6 +285,12 @@ async function loadFicha() {
         // Header
         setElement('nomePersonagemHeader', ficha.nome || 'Ficha de Personagem');
         setElement('racaPersonagemHeader', ficha.raca || '-');
+
+        // Imagem do Personagem
+        const imgPersonagem = document.getElementById('fotoPersonagem');
+        if (imgPersonagem && ficha.foto_url) {
+            imgPersonagem.src = ficha.foto_url;
+        }
 
         // Informações pessoais (view e input)
         setElement('nome-view', ficha.nome || '-');
@@ -484,18 +493,7 @@ function voltarParaFichas() {
     window.location.href = 'fichas.html';
 }
 
-function irParaCombate() {
-    if (!fichaId) {
-        console.error('Erro: ID da ficha não encontrado');
-        return;
-    }
-    // Abrir em um pop-up
-    const url = `controle-combate.html?id=${fichaId}`;
-    const popup = window.open(url, 'combate', 'width=900,height=700,left=100,top=100');
-    if (!popup) {
-        console.warn('Pop-up bloqueado. Permita pop-ups para abrir combate.');
-    }
-}
+
 
 function editarFicha() {
     window.location.href = `criar-ficha.html?id=${fichaId}`;
@@ -622,4 +620,153 @@ function renderHistoricoDados(historico) {
 
         tbody.appendChild(row);
     });
+}
+
+// ============================================
+// UPLOAD DE IMAGEM COM CORTE (CROPPER.JS)
+// ============================================
+
+let cropper = null;
+let currentCropFile = null;
+
+function setupImageUpload() {
+    const fotoInput = document.getElementById('fotoInput');
+    if (!fotoInput) return;
+
+    fotoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validar tamanho (max 5MB agora, já que vamos cortar)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('A imagem original deve ter no máximo 5MB.');
+            return;
+        }
+
+        currentCropFile = file;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const imageToCrop = document.getElementById('imageToCrop');
+            imageToCrop.src = event.target.result;
+
+            document.getElementById('cropperModal').style.display = 'flex';
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 1,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+async function saveCrop() {
+    if (!cropper) return;
+
+    const modal = document.getElementById('cropperModal');
+    const loading = document.getElementById('cropperLoading');
+    loading.style.display = 'flex';
+
+    try {
+        // Obter o canvas recortado
+        const canvas = cropper.getCroppedCanvas({
+            width: 500, // Tamanho final bom para web
+            height: 500,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        // Converter para Blob
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                alert('Erro ao processar imagem.');
+                loading.style.display = 'none';
+                return;
+            }
+
+            try {
+                // Criar um novo File a partir do Blob
+                const croppedFile = new File([blob], currentCropFile.name, {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                });
+
+                const publicUrl = await uploadImagem(croppedFile);
+
+                // Atualizar no banco
+                const { error } = await supabase
+                    .from('personagens')
+                    .update({ foto_url: publicUrl })
+                    .eq('id', fichaId);
+
+                if (error) throw error;
+
+                // Atualizar UI
+                const img = document.getElementById('fotoPersonagem');
+                if (img) img.src = publicUrl;
+
+                closeCropper();
+            } catch (error) {
+                console.error('Erro ao fazer upload:', error);
+                alert('Erro ao atualizar a imagem. Tente novamente.');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }, 'image/jpeg', 0.9);
+
+    } catch (error) {
+        console.error('Erro no processamento do cropper:', error);
+        alert('Erro ao processar o corte da imagem.');
+        loading.style.display = 'none';
+    }
+}
+
+function cancelCrop() {
+    closeCropper();
+    // Limpar o input file para permitir selecionar a mesma imagem se quiser
+    const fotoInput = document.getElementById('fotoInput');
+    if (fotoInput) fotoInput.value = '';
+}
+
+function closeCropper() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    document.getElementById('cropperModal').style.display = 'none';
+    currentCropFile = null;
+}
+
+async function uploadImagem(file) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Usuário não logado');
+
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `${user.id}/${fichaId}/${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+        .from('fichas')
+        .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+        .from('fichas')
+        .getPublicUrl(filePath);
+
+    return data.publicUrl;
 }

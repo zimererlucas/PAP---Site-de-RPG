@@ -105,29 +105,38 @@ async function loadPersonagens() {
             return;
         }
 
-        container.innerHTML = personagensValidos.map(p => `
+        container.innerHTML = personagensValidos.map(p => {
+            const fotoUrl = p.personagem.foto_url || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            const fotoStyle = p.personagem.foto_url ? '' : 'background: linear-gradient(135deg, #1a2a4e 0%, #667eea 100%);';
+
+            return `
             <div class="col-md-6 col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">🎮 ${p.personagem.nome}</h6>
+                <div class="card" style="background: rgba(26, 42, 78, 0.4); border: 1px solid rgba(102, 126, 234, 0.3); backdrop-filter: blur(8px); margin-bottom: 20px;">
+                    <div class="card-header" style="background: rgba(102, 126, 234, 0.1); border-bottom: 1px solid rgba(102, 126, 234, 0.2);">
+                        <h6 class="card-title mb-0" style="color: #fff; font-weight: 600;">🎮 ${p.personagem.nome}</h6>
                     </div>
                     <div class="card-body">
-                    <p class="card-text" style="color: #e0e0e0;">
-                        <strong style="color: #e0e0e0;">Raça:</strong> ${p.personagem.raca || '-'}<br>
-                        <strong style="color: #e0e0e0;">Nível:</strong> ${p.personagem.nivel || 0}<br>
-                        <strong style="color: #e0e0e0;">Vida:</strong> ${p.personagem.vida_atual || 0} / ${p.personagem.vida_maxima || 0}<br>
-                        <strong style="color: #e0e0e0;">Estamina:</strong> ${p.personagem.estamina_atual || 0} / ${p.personagem.estamina_maxima || 0}<br>
-                        <strong style="color: #e0e0e0;">Jogador:</strong> ${p.jogador.username || 'Usuário'}
-                        </p>
-                    </p>
+                        <div style="display: flex; gap: 15px; align-items: flex-start;">
+                            <img src="${fotoUrl}" alt="" class="zoomable-image" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #667eea; ${fotoStyle}" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.background='linear-gradient(135deg, #1a2a4e 0%, #667eea 100%)'">
+                            <div style="flex-grow: 1; font-size: 0.9em; color: #e0e0e0; line-height: 1.4;">
+                                <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Raça:</strong> ${p.personagem.raca || '-'}</div>
+                                <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Idade:</strong> ${p.personagem.idade || '-'}</div>
+                                <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Nível:</strong> ${p.personagem.nivel || 0}</div>
+                                <div style="display: flex; gap: 10px;">
+                                    <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Altura:</strong> ${p.personagem.altura || '-'}</div>
+                                    <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Peso:</strong> ${p.personagem.peso || '-'}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-footer bg-transparent">
-                        <button class="btn btn-sm btn-primary" onclick="viewPersonagem('${p.personagem.id}')">👁️ Ver Ficha</button>
-                        <button class="btn btn-sm btn-danger" onclick="removerJogador('${p.id}')">🗑️ Remover</button>
+                    <div class="card-footer bg-transparent border-0 d-flex gap-2">
+                        <button class="btn btn-sm btn-primary w-100" onclick="viewPersonagem('${p.personagem.id}')" style="background: #667eea; border: none;">👁️ Ver Ficha</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removerJogador('${p.id}')" style="border-color: rgba(255,68,68,0.5); color: #ff4444;">🗑️</button>
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
 
     } catch (error) {
         console.error('Erro ao carregar personagens:', error);

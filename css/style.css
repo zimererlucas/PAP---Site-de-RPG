@@ -232,3 +232,40 @@ body.confirm-open {
 .confirm-no:hover {
     background: rgba(255, 255, 255, 0.05);
 }
+
+/* -------------------------------------------------- */
+/* Image Viewer (Ampliar Foto)                        */
+/* -------------------------------------------------- */
+.image-viewer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    cursor: zoom-out;
+    backdrop-filter: blur(8px);
+}
+
+.image-viewer-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    border: 2px solid rgba(102, 126, 234, 0.5);
+    cursor: default;
+}
+
+.zoomable-image {
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+}
+
+.zoomable-image:hover {
+    transform: scale(1.05);
+}

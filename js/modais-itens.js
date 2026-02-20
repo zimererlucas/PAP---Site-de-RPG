@@ -99,7 +99,7 @@ async function carregarMagias() {
                         ${magia.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${magia.duracao_turnos} turnos</span></div>` : ''}
                         ${magia.ativa && magia.turnos_restantes !== null && magia.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${magia.turnos_restantes}</span></div>` : ''}
                     </div>
-                    <p class="descricao-detalhe"><strong>Descrição:</strong> ${magia.descricao || '-'}</p>
+                    <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(magia.descricao || '-') : (magia.descricao || '-')}</div>
                     ${botoesDados}
                     ${renderizarBotaoAtivacao(magia, 'magia')}
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -178,7 +178,7 @@ async function carregarHabilidades() {
                         ${hab.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${hab.duracao_turnos} turnos</span></div>` : ''}
                         ${hab.ativa && hab.turnos_restantes !== null && hab.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${hab.turnos_restantes}</span></div>` : ''}
                     </div>
-                    <p class="descricao-detalhe"><strong>Descrição:</strong> ${hab.descricao || '-'}</p>
+                    <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(hab.descricao || '-') : (hab.descricao || '-')}</div>
                     ${botoesDados}
                     ${renderizarBotaoAtivacao(hab, 'habilidade')}
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -236,7 +236,7 @@ async function carregarConhecimentos() {
                     <div class="accordion-stats">
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
                     </div>
-                    <p class="descricao-detalhe"><strong>Descrição:</strong> ${conhec.descricao || '-'}</p>
+                    <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(conhec.descricao || '-') : (conhec.descricao || '-')}</div>
                     ${renderizarBotaoAtivacao(conhec, 'conhecimento')}
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarConhecimento('${conhec.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
@@ -311,7 +311,7 @@ async function carregarItens() {
                         ${item.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${item.duracao_turnos} turnos</span></div>` : ''}
                         ${item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${item.turnos_restantes}</span></div>` : ''}
                     </div>
-                    <p class="descricao-detalhe"><strong>Descrição:</strong> ${item.descricao || '-'}</p>
+                    <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(item.descricao || '-') : (item.descricao || '-')}</div>
                     ${botoesDados}
                     ${renderizarBotaoAtivacao(item, 'item')}
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -361,7 +361,7 @@ async function carregarAnotacoes() {
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
                 </button>
                 <div class="accordion-content" style="display: none; padding: 15px; background: #1a2a4e;">
-                    <p><strong>Descrição:</strong> ${anotacao.descricao}</p>
+                    <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(anotacao.descricao || '-') : (anotacao.descricao || '-')}</div>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button onclick="editarAnotacao('${anotacao.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">✏️ Editar</button>
                         <button onclick="deletarAnotacaoUI('${anotacao.id}')" style="background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">🗑️ Deletar</button>
@@ -429,7 +429,7 @@ async function carregarPassivas() {
                         <div class="stat-pill"><span class="stat-label">Efeito</span><span class="stat-value">${passiva.efeito || '-'}</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
                     </div>
-                    <p class="descricao-detalhe"><strong>Descrição:</strong> ${passiva.descricao || '-'}</p>
+                    <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(passiva.descricao || '-') : (passiva.descricao || '-')}</div>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px;">
                         <span style="font-size: 12px; color: #e0e0e0;">${statusTexto}</span>
                         <button onclick="alternarAtivacao('passiva', '${passiva.nome}')" style="background: ${botaoCor}; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;">
