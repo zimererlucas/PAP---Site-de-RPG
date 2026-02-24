@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidade - Gênesis RPG</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/galaxy.css">
+    <link rel="stylesheet" href="../css/glassmorphism.css">
+
+    <style>
+        .reader-layout {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            min-height: calc(100vh - 150px);
+        }
+
+        /* Sidebar Sidebar */
+        .reader-sidebar {
+            flex: 0 0 280px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-item {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 10px 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .sidebar-link.active {
+            background: var(--primary-color, #667eea);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Main Content area */
+        .reader-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: rgba(15, 15, 25, 0.95);
+            /* Deixa quase sólido para leitura */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            /* Cantos arredondados */
+        }
+
+        .rule-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .rule-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rule-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .rule-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: justify;
+        }
+
+        .rule-text p {
+            margin-bottom: 20px;
+        }
+
+        .pilar-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .pilar-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .danger-card {
+            background: rgba(255, 75, 43, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff4b2b;
+        }
+
+        .danger-card h4 {
+            color: #ff4b2b;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .info-card {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 992px) {
+            .reader-layout {
+                flex-direction: column;
+            }
+
+            .reader-sidebar {
+                flex: none;
+                width: 100%;
+                position: relative;
+                top: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Fundo Nebulosa -->
+    <canvas id="nebula-canvas"></canvas>
+
+    <!-- Conteúdo acima da galáxia -->
+    <div id="foreground">
+
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="../index.html" class="logo">Gênesis RPG</a>
+
+            <ul class="nav-list">
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+                <li><a href="comunidade.html" class="nav-link active">Comunidade</a></li>
+
+                <button id="logoutBtn" class="nav-btn">Sair</button>
+                </li>
+            </ul>
+        </nav>
+
+        <div id="webgl-fallback" style="display: none;">
+            <p>WebGL não está disponível. A visualizar versão simplificada.</p>
+        </div>
+
+        <div class="container-fluid px-lg-5">
+            <div class="reader-layout">
+
+                <!-- Sidebar Navigation -->
+                <aside class="reader-sidebar glass-card">
+                    <div class="sidebar-title">📑 O Livro de Regras</div>
+                    <ul class="sidebar-nav">
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link active" data-section="introducao">1. Introdução</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="fundamentais">2. Conceitos Fundamentais</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="status">3. Status do Personagem</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="atributos">4. Atributos</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="reacao">5. Pontos de Reação (PR)</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="habilidades">6. Habilidades e Tiers</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="dados">Sistema de Dados</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="turnos">Sistema de Turnos</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="evolucao">Evolução Orgânica</a>
+                        </li>
+                    </ul>
+                </aside>
+
+                <!-- Reading Content -->
+                <main class="reader-content glass-card">
+
+                    <!-- Section: Introdução -->
+                    <section id="introducao" class="rule-section active">
+                        <h1 class="rule-title">Introdução ao Gênesis RPG</h1>
+                        <div class="rule-text">
+                            <p>Apresentação da proposta do sistema, seus pilares centrais (escolhas, escassez,
+                                consequências e evolução orgânica), filosofia modular e papel do narrador como mediador
+                                de consequências. Visão geral do que o jogador pode esperar do jogo.</p>
+
+                            <p>Gênesis RPG é um sistema de interpretação focado em escolhas significativas, preparação
+                                consciente. Ele foi concebido para campanhas onde decisões importam tanto quanto
+                                números, onde recursos são limitados e onde o crescimento do personagem acontece de
+                                forma orgânica, a partir do que ele aprende, pratica e vivencia ao longo da história.
+                            </p>
+
+                            <p>Este não é um sistema rígido nem fechado. Gênesis RPG foi estruturado de forma modular,
+                                permitindo que narradores e jogadores utilizem apenas as mecânicas que façam sentido
+                                para o tom da campanha, o tipo de narrativa desejada e o nível de complexidade da mesa.
+                                Nenhuma regra é obrigatória por si só; todas existem como ferramentas a serviço da
+                                história.</p>
+
+                            <p>O sistema também não se propõe a ser definitivo. Ele foi projetado para evoluir, receber
+                                ajustes, expansões e variações conforme o seu mundo cresce e novas necessidades surgem.
+                                O que este texto apresenta é uma base sólida, coerente e funcional, capaz de sustentar
+                                campanhas longas sem engessar a criatividade dos jogadores ou do narrador.</p>
+
+                            <p>O pilar central do Gênesis RPG é a <strong>Evolução Orgânica</strong>. Personagens não se
+                                tornam mais fortes apenas por acumularem níveis ou derrotarem inimigos. Eles evoluem
+                                conforme treinam, se especializam, falham, aprendem e investem tempo no desenvolvimento
+                                de suas habilidades.</p>
+
+                            <p>Outro princípio fundamental do sistema é a <strong>escassez</strong>. Vida, Estamina,
+                                Mana, espaço de inventário, atenção e tempo são recursos finitos. Ignorar preparo,
+                                descanso ou alimentação não gera punições isoladas, mas consequências acumulativas que
+                                impactam diretamente a narrativa e as decisões futuras. Sobreviver, se manter funcional
+                                e escolher quando agir é parte essencial do jogo.</p>
+
+                            <p>Gênesis RPG também assume que o combate não é a solução padrão para todos os conflitos.
+                                Muitas de suas mecânicas foram pensadas para exploração, interação social, investigação,
+                                sobrevivência e preparação. O combate existe como uma ferramenta narrativa poderosa,
+                                porém arriscada, e raramente é a opção mais segura ou eficiente sem planejamento prévio.
+                            </p>
+
+                            <p>Por fim, o sistema entende o narrador não como um mestre absoluto das regras, mas como
+                                apenas um mediador. As mecânicas existem para sustentar a narrativa, não para limitá-la.
+                                Sempre que necessário, o bom senso da mesa, o tom da campanha e o acordo entre os
+                                participantes devem prevalecer sobre qualquer regra escrita.</p>
+
+                            <p>Este texto apresenta os fundamentos do Gênesis RPG, suas mecânicas centrais e suas
+                                ferramentas opcionais. A partir daqui, cada grupo é encorajado a moldar o sistema à sua
+                                própria visão de mundo, história e forma de jogar.</p>
+                        </div>
+                    </section>
+
+                    <!-- Section: Conceitos Fundamentais -->
+                    <section id="fundamentais" class="rule-section">
+                        <h1 class="rule-title">Capítulo 2 – Conceitos Fundamentais do Sistema</h1>
+                        <div class="rule-text">
+                            <p>Gênesis RPG é estruturado sobre três princípios centrais: escolha, preparação e
+                                consequência. Todas as regras do sistema existem para reforçar esses pilares e servir à
+                                narrativa, não para substituí-la. As mecânicas foram pensadas para serem claras, diretas
+                                e adaptáveis, permitindo que cada mesa encontre seu próprio ritmo e nível de
+                                complexidade.</p>
+
+                            <p>O sistema utiliza o D20 como dado base. Sempre que uma ação envolver risco, incerteza ou
+                                oposição significativa, realiza-se uma rolagem de 1d20 somado aos modificadores
+                                apropriados. O resultado dessa rolagem determina o sucesso, a falha ou uma consequência
+                                parcial da ação.</p>
+
+                            <div class="pilar-card">
+                                <h4>Rolagens Críticas</h4>
+                                <p>Resultados críticos seguem uma lógica simples e universal:</p>
+                                <ul>
+                                    <li><strong>20 Natural</strong>: Sucesso crítico, indicando execução excepcional ou
+                                        efeito além do esperado.</li>
+                                    <li><strong>1 Natural</strong>: Falha crítica, indicando erro grave, perda de
+                                        controle ou consequências inesperadas.</li>
+                                </ul>
+                            </div>
+
+                            <p>Sempre que um cálculo gerar valores quebrados, o resultado é arredondado para baixo. Essa
+                                regra se aplica a todas as mecânicas do sistema, sem exceção.</p>
+
+                            <p>Nem toda ação exige rolagem. Se uma ação for simples, segura ou narrativamente
+                                irrelevante, ela pode ser resolvida diretamente pelo narrador. Rolagens existem para
+                                momentos em que há risco, custo ou impacto na história. Quanto maior o risco, maior o
+                                peso narrativo da rolagem.</p>
+
+                            <p>Outro conceito fundamental é que o jogo não gira em torno do combate. Exploração,
+                                investigação, interação social, sobrevivência e preparação são tão importantes quanto
+                                enfrentar inimigos. O combate é tratado como um conflito aberto, não como uma troca
+                                automática de ataques, e geralmente representa a opção mais arriscada quando outras
+                                soluções falham.</p>
+
+                            <p>As regras também partem do pressuposto de que falhar não significa parar a história. Uma
+                                falha pode gerar perda de recursos, mudança de posição, exposição a perigos ou
+                                complicações narrativas. Em muitos casos, o fracasso move a história para frente de
+                                forma tão significativa quanto o sucesso.</p>
+
+                            <p>Por fim, Gênesis RPG valoriza o acordo da mesa. O narrador tem autoridade para
+                                interpretar regras, ajustar dificuldades e adaptar mecânicas ao contexto da campanha.
+                                Jogadores, por sua vez, são incentivados a agir de forma coerente com a narrativa e a
+                                assumir as consequências de suas escolhas. O sistema funciona melhor quando todos
+                                entendem que regras existem para sustentar a experiência, não para disputá-la.</p>
+                        </div>
+                    </section>
+
+                    <!-- Section: Sistema de Dados -->
+                    <section id="dados" class="rule-section">
+                        <h1 class="rule-title">🎲 Sistema de Dados</h1>
+                        <div class="rule-text">
+                            <p>O sistema de dados em Gênesis RPG utiliza um motor de rolagem dinâmico que permite
+                                combinações complexas de dados (ex: 1d20 + 2d8).</p>
+                            <ul>
+                                <li><strong>Rolagens de Teste:</strong> Geralmente utilizam d20 para verificar sucesso
+                                    ou falha baseados em atributos.</li>
+                                <li><strong>Dados de Dano/Efeito:</strong> Armas, magias e habilidades possuem seus
+                                    próprios conjuntos de dados configuráveis.</li>
+                                <li><strong>Bônus:</strong> Itens e passivas podem adicionar bônus fixos ou dados extras
+                                    às rolagens.</li>
+                            </ul>
+                            <div class="alert alert-info bg-opacity-10 border-info text-white mt-4">
+                                <i class="bi bi-info-circle"></i> O sistema calcula automaticamente os totais e exibe o
+                                detalhamento de cada dado rolado no log da campanha.
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Sistema de Turnos -->
+                    <section id="turnos" class="rule-section">
+                        <h1 class="rule-title">⏱️ Sistema de Turnos</h1>
+                        <div class="rule-text">
+                            <p>O tempo em combate e situações de estresse é medido em turnos, gerenciados centralmente
+                                pelo Mestre.</p>
+                            <ul>
+                                <li><strong>Sincronização:</strong> Quando o mestre passa o turno, todos os personagens
+                                    da campanha avançam simultaneamente.</li>
+                                <li><strong>Durações Automáticas:</strong> Habilidades, magias e itens com duração (ex:
+                                    "Escudo Mágico por 3 turnos") são decrementados automaticamente.</li>
+                                <li><strong>Expiração:</strong> Ao chegar a 0 turnos, o efeito é desativado e os bônus
+                                    são removidos.</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Section: Status do Personagem -->
+                    <section id="status" class="rule-section">
+                        <h1 class="rule-title">Capítulo 3 – Status do Personagem</h1>
+                        <div class="rule-text">
+                            <p>Os Status representam as reservas vitais e funcionais do personagem. Eles medem sua
+                                capacidade de resistir, agir e sustentar esforços físicos e mágicos ao longo da
+                                narrativa. Diferente de atributos, os status são recursos consumíveis e refletem
+                                desgaste.</p>
+
+                            <p>Há três status centrais: Vida, Estamina e Mana. Eles não possuem um limite máximo fixo
+                                definido pelo sistema; seus valores máximos dependem do investimento do personagem, de
+                                habilidades, equipamentos e efeitos narrativos. No entanto, existem limites claros para
+                                estados críticos.</p>
+
+                            <div class="danger-card mt-4">
+                                <h4><i class="bi bi-exclamation-triangle"></i> Estados Críticos</h4>
+                                <p>Quando um personagem reduz Mana ou Estamina a 0, ele fica inconsciente. Caso
+                                    qualquer um desses status fique abaixo de 0, o personagem morre. Não há testes
+                                    automáticos de resistência à morte.</p>
+                            </div>
+
+                            <div class="row mt-5">
+                                <div class="col-md-4">
+                                    <div class="pilar-card">
+                                        <h4>Vida</h4>
+                                        <p>Representa a integridade corporal. Mede ferimentos, traumas
+                                            físicos e danos diretos. Perder Vida significa sofrer impacto real.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card">
+                                        <h4>Estamina</h4>
+                                        <p>Representa fôlego e resistência geral. Consumida por ações
+                                            extenuantes, combates intensos e manobras prolongadas.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card">
+                                        <h4>Mana</h4>
+                                        <p>Representa a energia necessária para sustentar habilidades
+                                            mágicas. Gastar Mana reflete desgaste mental ou espiritual.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p>A recuperação de status não ocorre de forma automática. Descanso adequado e alimentação
+                                são os principais meios de recuperação. Descansos curtos permitem recuperação parcial e
+                                limitada, enquanto descansos longos possibilitam recuperação mais significativa.</p>
+
+                            <p>Habilidades, itens e efeitos narrativos podem acelerar, retardar ou modificar a
+                                recuperação de status, mas nunca substituem completamente a necessidade de descanso.</p>
+
+                            <p>Os status também servem como indicadores narrativos. Um personagem com Estamina baixa
+                                pode demonstrar cansaço, lentidão ou falhas de atenção. Um personagem com Mana reduzida
+                                pode ter dificuldade de concentração ou instabilidade mágica.</p>
+                        </div>
+                    </section>
+
+                    <!-- Section: Atributos -->
+                    <section id="atributos" class="rule-section">
+                        <h1 class="rule-title">Capítulo 4 – Atributos</h1>
+                        <div class="rule-text">
+                            <p>Os Atributos definem como o personagem interage com o mundo. Eles representam capacidades
+                                fundamentais e estáveis, servindo como base para ações, testes, habilidades e diversos
+                                cálculos do sistema. Diferente dos status, atributos não são consumidos.</p>
+
+                            <p>Cada ponto investido em um atributo gera efeitos mecânicos claros e fixos. A
+                                interpretação narrativa desses efeitos deve sempre acompanhar sua aplicação mecânica.
+                            </p>
+
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Força (FOR)</h4>
+                                        <p>Potência física e impacto bruto.</p>
+                                        <ul>
+                                            <li><strong>Dano</strong>: +2 de dano físico por ponto.</li>
+                                            <li><strong>Usos</strong>: Ataques corpo a corpo, arremessos, quebra de
+                                                objetos.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Agilidade (AGI)</h4>
+                                        <p>Velocidade, coordenação e precisão.</p>
+                                        <ul class="">
+                                            <li><strong>Combate</strong>: +1 em acerto e +1 em esquiva por ponto.</li>
+                                            <li><strong>Usos</strong>: Ataques precisos, furtividade, esquivas.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Inteligência (INT)</h4>
+                                        <p>Capacidade analítica e planejamento.</p>
+                                        <ul>
+                                            <li><strong>Estratégia</strong>: 1 Ponto de Estratégia por ponto (rec.
+                                                descanso longo).</li>
+                                            <li><strong>Mecânica</strong>: Gaste para obter vantagem antes de rolar.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Sorte (SOR)</h4>
+                                        <p>Acaso e destino inesperado.</p>
+                                        <ul>
+                                            <li><strong>Destino</strong>: 1 Ponto do Destino a cada 3 pontos (rec. 2
+                                                desc. longos).</li>
+                                            <li><strong>Mecânica</strong>: Guarde um resultado e reutilize-o depois.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="pilar-card">
+                                        <h4>Foco (FOC)</h4>
+                                        <p>Concentração e manutenção de efeitos.</p>
+                                        <ul>
+                                            <li><strong>Duração</strong>: +1 turno em efeitos positivos a cada 2 pontos.
+                                            </li>
+                                            <li><strong>Resistência</strong>: -1 turno em efeitos negativos sofridos.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="mt-4">Os atributos funcionam de forma integrada. A critério do narrador, uma mesma
+                                ação pode ser influenciada por mais de um atributo, priorizando sempre a coerência
+                                narrativa.</p>
+                        </div>
+                    </section>
+
+                    <!-- Section: Pontos de Reação -->
+                    <section id="reacao" class="rule-section">
+                        <h1 class="rule-title">Capítulo 5 – Pontos de Reação (PR)</h1>
+                        <div class="rule-text">
+                            <p>Os Pontos de Reação, ou PR, representam a prontidão do personagem para responder a
+                                eventos inesperados, interferir no ritmo das cenas e agir fora do fluxo padrão das
+                                ações. Eles não medem força, poder ou habilidade direta, mas sim atenção, tempo de
+                                resposta e capacidade de adaptação imediata.</p>
+
+                            <p>PR não aumentam valores fixos nem substituem atributos ou habilidades. Eles concedem
+                                flexibilidade tática, permitindo que o personagem ajuste situações críticas antes que
+                                elas se consolidem.</p>
+
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Cálculo Base</h4>
+                                        <p>PR são obtidos a partir da soma total dos atributos.</p>
+                                        <p><strong>+1 PR a cada 10 pontos totais</strong> em atributos.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Limite Máximo</h4>
+                                        <p>O limite de PR é definido pelo nível do personagem:</p>
+                                        <ul>
+                                            <li><strong>Até Nível 3</strong>: Máximo 1 PR</li>
+                                            <li><strong>Nível 4 a 7</strong>: Máximo 2 PR</li>
+                                            <li><strong>Nível 10</strong>: Máximo 3 PR</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Em Combate</h4>
+                                        <p>Permite atuar fora do turno normal. Deve ser declarado antes da
+                                            resolução da ação.</p>
+                                        <ul>
+                                            <li>Reagir a ataques inesperados.</li>
+                                            <li>Responder a manobras inimigas.</li>
+                                            <li>Obter vantagem em rolagens.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Fora de Combate</h4>
+                                        <p>Obtenha vantagem em testes (geralmente 1 ou 2 dados) conforme
+                                            justificativa narrativa.</p>
+                                        <ul>
+                                            <li>Perceber detalhes críticos.</li>
+                                            <li>Antecipar perigos iminentes.</li>
+                                            <li>Ajustar decisões no último instante.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-card mt-4">
+                                <h4><i class="bi bi-info-circle"></i> Recuperação</h4>
+                                <p>Pontos de Reação só são restaurados por descansos adequados. Descansos inadequados
+                                    não restauram PR.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Habilidades e Tiers -->
+                    <section id="habilidades" class="rule-section">
+                        <h1 class="rule-title">Capítulo 6 – Habilidades e Tiers</h1>
+                        <div class="rule-text">
+                            <p>Habilidades são o núcleo real do personagem. Elas não são apenas opções de ação, mas
+                                representações diretas do que o personagem sabe fazer, sustentar e aplicar. Diferente de
+                                sistemas onde o nível define o poder, aqui o poder emerge da combinação entre
+                                habilidades, seus Tiers e o grau de proficiência alcançado.</p>
+
+                            <p>Uma habilidade representa uma técnica, prática, forma de uso de magia, estilo de combate
+                                ou aplicação especializada de conhecimento. Ela sempre responde a: o que faz, em que
+                                situações se usa e qual o impacto real gerado.</p>
+
+                            <h3 class="mt-5 mb-4">Tier da Habilidade</h3>
+                            <p>O Tier representa o peso estrutural da habilidade. Ele define o nível de impacto,
+                                complexidade e alcance que a habilidade possui no sistema. O Tier não é proficiência; é
+                                a capacidade bruta da técnica.</p>
+
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Tier 0 – Cotidiano</h4>
+                                        <p class="small">Uso diário, sem especialização. Não consomem espaço nem contam
+                                            para a soma máxima.</p>
+                                        <p class="small text-white-50">Ex: Correr, nadar, cozinhar.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Tier 1 – Básico</h4>
+                                        <p class="small">Técnicas treinadas com impacto limitado e aplicação direta.</p>
+                                        <p class="small text-white-50">Ex: Espadada básica, magia simples.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Tier 2 – Definido</h4>
+                                        <p class="small">Impacto consistente, influenciando decisões táticas claras.</p>
+                                        <p class="small text-white-50">Ex: Estilos de combate, suporte recorrente.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Tier 3 – Avançado</h4>
+                                        <p class="small">Moldam a identidade do personagem com forte impacto mecânico.
+                                        </p>
+                                        <p class="small text-white-50">Ex: Manobras especiais, magias complexas.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Tier 4 – Excepcional</h4>
+                                        <p class="small">Raras, alteram o ritmo do combate e exigem alto custo.</p>
+                                        <p class="small text-white-50">Ex: Feitos heroicos, magias de grande alcance.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Tier 5 – Lendário</h4>
+                                        <p class="small">Únicas no mundo, impacto extremo e frequentemente irrepetíveis.
+                                        </p>
+                                        <p class="small text-white-50">Ex: Técnicas míticas, magias de criação.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-card mt-5">
+                                <h4>Tier vs Proficiência</h4>
+                                <p><strong>Tier</strong> define o que a habilidade PODE fazer.
+                                    <strong>Proficiência</strong> define o quão BEM isso é feito.</p>
+                                <p class="mb-0">Uma habilidade Tier 4 com proficiência Aprendiz é poderosa, mas
+                                    instável. Uma Tier 1 com proficiência Mestre é simples, porém extrema eficiente.</p>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Categorias de Habilidades</h3>
+
+                            <div class="pilar-card">
+                                <h4>Habilidades Ativas</h4>
+                                <p>Exigem declaração de uso e consomem uma ação ou recurso (Mana/Estamina). Estão
+                                    sujeitas a falha ou interrupção.</p>
+                                <p class="small text-white-50 mb-0">Ex: Ataques especiais, magias conjuradas, manobras.
+                                </p>
+                            </div>
+
+                            <div class="pilar-card">
+                                <h4>Habilidades Passivas</h4>
+                                <p>Atuam constantemente sem necessidade de ativação ou consumo de ações. Só podem ser
+                                    desativadas em descansos longos.</p>
+                                <p class="small text-white-50 mb-0">Ex: Bônus de atributos, resistências, reduções de
+                                    custo.</p>
+                            </div>
+
+                            <div class="pilar-card">
+                                <h4>Módulos</h4>
+                                <p>Habilidades híbridas. Exigem custo inicial para ativar e, enquanto sustentadas,
+                                    concedem efeitos contínuos como passivas temporárias. Criam janelas de poder
+                                    estratégico.</p>
+                                <p class="small text-white-50 mb-0">Ex: Armaduras manifestadas, aumentos temporários,
+                                    estados especiais.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Evolução -->
+                    <section id="evolucao" class="rule-section">
+                        <h1 class="rule-title">🌟 Evolução Orgânica</h1>
+                        <div class="rule-text">
+                            <p>Esqueça o ganho de XP apenas matando monstros. No Gênesis, você melhora no que você faz.
+                            </p>
+                            <p>A evolução acontece através do investimento em Conhecimentos e Práticas. Se você usa
+                                muito uma espada, seu conhecimento em combate corpo-a-corpo crescerá. Se estuda tomos
+                                antigos, sua capacidade mágica se expandirá.</p>
+                            <p class="mt-3"><strong>Treinamento:</strong> Durante o tempo de descanso, personagens podem
+                                focar em desenvolver novas capacidades ou aprimorar as existentes.</p>
+                        </div>
+                    </section>
+
+                </main>
+            </div>
+        </div>
+
+    </div><!-- foreground end -->
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="../js/galaxy.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/comunidade.js"></script>
+
+</body>
+
+</html>

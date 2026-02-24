@@ -1,45 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minhas Fichas - Gênesis RPG</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/galaxy.css">
     <link rel="stylesheet" href="../css/glassmorphism.css">
-    
+
 </head>
 
 <body>
 
     <!-- Fundo Nebulosa -->
     <canvas id="nebula-canvas"></canvas>
-    
+
     <!-- Conteúdo acima da galáxia -->
     <div id="foreground">
 
         <!-- Navbar -->
         <nav class="navbar">
             <a href="../index.html" class="logo">Gênesis RPG</a>
-          
+
             <ul class="nav-list">
-              <li><a href="fichas.html" class="nav-link">Fichas</a></li>
-              <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
-              <li><a href="pages/" class="nav-link">Comunidade</a></li>
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+                <li><a href="comunidade.html" class="nav-link">Comunidade</a></li>
 
                 <button id="logoutBtn" class="nav-btn">Sair</button>
-              </li>
+                </li>
             </ul>
-          </nav>
+        </nav>
 
         <div id="webgl-fallback">
             <p>WebGL não está disponível. A visualizar versão simplificada.</p>
@@ -92,10 +93,11 @@
 
     <!-- Verificar se está logado -->
     <script>
-        (async function() {
+        (async function () {
             await requireLogin();
         })();
     </script>
 
 </body>
+
 </html>

@@ -18,25 +18,42 @@
     <link rel="stylesheet" href="../css/galaxy.css">
     <link rel="stylesheet" href="../css/glassmorphism.css">
     <style>
-    .modal-content {
-        background: #1f2937; /* Fundo sólido escuro para garantir leitura */
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    .modal-header, .modal-footer { border-color: rgba(255, 255, 255, 0.1); }
-    .btn-close { filter: invert(1); }
-    .form-control, .form-select {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-    .form-control:focus, .form-select:focus {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-color: var(--primary-color);
-        box-shadow: none;
-    }
-    option { background: #1f2937; color: white; }</style>
+        .modal-content {
+            background: #1f2937;
+            /* Fundo sólido escuro para garantir leitura */
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        .form-control,
+        .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: none;
+        }
+
+        option {
+            background: #1f2937;
+            color: white;
+        }
+    </style>
 </head>
 
 <body>
@@ -50,7 +67,7 @@
             <ul class="nav-list">
                 <li><a href="fichas.html" class="nav-link">Fichas</a></li>
                 <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
-                <li><a href="pages/" class="nav-link">Comunidade</a></li>
+                <li><a href="comunidade.html" class="nav-link">Comunidade</a></li>
 
                 <button id="logoutBtn" class="nav-btn">Sair</button>
                 </li>
@@ -125,9 +142,10 @@
 
                     <!-- Botão para entrar em campanha -->
                     <div id="btnEntrarBottom" class="text-center mt-4">
-                        <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha com Código</button>
+                        <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha com
+                            Código</button>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -175,7 +193,7 @@
 
     <!-- Verificar se está logado -->
     <script>
-        (async function() {
+        (async function () {
             await requireLogin();
         })();
     </script>
