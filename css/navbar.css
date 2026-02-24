@@ -3,12 +3,25 @@
 /* ------------------------------------- */
 
 .navbar {
-    background-color: transparent;
+    background-color: rgba(15, 15, 25, 0.85);
+    /* Semi-transparent background for visibility on scroll */
+    backdrop-filter: blur(10px);
     padding: 10px 20px;
-    margin-top: 20px;
+    margin-top: 0;
+    /* Remove top margin to stick to top */
     display: flex;
-    align-items: center;       /* centra verticalmente tudo */
+    align-items: center;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-transparent {
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    border-bottom: none !important;
 }
 
 .logo {
@@ -23,15 +36,20 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;             /* deixa tudo lado a lado */
-    align-items: center;       /* garante alinhamento vertical idêntico */
+    display: flex;
+    /* deixa tudo lado a lado */
+    align-items: center;
+    /* garante alinhamento vertical idêntico */
 }
 
 /* cada item da nav */
 .nav-list li {
-    margin: 0 15px;            /* espaçamento horizontal */
-    display: flex;             /* deixa conteúdo 100% alinhado */
-    align-items: center;       /* evita que <button> fique mais baixo */
+    margin: 0 15px;
+    /* espaçamento horizontal */
+    display: flex;
+    /* deixa conteúdo 100% alinhado */
+    align-items: center;
+    /* evita que <button> fique mais baixo */
 }
 
 /* ------------------------------------- */
@@ -46,14 +64,15 @@
     position: relative;
     z-index: 0;
     display: inline-block;
-    padding: 6px 12px;         /* importante para igualar ao botão */
+    padding: 6px 12px;
+    /* importante para igualar ao botão */
     border-radius: 10px;
 }
 
 .nav-list li a::after {
     content: "";
     position: absolute;
-    top: 0; 
+    top: 0;
     left: 0;
     width: 100%;
     height: 100%;
@@ -90,18 +109,19 @@
     padding: 6px 12px;
     border-radius: 10px;
 
-    display: inline-block; 
+    display: inline-block;
     vertical-align: middle;
     z-index: 0;
 
-    line-height: 1;        /* remove desalinhamento vertical */
+    line-height: 1;
+    /* remove desalinhamento vertical */
 }
 
 /* Glow igual ao link */
 .nav-btn::after {
     content: "";
     position: absolute;
-    top: 0; 
+    top: 0;
     left: 0;
     width: 100%;
     height: 100%;
@@ -132,7 +152,8 @@
 
 .nav-action {
     display: flex;
-    align-items: center; /* garantir alinhamento com links */
+    align-items: center;
+    /* garantir alinhamento com links */
 }
 
 
@@ -141,6 +162,11 @@
 /* ------------------------------------- */
 
 @keyframes rotate-96 {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

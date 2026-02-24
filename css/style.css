@@ -15,9 +15,18 @@
     box-sizing: border-box;
 }
 
-html, body {
+html {
     width: 100%;
-    min-height: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle at top, #0d0f1c 0%, #090b16 60%, #05060d 100%) no-repeat center center fixed;
+    background-size: cover;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
 }
@@ -25,10 +34,8 @@ html, body {
 /* ===== GLASSMORPHISM GLOBAL ===== */
 body {
     font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at top, #0d0f1c 0%, #090b16 60%, #05060d 100%);
+    background: transparent;
     color: #ffffff;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
 }
 
 /* ===== BOTÕES ===== */
@@ -49,11 +56,9 @@ body {
 
 /* Botão principal */
 .btn-primary {
-    background: linear-gradient(
-        135deg,
-        rgba(99, 102, 241, 0.55) 0%,
-        rgba(139, 92, 246, 0.55) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(99, 102, 241, 0.55) 0%,
+            rgba(139, 92, 246, 0.55) 100%);
     border: 1px solid rgba(255, 255, 255, 0.25);
     color: white;
     font-weight: 600;
@@ -62,11 +67,9 @@ body {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(
-        135deg,
-        rgba(99, 102, 241, 0.8) 0%,
-        rgba(139, 92, 246, 0.8) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(99, 102, 241, 0.8) 0%,
+            rgba(139, 92, 246, 0.8) 100%);
 }
 
 /* ===== CARDS ===== */
@@ -81,11 +84,9 @@ body {
 }
 
 .card-header {
-    background: linear-gradient(
-        135deg,
-        rgba(99, 102, 241, 0.35) 0%,
-        rgba(139, 92, 246, 0.35) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(99, 102, 241, 0.35) 0%,
+            rgba(139, 92, 246, 0.35) 100%);
     color: white;
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -113,11 +114,9 @@ body {
 
 /* ===== HERO SECTION ===== */
 .hero {
-    background: linear-gradient(
-        135deg,
-        rgba(99, 102, 241, 0.30) 0%,
-        rgba(139, 92, 246, 0.30) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(99, 102, 241, 0.30) 0%,
+            rgba(139, 92, 246, 0.30) 100%);
     color: white;
     padding: 5rem 0;
     text-align: center;
@@ -256,7 +255,7 @@ body.confirm-open {
     max-height: 90%;
     object-fit: contain;
     border-radius: 8px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
     border: 2px solid rgba(102, 126, 234, 0.5);
     cursor: default;
 }

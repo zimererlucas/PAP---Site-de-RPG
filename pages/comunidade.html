@@ -306,13 +306,18 @@
                             <a href="#" class="sidebar-link" data-section="magia">11. Arcanismo e Magia</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link" data-section="dados">Sistema de Dados</a>
+                            <a href="#" class="sidebar-link" data-section="combate">12. Combate</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link" data-section="turnos">Sistema de Turnos</a>
+                            <a href="#" class="sidebar-link" data-section="inventario">13. Inventário e Carga</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link" data-section="evolucao">Evolução Orgânica</a>
+                            <a href="#" class="sidebar-link" data-section="sobrevivencia">14. Alimentação e
+                                Sobrevivência</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="sobrevivencia">14. Alimentação e
+                                Sobrevivência</a>
                         </li>
                     </ul>
                 </aside>
@@ -1275,26 +1280,435 @@
                                         <h4>Naturais vs Artificiais</h4>
                                         <p class="small"><strong>Naturais:</strong> Estáveis (ex: Magias de Caos).
                                             <strong>Artificiais:</strong> Criações experimentais (ex: Armadilha +
-                                            Explosão).</p>
+                                            Explosão).
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Section: Evolução -->
-                    <section id="evolucao" class="rule-section">
-                        <h1 class="rule-title">🌟 Evolução Orgânica</h1>
+                    <!-- Section: Combate -->
+                    <section id="combate" class="rule-section">
+                        <h1 class="rule-title">Capítulo 12 – Combate</h1>
                         <div class="rule-text">
-                            <p>Esqueça o ganho de XP apenas matando monstros. No Gênesis, você melhora no que você faz.
-                            </p>
-                            <p>A evolução acontece através do investimento em Conhecimentos e Práticas. Se você usa
-                                muito uma espada, seu conhecimento em combate corpo-a-corpo crescerá. Se estuda tomos
-                                antigos, sua capacidade mágica se expandirá.</p>
-                            <p class="mt-3"><strong>Treinamento:</strong> Durante o tempo de descanso, personagens podem
-                                focar em desenvolver novas capacidades ou aprimorar as existentes.</p>
+                            <p>O combate representa um conflito aberto, não apenas a troca de golpes entre dois lados.
+                                Entrar em combate é sempre uma decisão relevante, pois ele consome tempo, recursos e
+                                expõe o personagem a riscos reais e duradouros.</p>
+
+                            <div class="info-card mt-4">
+                                <h4><i class="bi bi-swords"></i> Filosofia do Combate</h4>
+                                <p>O combate é uma ferramenta entre várias. Fugir, atrasar, negociar ou criar vantagem
+                                    estratégica são resultados válidos e desejáveis. A qualquer momento, táticas de
+                                    retirada, rendição ou imposição psicológica podem mudar o rumo da cena.</p>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Estrutura e Iniciativa</h3>
+                            <div class="pilar-card mb-4">
+                                <h5><i class="bi bi-stopwatch"></i> O Turno</h5>
+                                <p class="small">Intervalo curto onde todos agem conforme sua prontidão. Dividido em
+                                    ações seguindo a ordem de iniciativa.</p>
+                            </div>
+
+                            <div class="info-card">
+                                <h4>Cálculo de Iniciativa</h4>
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <span class="badge bg-primary fs-6">D20 + Agilidade + Bônus</span>
+                                </div>
+                                <p class="small mb-0">Em caso de empate, vence a maior Agilidade. Pode ser rolada por
+                                    combate ou no início da cena.</p>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Tipos de Ação</h3>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4><i class="bi bi-lightning"></i> Ações Livres</h4>
+                                        <p class="small mb-0">Esforço mínimo. Ex: falar frases curtas, soltar itens,
+                                            pequenos gestos.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4><i class="bi bi-person-walking"></i> Ações Simples</h4>
+                                        <p class="small mb-0">Demandam atenção. Ex: deslocamento curto, sacar itens,
+                                            postura defensiva.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100 border-primary">
+                                        <h4><i class="bi bi-bullseye"></i> Ações Complexas</h4>
+                                        <p class="small mb-0">Núcleo mecânico. Ex: atacar, usar habilidades, conjurar
+                                            magias.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="small mt-3 text-info"><i class="bi bi-info-circle"></i> Todo personagem tem
+                                direito a pelo menos uma ação <strong>Complexa</strong> e uma <strong>Simples</strong>
+                                por turno.</p>
+
+                            <h3 class="mt-5 mb-4">Ataque, Defesa e Dano</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-card h-100">
+                                        <h4>Ataque vs Esquiva</h4>
+                                        <p class="small mb-3">Resolução por comparação direta: <strong>D20 + Agilidade +
+                                                Bônus</strong>.</p>
+                                        <p class="small text-white-50">Impactos podem forçar reposicionamento ou quebrar
+                                            formações, não apenas causar dano.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-card h-100">
+                                        <h4>Dano e Impacto</h4>
+                                        <p class="small">Não há separação mecânica entre físico e mágico; todo dano
+                                            afeta os mesmos Status, representando ferimentos, desgaste ou colapso de
+                                            defesas.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mt-2">
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100 border-warning">
+                                        <h4><i class="bi bi-shield-shaded"></i> Pontos de Bloqueio</h4>
+                                        <p class="small">Gaste 1 ponto para <strong>reduzir o dano pela metade</strong>.
+                                            Declare antes da aplicação. Não acumulável por ataque.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100 border-info">
+                                        <h4><i class="bi bi-reply-all"></i> Pontos de Reação</h4>
+                                        <p class="small">Permitem agir fora do turno, interromper eventos ou ganhar
+                                            vantagem tática. Ampliam o controle sobre o fluxo do combate.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Tabela de Base de Dano</h3>
+                            <div class="rule-table-container">
+                                <table class="rule-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Raridade</th>
+                                            <th>Dados Base</th>
+                                            <th>Bônus Fixo</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Rudimentar</td>
+                                            <td><span class="level-badge">1d4</span></td>
+                                            <td>1 a 2</td>
+                                            <td>2 a 6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Comum</td>
+                                            <td><span class="level-badge">1d6</span></td>
+                                            <td>1 a 3</td>
+                                            <td>2 a 9</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Comum Refinado</td>
+                                            <td><span class="level-badge">1d6</span></td>
+                                            <td>1 a 5</td>
+                                            <td>2 a 11</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Incomum</td>
+                                            <td><span class="level-badge">2d6</span></td>
+                                            <td>1 a 5</td>
+                                            <td>3 a 17</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Incomum Superior</td>
+                                            <td><span class="level-badge">2d6</span></td>
+                                            <td>1 a 7</td>
+                                            <td>3 a 19</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Raro</td>
+                                            <td><span class="level-badge">2d8</span></td>
+                                            <td>1 a 7</td>
+                                            <td>3 a 23</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Raro Superior</td>
+                                            <td><span class="level-badge">2d8</span></td>
+                                            <td>1 a 10</td>
+                                            <td>3 a 26</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Épico</td>
+                                            <td><span class="level-badge">3d8</span></td>
+                                            <td>1 a 10</td>
+                                            <td>4 a 34</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Épico Ascendente</td>
+                                            <td><span class="level-badge">3d8</span></td>
+                                            <td>1 a 15</td>
+                                            <td>4 a 39</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Lendário</td>
+                                            <td><span class="level-badge">3d10</span></td>
+                                            <td>1 a 15</td>
+                                            <td>4 a 45</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Lendário Antigo</td>
+                                            <td><span class="level-badge">3d10</span></td>
+                                            <td>1 a 20</td>
+                                            <td>4 a 50</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mítico</td>
+                                            <td><span class="level-badge">4d10</span></td>
+                                            <td>1 a 25</td>
+                                            <td>5 a 65</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </section>
+
+                    <!-- Section: Inventário e Carga -->
+                    <section id="inventario" class="rule-section">
+                        <h1 class="rule-title">Capítulo 13 – Inventário e Carga</h1>
+                        <div class="rule-text">
+                            <p>O que o personagem carrega importa tanto quanto o que ele sabe fazer. O inventário não é
+                                apenas um registro de itens, mas uma camada mecânica e narrativa de escolha.</p>
+
+                            <div class="info-card mt-4">
+                                <h4><i class="bi bi-backpack"></i> Conceito de Carga</h4>
+                                <p>Carga representa mobilidade, eficiência em combate e preparo. Personagens
+                                    sobrecarregados tornam-se lentos e vulneráveis, enquanto os bem preparados possuem
+                                    mais opções táticas.</p>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Espaços de Inventário</h3>
+                            <div class="pilar-card mb-4">
+                                <p class="mb-2">O inventário é medido em <strong>espaços</strong>, não em peso.</p>
+                                <ul class="small mb-0">
+                                    <li>Todo personagem inicia com <strong>5 espaços</strong>.</li>
+                                    <li>Espaços são unidades inteiras (sem frações).</li>
+                                    <li>Itens equipados ocupam espaço, salvo raras exceções.</li>
+                                    <li>Bolsas e cintos acumulam; itens dimensionais consideram apenas o maior bônus.
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Classificação de Tamanho</h3>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="info-card h-100 border-info">
+                                        <h4>Pequeno</h4>
+                                        <div class="badge bg-info mb-2">1 a 2 Espaços</div>
+                                        <p class="small mb-0">Poções, comida, adagas, pergaminhos, ferramentas simples.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-card h-100 border-primary">
+                                        <h4>Médio</h4>
+                                        <div class="badge bg-primary mb-2">3 a 4 Espaços</div>
+                                        <p class="small mb-0">Espadas, machados, arcos, escudos médios, equipamentos
+                                            técnicos.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-card h-100 border-warning">
+                                        <h4>Grande</h4>
+                                        <div class="badge bg-warning text-dark mb-2">5 Espaços</div>
+                                        <p class="small mb-0">Lanças, espadas longas, armaduras, armas pesadas.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Equipamentos de Ampliação</h3>
+                            <div class="row g-3">
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="pilar-card text-center p-3">
+                                        <div class="small fw-bold">Cinto com bolsos</div>
+                                        <div class="level-badge">+2 Espaços</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="pilar-card text-center p-3">
+                                        <div class="small fw-bold">Bolsa Simples</div>
+                                        <div class="level-badge">+3 Espaços</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="pilar-card text-center p-3">
+                                        <div class="small fw-bold">Mochila Pequena</div>
+                                        <div class="level-badge">+5 Espaços</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="pilar-card text-center p-3">
+                                        <div class="small fw-bold">Saco de Viagem</div>
+                                        <div class="level-badge">+6 Espaços</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="pilar-card text-center p-3">
+                                        <div class="small fw-bold">Anel Dimensional</div>
+                                        <div class="level-badge">+7 Espaços</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="pilar-card text-center p-3">
+                                        <div class="small fw-bold">Mochila Grande</div>
+                                        <div class="level-badge">+10 Espaços</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="small text-center mt-3 text-white-50">Mochilas de carga extrema podem chegar a até
+                                <strong>+14 espaços</strong>.
+                            </p>
+
+                            <h3 class="mt-5 mb-4">Inventário Excedido</h3>
+                            <div class="info-card border-danger">
+                                <h4 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Efeitos da Sobrecarga
+                                </h4>
+                                <ul class="small mb-0">
+                                    <li>Desvantagem em todos os testes de <strong>mobilidade</strong>.</li>
+                                    <li>Redução narrativa da velocidade de deslocamento.</li>
+                                    <li>Dificuldade aumentada em esquiva, furtividade e manobras.</li>
+                                    <li>Ataques de precisão ou posicionamento tornam-se menos eficazes.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Alimentação e Sobrevivência -->
+                    <section id="sobrevivencia" class="rule-section">
+                        <h1 class="rule-title">Capítulo 14 – Alimentação e Sobrevivência</h1>
+                        <div class="rule-text">
+                            <p>A sobrevivência não é um pano de fundo abstrato. Alimentação, descanso, preparo e
+                                resistência ao ambiente influenciam diretamente a capacidade do personagem de agir,
+                                lutar e pensar. Ignorar essas necessidades gera consequências progressivas e
+                                acumulativas.</p>
+
+                            <div class="info-card mt-4">
+                                <h4><i class="bi bi-shield-check"></i> Princípios da Sobrevivência</h4>
+                                <p>Regida por quatro pilares: <strong>Alimentação</strong>, <strong>Descanso</strong>,
+                                    <strong>Resistência ao Ambiente</strong> e <strong>Gestão de Recursos</strong>.
+                                    Falhar em um compromete os demais: um personagem mal alimentado descansa pior, e um
+                                    exausto reage mais lentamente.
+                                </p>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Alimentação e Nutrição</h3>
+                            <div class="pilar-card mb-4">
+                                <p class="small mb-2">Representa qualidade de preparo e reserva metabólica.</p>
+                                <ul class="small mb-0">
+                                    <li>Mínimo de <strong>uma refeição por dia</strong>.</li>
+                                    <li>Efeitos duram até o próximo descanso completo.</li>
+                                    <li>Vale sempre a <strong>última refeição</strong> consumida (não acumulam).</li>
+                                    <li>Fome gera penalidades cumulativas e reduz Status máximos.</li>
+                                </ul>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Descanso e Recuperação</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-card h-100 border-info">
+                                        <h4><i class="bi bi-clock-history"></i> Descanso Curto</h4>
+                                        <p class="small">Pausa breve. Recupera Estamina parcialmente, mas não restaura
+                                            Vida nem permite reorganizar habilidades.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-card h-100 border-primary">
+                                        <h4><i class="bi bi-moon-stars"></i> Descanso Longo</h4>
+                                        <p class="small">Repouso real. Restaura Status, recupera Estratégia/Destino/PR e
+                                            permite troca de habilidades.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Ambiente e Resistência</h3>
+                            <div class="pilar-card border-warning">
+                                <h5>O Ambiente como Agente Ativo</h5>
+                                <p class="small">Frio/calor extremo ou áreas mágicas podem consumir Estamina
+                                    continuamente e impor penalidades físicas. Falha em sobreviver pode resultar em
+                                    colapso, doenças ou perdas de equipamentos.</p>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Tabela de Níveis de Refeição</h3>
+                            <div class="rule-table-container">
+                                <table class="rule-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nível</th>
+                                            <th>Tipo</th>
+                                            <th>Efeitos e Recuperação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="level-badge">1</span></td>
+                                            <td>Subsistência</td>
+                                            <td>Evita penalidades e doenças. Sem recuperação.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">2</span></td>
+                                            <td>Simples</td>
+                                            <td>+2 Vida OR +1 Estamina OR +1 Mana.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">3</span></td>
+                                            <td>Adequada</td>
+                                            <td>+4 Vida AND (+2 Estamina OR +2 Mana).</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">4</span></td>
+                                            <td>Nutritiva</td>
+                                            <td>+6 Vida, +3 Estamina, +2 Mana.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">5</span></td>
+                                            <td>Fortificante</td>
+                                            <td>+8 Vida, +4 Estamina, +3 Mana. Reduz fadiga leve.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">6</span></td>
+                                            <td>Revigorante</td>
+                                            <td>+10 Vida, +5 Estamina, +4 Mana. +1 Atributo até descanso.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">7</span></td>
+                                            <td>Energizante</td>
+                                            <td>+12 Vida, +6 Estamina, +5 Mana. +1 em dois Atributos.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">8</span></td>
+                                            <td>Alto Valor</td>
+                                            <td>+15 Vida, +8 Estamina, +6 Mana. +2 em um Atributo OR +1 em dois.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">9</span></td>
+                                            <td>Excepcional</td>
+                                            <td>+18 Vida, +10 Estamina, +8 Mana. +2 em dois Atributos. +5 Vida Máxima.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">10</span></td>
+                                            <td>Lendária</td>
+                                            <td>+25 Vida, +15 Estamina, +12 Mana. +3/+1/+1 Atributos. +10 Vida Máxima.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
 
                 </main>
             </div>

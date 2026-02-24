@@ -4,7 +4,7 @@
 const CONFIG = {
     quality: 'cine', // 'light' | 'cine'
     mode: 'auto',    // 'mouse' | 'auto'
-    
+
     profiles: {
         light: {
             stars: 2000,
@@ -19,7 +19,7 @@ const CONFIG = {
             pixelRatio: Math.min(window.devicePixelRatio, 2)
         }
     },
-    
+
     // VELOCIDADES AJUSTÁVEIS
     speeds: {
         stars: 0.01,      // Reduzido de 0.3 para 0.08 (73% mais lento)
@@ -35,22 +35,22 @@ function checkWebGLSupport() {
     try {
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        
+
         if (!gl) return { supported: false, gpuActive: false };
-        
+
         // Verificar se a GPU está realmente sendo usada
         const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
         const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown';
-        
+
         // Detectar se está usando software rendering (SwiftShader, llvmpipe, etc.)
         const isSoftwareRenderer = /SwiftShader|llvmpipe|software/i.test(renderer);
-        
+
         return {
             supported: true,
             gpuActive: !isSoftwareRenderer,
             renderer: renderer
         };
-    } catch(e) {
+    } catch (e) {
         return { supported: false, gpuActive: false };
     }
 }
@@ -94,7 +94,7 @@ function showWebGLWarning(message, type = 'warning') {
             </div>
         </div>
     `;
-    
+
     // Adicionar animação
     const style = document.createElement('style');
     style.textContent = `
@@ -105,7 +105,7 @@ function showWebGLWarning(message, type = 'warning') {
     `;
     document.head.appendChild(style);
     document.body.appendChild(warning);
-    
+
     // Auto-remover após 10 segundos
     setTimeout(() => {
         if (warning.parentElement) {
@@ -116,21 +116,21 @@ function showWebGLWarning(message, type = 'warning') {
 }
 
 // Aguardar carregamento do DOM
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', function () {
     const webglStatus = checkWebGLSupport();
-    
+
     if (!webglStatus.supported) {
         document.getElementById('webgl-fallback').style.display = 'flex';
         document.getElementById('nebula-canvas').style.display = 'none';
         showWebGLWarning('WebGL não está disponível no seu navegador. Habilite a aceleração de hardware para melhor experiência visual.');
         return;
     }
-    
+
     if (!webglStatus.gpuActive) {
         console.warn('⚠️ GPU não detectada ou aceleração desativada. Renderer:', webglStatus.renderer);
         showWebGLWarning('Aceleração de GPU desativada. Habilite nas configurações do navegador para melhor desempenho visual.');
     }
-    
+
     initNebula();
 });
 
@@ -142,27 +142,23 @@ function initNebula() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: CONFIG.quality === 'cine' });
-    
+
     const profile = CONFIG.profiles[CONFIG.quality];
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(profile.pixelRatio);
     camera.position.z = 50;
 
-    // Ajustar a altura visual do canvas para o tamanho total da página
+    // Keep canvas at viewport height
     const resizeCanvasToPage = () => {
-        const pageHeight = Math.max(
-            document.documentElement.scrollHeight,
-            document.documentElement.clientHeight,
-            window.innerHeight
-        );
-        canvas.style.height = `${pageHeight}px`;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
     };
     resizeCanvasToPage();
 
-    // Observar mudanças no layout para manter o canvas acompanhando o tamanho da página
-    const bodyResizeObserver = new ResizeObserver(resizeCanvasToPage);
-    bodyResizeObserver.observe(document.body);
-    
+    // Observe viewport size changes
+    window.addEventListener('resize', resizeCanvasToPage);
+
     /* ============================================
        CRIAR TEXTURA DO CÍRCULO
        ============================================ */
@@ -187,7 +183,7 @@ function initNebula() {
         const positions = new Float32Array(profile.stars * 3);
         const colors = new Float32Array(profile.stars * 3);
         const sizes = new Float32Array(profile.stars);
-        
+
         for (let i = 0; i < profile.stars; i++) {
             positions[i * 3] = (Math.random() - 0.5) * 300;
             positions[i * 3 + 1] = (Math.random() - 0.5) * 300;
@@ -201,11 +197,11 @@ function initNebula() {
 
             sizes[i] = Math.random() * 0.5 + 0.1;
         }
-        
+
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-        
+
         const material = new THREE.PointsMaterial({
             size: 0.5,
             map: starTexture,
@@ -215,12 +211,12 @@ function initNebula() {
             blending: THREE.AdditiveBlending,
             depthWrite: false
         });
-        
+
         const stars = new THREE.Points(geometry, material);
         scene.add(stars);
         return stars;
     }
-    
+
     /* ============================================
        CRIAR NÉBULAS
        ============================================ */
@@ -238,38 +234,38 @@ function initNebula() {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 128, 128);
         const texture = new THREE.CanvasTexture(canvas2d);
-        
+
         for (let i = 0; i < profile.nebulaClouds; i++) {
             const geometry = new THREE.BufferGeometry();
             const positions = new Float32Array(profile.nebulaParticles * 3);
             const colors = new Float32Array(profile.nebulaParticles * 3);
             const sizes = new Float32Array(profile.nebulaParticles);
-            
+
             const hues = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
             const baseHue = hues[Math.floor(Math.random() * hues.length)];
-            
+
             for (let j = 0; j < profile.nebulaParticles; j++) {
                 const radius = Math.random() * 30;
                 const theta = Math.random() * Math.PI * 2;
                 const phi = Math.random() * Math.PI;
-                
+
                 positions[j * 3] = radius * Math.sin(phi) * Math.cos(theta) * 2;
                 positions[j * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
                 positions[j * 3 + 2] = radius * Math.cos(phi) * 1.5;
-                
+
                 const color = new THREE.Color();
                 color.setHSL(baseHue + Math.random() * 0.1 - 0.05, 0.8, 0.5);
                 colors[j * 3] = color.r;
                 colors[j * 3 + 1] = color.g;
                 colors[j * 3 + 2] = color.b;
-                
+
                 sizes[j] = Math.random() * 1 + 0.2;
             }
-            
+
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
             geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-            
+
             const material = new THREE.PointsMaterial({
                 size: 1.5,
                 map: texture,
@@ -279,7 +275,7 @@ function initNebula() {
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
-            
+
             const cloud = new THREE.Points(geometry, material);
             cloud.position.x = (Math.random() - 0.5) * 300;
             cloud.position.y = (Math.random() - 0.5) * 300;
@@ -290,39 +286,39 @@ function initNebula() {
             scene.add(cloud);
             clouds.push(cloud);
         }
-        
+
         return clouds;
     }
-    
+
     /* ============================================
        PARALLAX E INTERAÇÃO
        ============================================ */
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    
+
     document.addEventListener('mousemove', (event) => {
         mouse.targetX = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.targetY = -(event.clientY / window.innerHeight) * 2 + 1;
     });
-    
+
     document.addEventListener('touchmove', (event) => {
         if (event.touches.length > 0) {
             mouse.targetX = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
             mouse.targetY = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
         }
     });
-    
+
     /* ============================================
        CRIAR ELEMENTOS
        ============================================ */
     const stars = createStars();
     const clouds = createNebulaClouds();
-    
+
     /* ============================================
        LOOP DE ANIMAÇÃO
        ============================================ */
     function animate() {
         requestAnimationFrame(animate);
-        
+
         // Parallax com mouse
         if (CONFIG.mode === 'mouse') {
             mouse.x += (mouse.targetX - mouse.x) * 0.05;
@@ -330,11 +326,11 @@ function initNebula() {
             camera.rotation.y = mouse.x * 0.1;
             camera.rotation.x = mouse.y * 0.1;
         }
-        
+
         // Modo auto (fly-in) - VELOCIDADES REDUZIDAS
         if (CONFIG.mode === 'auto') {
             const starPositions = stars.geometry.attributes.position.array;
-            
+
             // Movimento das estrelas (mais lento)
             for (let i = 0; i < starPositions.length; i += 3) {
                 starPositions[i + 2] += CONFIG.speeds.stars; // Agora 0.08 em vez de 0.3
@@ -345,7 +341,7 @@ function initNebula() {
                 }
             }
             stars.geometry.attributes.position.needsUpdate = true;
-            
+
             // Movimento das nuvens (mais lento)
             clouds.forEach(cloud => {
                 cloud.position.z += CONFIG.speeds.clouds; // Agora 0.024 em vez de 0.09
@@ -359,10 +355,10 @@ function initNebula() {
                 cloud.rotation.y += CONFIG.speeds.cloudRotation * 2; // Agora 0.00006
             });
         }
-        
+
         renderer.render(scene, camera);
     }
-    
+
     /* ============================================
        RESPONSIVIDADE
        ============================================ */
@@ -372,6 +368,6 @@ function initNebula() {
         renderer.setSize(window.innerWidth, window.innerHeight);
         resizeCanvasToPage();
     });
-    
+
     animate();
 }
