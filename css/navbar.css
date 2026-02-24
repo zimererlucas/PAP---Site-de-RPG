@@ -3,9 +3,7 @@
 /* ------------------------------------- */
 
 .navbar {
-    background-color: rgba(15, 15, 25, 0.85);
-    /* Semi-transparent background for visibility on scroll */
-    backdrop-filter: blur(10px);
+    background-color: transparent;
     padding: 10px 20px;
     margin-top: 0;
     /* Remove top margin to stick to top */
@@ -15,13 +13,13 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
 }
 
-.navbar-transparent {
-    background-color: transparent !important;
-    backdrop-filter: none !important;
-    border-bottom: none !important;
+.navbar.scrolled {
+    background-color: rgba(15, 15, 25, 0.9) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo {

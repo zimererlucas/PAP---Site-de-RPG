@@ -41,14 +41,11 @@ body {
     object-fit: cover;
 }
 
-/* ============================================
-   CONTAINER FRONTAL (vazio por padrão)
-   ============================================ */
 #foreground {
     position: relative;
     z-index: 10;
     width: 100%;
-    min-height: 100vh;
+    min-height: auto;
     pointer-events: auto;
 }
 
