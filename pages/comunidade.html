@@ -169,6 +169,60 @@
             font-weight: 700;
         }
 
+        /* Rulebook Table Custom Styling */
+        .rule-table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .rule-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0;
+        }
+
+        .rule-table th {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            color: #fff;
+            font-weight: 700;
+            padding: 15px 20px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .rule-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 1rem;
+            transition: background 0.2s ease;
+        }
+
+        .rule-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .rule-table tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            font-weight: 700;
+            color: #a5b4fc;
+        }
+
         @media (max-width: 992px) {
             .reader-layout {
                 flex-direction: column;
@@ -235,6 +289,21 @@
                         </li>
                         <li class="sidebar-item">
                             <a href="#" class="sidebar-link" data-section="habilidades">6. Habilidades e Tiers</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="espacos">7. Espaços de Habilidade</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="progressao">8. Progressão de Personagem</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="treinamento">9. Pontos de Treinamento</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="evolucao-hab">10. Evolução de Habilidades</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link" data-section="magia">11. Arcanismo e Magia</a>
                         </li>
                         <li class="sidebar-item">
                             <a href="#" class="sidebar-link" data-section="dados">Sistema de Dados</a>
@@ -670,7 +739,8 @@
                             <div class="info-card mt-5">
                                 <h4>Tier vs Proficiência</h4>
                                 <p><strong>Tier</strong> define o que a habilidade PODE fazer.
-                                    <strong>Proficiência</strong> define o quão BEM isso é feito.</p>
+                                    <strong>Proficiência</strong> define o quão BEM isso é feito.
+                                </p>
                                 <p class="mb-0">Uma habilidade Tier 4 com proficiência Aprendiz é poderosa, mas
                                     instável. Uma Tier 1 com proficiência Mestre é simples, porém extrema eficiente.</p>
                             </div>
@@ -700,6 +770,514 @@
                                     estratégico.</p>
                                 <p class="small text-white-50 mb-0">Ex: Armaduras manifestadas, aumentos temporários,
                                     estados especiais.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Espaços de Habilidade -->
+                    <section id="espacos" class="rule-section">
+                        <h1 class="rule-title">Capítulo 7 – Espaços de Habilidade</h1>
+                        <div class="rule-text">
+                            <p>Os espaços de habilidade representam o limite mental, físico e mecânico do personagem
+                                para
+                                manter técnicas dominadas, memorizadas e prontas para uso. Eles indicam a capacidade de
+                                sustentar múltiplas habilidades relevantes ao mesmo tempo.</p>
+
+                            <div class="info-card mt-4 mb-4">
+                                <h4><i class="bi bi-person-gear"></i> Limite Inicial</h4>
+                                <p class="mb-0">Todo personagem inicia no <strong>nível 0 com 5 espaços de
+                                        habilidade</strong> disponíveis.</p>
+                            </div>
+
+                            <p>Cada habilidade consome espaços de acordo com seu Tier. Quanto maior o Tier, mais espaços
+                                ela ocupa. Habilidades de <strong>Tier 0 (Cotidiano)</strong> não consomem espaços.</p>
+
+                            <h3 class="mt-5 mb-4">Evolução e Limites</h3>
+                            <p>Quando uma habilidade sobe de Tier, o consumo de espaços aumenta imediatamente. Caso não
+                                haja espaços livres, você deve:</p>
+
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Adquirir Espaços</h4>
+                                        <p class="small">Obter mais espaços subindo de nível ou por itens especiais.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Desativar</h4>
+                                        <p class="small">Guardar outra habilidade para liberar o espaço necessário.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Adiar</h4>
+                                        <p class="small">Aguardar para evoluir a técnica até cumprir os requisitos.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pilar-card mt-4">
+                                <h4>Habilidades Guardadas</h4>
+                                <p>Personagens podem guardar (desativar) habilidades para liberar espaços. Este processo
+                                    (e a reativação) exige um <strong>Descanso Longo</strong>.</p>
+                                <p class="small text-white-50 mb-0">Habilidades guardadas continuam conhecidas, mas não
+                                    concedem nenhum bônus ou efeito prático.</p>
+                            </div>
+
+                            <p class="mt-4">O gerenciamento desses espaços é vital. Decidir quais habilidades manter
+                                ativas define seu papel em um grupo e sua identidade estratégica dentro da narrativa.
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section: Progressão de Personagem -->
+                    <section id="progressao" class="rule-section">
+                        <h1 class="rule-title">Capítulo 8 – Progressão de Personagem</h1>
+                        <div class="rule-text">
+                            <p>A progressão não é automática, nem baseada apenas em combates vencidos ou marcos. Um
+                                personagem evolui conforme acumula domínio, desenvolve habilidades mais complexas e
+                                passa a sustentar um conjunto maior de técnicas relevantes. O nível é consequência desse
+                                processo.</p>
+
+                            <div class="info-card mt-4">
+                                <h4><i class="bi bi-graph-up-arrow"></i> Evolução Estrutural</h4>
+                                <p>O nível define a quantidade de pontos recebidos e o <strong>limite máximo da soma de
+                                        Tiers</strong> das habilidades ativas.</p>
+                            </div>
+
+                            <p class="mt-4">O aumento de nível ocorre automaticamente quando a soma dos Tiers de suas
+                                habilidades ativas ultrapassa o limite atual. Habilidades de <strong>Tier 0</strong> não
+                                contam para este cálculo.</p>
+
+                            <h3 class="mt-5 mb-4">Tabela de Progressão</h3>
+                            <div class="rule-table-container">
+                                <table class="rule-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nível</th>
+                                            <th>Pontos de Status</th>
+                                            <th>Soma Máxima de Tiers</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="level-badge">0</span></td>
+                                            <td>+0</td>
+                                            <td>até 6</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">1</span></td>
+                                            <td>+5</td>
+                                            <td>até 9</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">2</span></td>
+                                            <td>+6</td>
+                                            <td>até 12</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">3</span></td>
+                                            <td>+10</td>
+                                            <td>até 15</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">4</span></td>
+                                            <td>+7</td>
+                                            <td>até 18</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">5</span></td>
+                                            <td>+12</td>
+                                            <td>até 21</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">6</span></td>
+                                            <td>+8</td>
+                                            <td>até 24</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">7</span></td>
+                                            <td>+14</td>
+                                            <td>até 27</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">8</span></td>
+                                            <td>+10</td>
+                                            <td>até 30</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">9</span></td>
+                                            <td>+8</td>
+                                            <td>até 33</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">10</span></td>
+                                            <td>+20</td>
+                                            <td>até 36</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pilar-card mt-4">
+                                <h4>Investimento de Pontos</h4>
+                                <p>Ao subir de nível, os pontos recebidos podem ser utilizados para aumentar atributos,
+                                    status, liberar novos espaços ou acessar progressões internas.</p>
+                                <p class="small text-white-50 mb-0">Reorganização de habilidades e ativação de novas
+                                    capacidades exigem um <strong>Descanso Longo</strong>.</p>
+                            </div>
+
+                            <p class="mt-4">O nível reflete a evolução natural do personagem. Itens ou efeitos
+                                temporários podem ultrapassar limites pontuais, mas nunca alteram a progressão base do
+                                sistema.</p>
+                        </div>
+                    </section>
+
+                    <!-- Section: Pontos de Treinamento -->
+                    <section id="treinamento" class="rule-section">
+                        <h1 class="rule-title">Capítulo 9 – Pontos de Treinamento (PT)</h1>
+                        <div class="rule-text">
+                            <p>Os Pontos de Treinamento (PT) representam o progresso prático do personagem no domínio de
+                                suas habilidades. Elas não evoluem automaticamente com o nível; elas evoluem porque
+                                foram treinadas.</p>
+
+                            <div class="info-card text-center mt-4">
+                                <h4>Fórmula do Treinamento</h4>
+                                <div class="h2 font-monospace my-3"
+                                    style="color: #6366f1; word-spacing: -5px; font-weight: 700;">PT = (Qualidade ×
+                                    Facilidade) ÷ Tempo</div>
+                            </div>
+
+                            <div class="row g-4 mt-2">
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Qualidade (1 a 5)</h4>
+                                        <p class="small">O quão bem o treino é conduzido. Considera foco, método,
+                                            disciplina e eficiência.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Facilidade (1 a 5)</h4>
+                                        <p class="small">Afinidade natural, bons instrutores, equipamentos adequados ou
+                                            condições favoráveis.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="pilar-card h-100">
+                                        <h4>Tempo (Valores Fixos)</h4>
+                                        <p class="small">Duração do treinamento. Quanto menor o valor de Tempo, maior o
+                                            ganho de PT.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Escala de Tempo</h3>
+                            <div class="rule-table-container">
+                                <table class="rule-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Valor de Tempo</th>
+                                            <th>Duração Narrativa</th>
+                                            <th>Descrição do Treino</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="level-badge">10</span></td>
+                                            <td>Algumas horas</td>
+                                            <td>Treino rápido ou improvisado</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">8</span></td>
+                                            <td>Um dia</td>
+                                            <td>Sessão intensa de curta duração</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">6</span></td>
+                                            <td>Alguns dias</td>
+                                            <td>Treinamento focado contínuo</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">4</span></td>
+                                            <td>Uma semana</td>
+                                            <td>Rotina disciplinada</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">3</span></td>
+                                            <td>Duas semanas</td>
+                                            <td>Treinamento prolongado</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">2</span></td>
+                                            <td>Um mês</td>
+                                            <td>Dedicação quase total</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="level-badge">1</span></td>
+                                            <td>Um ano ou mais</td>
+                                            <td>Aperfeiçoamento extremo</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pilar-card mt-5">
+                                <h4>Aplicação dos Pontos</h4>
+                                <p>PT podem ser gastos para evoluir <strong>proficiências internas</strong> de uma
+                                    habilidade: reduzir custos de Mana/Estamina, aumentar duração, alcance, aplicações
+                                    ou desbloquear variações.</p>
+                                <p class="small text-white-50 mb-0">Toda habilidade recém adquirida inicia com
+                                    proficiência <strong>Iniciante</strong>.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Evolução de Habilidades -->
+                    <section id="evolucao-hab" class="rule-section">
+                        <h1 class="rule-title">Capítulo 10 – Evolução de Habilidades</h1>
+                        <div class="rule-text">
+                            <p>Habilidades possuem duas camadas distintas: o <strong>Tier</strong> (peso estrutural e
+                                potência)
+                                e a <strong>Proficiência</strong> (domínio técnico). Um personagem pode possuir um poder
+                                avassalador que mal consegue controlar, ou ser um mestre absoluto em uma técnica
+                                simples.</p>
+
+                            <div class="row g-4 mt-2">
+                                <div class="col-md-6">
+                                    <div class="info-card h-100">
+                                        <h4><i class="bi bi-diagram-3"></i> Tier da Habilidade</h4>
+                                        <p class="mb-2"><em>"Quão complexa essa habilidade é?"</em></p>
+                                        <ul class="small mb-0">
+                                            <li>Define o valor estrutural bruto.</li>
+                                            <li>Consome capacidade total (limite por nível).</li>
+                                            <li>Determina o impacto e alcance potencial.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-card h-100">
+                                        <h4><i class="bi bi-person-gear"></i> Proficiência</h4>
+                                        <p class="mb-2"><em>"Quão bem o personagem sabe usar isso?"</em></p>
+                                        <ul class="small mb-0">
+                                            <li>Representa o domínio técnico e controle.</li>
+                                            <li>Afeta desperdício de recursos e precisão.</li>
+                                            <li>Evolui através do uso e treinamento (PT).</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Estágios de Proficiência</h3>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="pilar-card">
+                                        <h4><span class="level-badge me-2">1</span> Iniciante</h4>
+                                        <p class="mb-0">Uso básico e recém-adquirido. Sem bônus adicionais.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="pilar-card">
+                                        <h4><span class="level-badge me-2">2</span> Aprendiz</h4>
+                                        <p>Compreensão fundamental do funcionamento.</p>
+                                        <p class="small text-success mb-0"><i class="bi bi-shield-check"></i> Reduz o
+                                            custo em -1 a -3 Mana ou Estamina.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="pilar-card">
+                                        <h4><span class="level-badge me-2">3</span> Avançado</h4>
+                                        <p>Lógica internalizada e uso fluido.</p>
+                                        <p class="small text-info mb-0"><i class="bi bi-plus-circle"></i> Melhoria de
+                                            aspecto (+alcance, +duração, etc.).</p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="pilar-card">
+                                        <h4><span class="level-badge me-2">4</span> Especialista</h4>
+                                        <p>Entendimento profundo de limites e possibilidades.</p>
+                                        <p class="small text-warning mb-0"><i class="bi bi-stars"></i> Duas melhorias de
+                                            aspecto (+alcance, +duração, etc.).</p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="pilar-card">
+                                        <h4><span class="level-badge me-2">5</span> Mestre</h4>
+                                        <p>Domínio excepcional, extensão da vontade.</p>
+                                        <p class="small text-primary mb-0"><i class="bi bi-infinity"></i> Custos mínimos
+                                            e eficiência absoluta.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Custos de Evolução (PT)</h3>
+                            <div class="rule-table-container">
+                                <table class="rule-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Proficiência Alcançada</th>
+                                            <th>Custo em PT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Aprendiz</td>
+                                            <td><span class="level-badge">2 PT</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Avançado</td>
+                                            <td><span class="level-badge">3 PT</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Especialista</td>
+                                            <td><span class="level-badge">4 PT</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mestre</td>
+                                            <td><span class="level-badge">5 PT</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Arcanismo e Magia -->
+                    <section id="magia" class="rule-section">
+                        <h1 class="rule-title">Capítulo 11 – Arcanismo e Magia</h1>
+                        <div class="rule-text">
+                            <p>A magia não é tratada como uma lista fixa de feitiços nem como uma força destrutiva. Ela
+                                é
+                                um fenômeno estrutural, regido por limites claros, formas de manifestação bem definidas
+                                e uma relação direta entre compreensão, domínio e custo. A magia existe como parte do
+                                mundo, não como uma exceção às suas regras.</p>
+
+                            <div class="info-card mt-4">
+                                <h4><i class="bi bi-magic"></i> O Arcanismo</h4>
+                                <p>Representa a capacidade do personagem de compreender, manipular e sustentar
+                                    manifestações mágicas. Ele não mede talento inato ou poder bruto, mas sim o alcance
+                                    estrutural da magia que o personagem consegue operar sem colapsar o efeito ou romper
+                                    sua integridade física e mental.</p>
+                                <p class="small text-white-50 mb-0">Ter Arcanismo alto não significa acesso irrestrito,
+                                    mas sim a capacidade de lidar com manifestações mais complexas e exigentes.</p>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">A Natureza da Magia</h3>
+                            <div class="pilar-card mb-4">
+                                <p>A magia é única por indivíduo. Um personagem normalmente possui um único tipo de
+                                    magia. Casos de múltiplas magias puras são raros e tratados como exceções.</p>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <p class="small"><strong>Múltiplas Magias (Raro):</strong> Água + Fogo
+                                            resultando no uso pleno de ambas.</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="small"><strong>Mescla (Comum):</strong> Fusão em nova manifestação,
+                                            como Água + Terra = Lama.</p>
+                                    </div>
+                                </div>
+                                <div class="info-card bg-transparent border-0 p-0 mt-3">
+                                    <p class="small mb-1"><strong>Exemplo de Progressão:</strong></p>
+                                    <div class="d-flex align-items-center gap-2 text-info">
+                                        <span>Fogo</span><i class="bi bi-arrow-right"></i>
+                                        <span>Raio</span><i class="bi bi-arrow-right"></i>
+                                        <span>Plasma</span><i class="bi bi-arrow-right"></i>
+                                        <span>Infernal</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Origem da Magia</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100 border-primary">
+                                        <h4>Magia Inata</h4>
+                                        <p>Presente desde o nascimento, integrada à identidade. Manifesta-se de forma
+                                            instintiva.</p>
+                                        <p class="small text-primary"><i class="bi bi-plus-circle"></i> Inicia com
+                                            Arcanismo em 2.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100">
+                                        <h4>Magia Aprendida</h4>
+                                        <p>Surge por estudo ou infusão externa. Exige controle consciente e preparo, mas
+                                            possui facilidade em diversificar formas.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Mana e Manifestação</h3>
+                            <p>A Mana é o combustível, mas não a magia. Ela atua sobre o biológico e espiritual, mas não
+                                interage com matéria física por si só.</p>
+                            <div class="info-card text-center">
+                                <span class="badge bg-secondary me-2">Mana = Recurso</span>
+                                <span class="badge bg-primary me-2">Magia = Mecanismo</span>
+                                <span class="badge bg-info">Efeito = Manifestação</span>
+                            </div>
+                            <p class="small mt-3">Sempre que um efeito gera impacto físico, algo foi criado, alterado ou
+                                movido por meio de uma manifestação. Formas simples podem não exigir Mana, mas
+                                manifestações instáveis sempre demandam custo.</p>
+
+                            <h3 class="mt-5 mb-4">Patamares de Arcanismo</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100">
+                                        <h4><span class="level-badge me-2">2</span> Fortificação</h4>
+                                        <p class="small">Uso exclusivo sobre o próprio corpo (reforço biológico,
+                                            adaptação, aumento de atributos). Nunca afeta alvos externos.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100">
+                                        <h4><span class="level-badge me-2">5</span> Controle</h4>
+                                        <p class="small">Manipular efeitos já existentes no ambiente (direcionar fogo já
+                                            aceso, água corrente). Não cria matéria do zero.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100 border-warning">
+                                        <h4><span class="level-badge me-2">10</span> Mandinga</h4>
+                                        <p class="small">Atuação direta sobre outros seres (fortalecer aliados,
+                                            enfraquecer inimigos, impor condições).</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card h-100 border-info">
+                                        <h4><span class="level-badge me-2">15</span> Criação</h4>
+                                        <p class="small">Criar manifestações independentes (conjurar objetos, barreiras,
+                                            fenômenos elementais). Seguem regras físicas normais.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="pilar-card border-danger">
+                                        <h4><span class="level-badge me-2">20</span> Transmutação</h4>
+                                        <p>Alterar a própria natureza. O personagem passa a existir como sua magia.</p>
+                                        <p class="small mb-0">Envolve um <strong>Núcleo Vital</strong>. Magos poderosos
+                                            podem mover o núcleo pela sua Mana, tornando-se onipresentes em uma área
+                                            limitada, com custo altíssimo.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-5 mb-4">Círculos Mágicos e Classificação</h3>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Círculos Conhecidos</h4>
+                                        <p class="small mb-0"><strong>Zéfiro, Piro, Pifu, Geo, Imu e Sico.</strong>
+                                            Padrões estruturais que influenciam forma e aplicações.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="pilar-card">
+                                        <h4>Naturais vs Artificiais</h4>
+                                        <p class="small"><strong>Naturais:</strong> Estáveis (ex: Magias de Caos).
+                                            <strong>Artificiais:</strong> Criações experimentais (ex: Armadilha +
+                                            Explosão).</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
