@@ -20,6 +20,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Carregar campanha e personagens
     await loadCampanha();
+
+    // Iniciar UI compartilhada de turnos (iniciativa + histórico)
+    carregarIniciativa();
+    iniciarHistoricoDadosCampanha();
 });
 
 async function loadCampanha() {
@@ -95,8 +99,8 @@ async function loadPersonagens() {
         console.log('Seu personagem:', seuPersonagem);
         console.log('Outros personagens:', outrosPersonagens);
 
-        // Mostrar seu personagem
-        if (seuPersonagem) {
+        // Mostrar seu personagem (se existir o container correspondente)
+        if (seuPersonagem && seuPersonagemDiv) {
             meuPersonagemId = seuPersonagem.personagem.id;
             seuPersonagemDiv.innerHTML = `
                 <div class="card" style="background: rgba(26, 42, 78, 0.4); border: 2px solid #667eea; backdrop-filter: blur(8px);">
@@ -120,6 +124,8 @@ async function loadPersonagens() {
                     </div>
                 </div>
             `;
+        } else if (seuPersonagem && !seuPersonagemDiv) {
+            console.warn('Elemento #seuPersonagem não encontrado na página, pulando destaque do personagem.');
         }
 
         loadingPersonagens.style.display = 'none';

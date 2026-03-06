@@ -53,6 +53,41 @@
             background: #1f2937;
             color: white;
         }
+
+        /* Estilos para as abas (Tabs) */
+        .nav-tabs {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tabs .nav-link {
+            color: rgba(255, 255, 255, 0.6);
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #fff;
+            background: transparent;
+            position: relative;
+        }
+
+        .nav-tabs .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color, #667eea);
+            box-shadow: 0 0 10px #667eea;
+        }
     </style>
 </head>
 
@@ -102,6 +137,16 @@
             <div class="tab-content">
                 <!-- Tab: Narrador -->
                 <div class="tab-pane fade show active" id="narrador">
+                    <!-- Barra de pesquisa (Narrador) -->
+                    <div class="row mb-3">
+                        <div class="col-md-6 col-lg-4">
+                            <input type="text"
+                                id="campanhaNarradorSearchInput"
+                                class="form-control"
+                                placeholder="Pesquisar campanha pelo nome...">
+                        </div>
+                    </div>
+
                     <!-- Loading State -->
                     <div id="loadingNarrador" class="text-center py-5">
                         <div class="spinner-border" role="status">
@@ -122,6 +167,16 @@
 
                 <!-- Tab: Jogador -->
                 <div class="tab-pane fade" id="jogador">
+                    <!-- Barra de pesquisa (Jogador) -->
+                    <div class="row mb-3">
+                        <div class="col-md-6 col-lg-4">
+                            <input type="text"
+                                id="campanhaJogadorSearchInput"
+                                class="form-control"
+                                placeholder="Pesquisar campanha pelo nome...">
+                        </div>
+                    </div>
+
                     <!-- Loading State -->
                     <div id="loadingJogador" class="text-center py-5">
                         <div class="spinner-border" role="status">
@@ -141,7 +196,7 @@
                     <div id="campanhasJogadorContainer" class="row g-4"></div>
 
                     <!-- Botão para entrar em campanha -->
-                    <div id="btnEntrarBottom" class="text-center mt-4">
+                    <div id="btnEntrarBottom" class="text-center mt-4" style="display: none;">
                         <button class="btn btn-primary" onclick="showEntrarCampanhaModal()">🔓 Entrar em Campanha com
                             Código</button>
                     </div>

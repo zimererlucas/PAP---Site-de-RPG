@@ -97,7 +97,7 @@ async function carregarMagias() {
                         <div class="stat-pill"><span class="stat-label">Estamina</span><span class="stat-value">${magia.custo_estamina || 0}</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
                         ${magia.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${magia.duracao_turnos} turnos</span></div>` : ''}
-                        ${magia.ativa && magia.turnos_restantes !== null && magia.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${magia.turnos_restantes}</span></div>` : ''}
+                        ${magia.ativa && magia.turnos_restantes !== null && magia.turnos_restantes !== undefined ? `<div class="stat-pill"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${magia.turnos_restantes}</span></div>` : ''}
                     </div>
                     <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(magia.descricao || '-') : (magia.descricao || '-')}</div>
                     ${botoesDados}
@@ -176,7 +176,7 @@ async function carregarHabilidades() {
                         <div class="stat-pill"><span class="stat-label">Estamina</span><span class="stat-value">${hab.custo_estamina || 0}</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
                         ${hab.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${hab.duracao_turnos} turnos</span></div>` : ''}
-                        ${hab.ativa && hab.turnos_restantes !== null && hab.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${hab.turnos_restantes}</span></div>` : ''}
+                        ${hab.ativa && hab.turnos_restantes !== null && hab.turnos_restantes !== undefined ? `<div class="stat-pill"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${hab.turnos_restantes}</span></div>` : ''}
                     </div>
                     <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(hab.descricao || '-') : (hab.descricao || '-')}</div>
                     ${botoesDados}
@@ -309,7 +309,7 @@ async function carregarItens() {
                         <div class="stat-pill"><span class="stat-label">🎲 Dados</span><span class="stat-value">${dadosDisplay}</span></div>
                         <div class="stat-pill"><span class="stat-label">Bônus</span><span class="stat-value">${bonusText}</span></div>
                         ${item.duracao_turnos ? `<div class="stat-pill"><span class="stat-label">⏱️ Duração</span><span class="stat-value">${item.duracao_turnos} turnos</span></div>` : ''}
-                        ${item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined ? `<div class="stat-pill" style="background: #ffd700; color: #000;"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${item.turnos_restantes}</span></div>` : ''}
+                        ${item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined ? `<div class="stat-pill"><span class="stat-label">⏳ Restantes</span><span class="stat-value">${item.turnos_restantes}</span></div>` : ''}
                     </div>
                     <div class="descricao-detalhe"><strong>Descrição:</strong> ${typeof marked !== 'undefined' ? marked.parse(item.descricao || '-') : (item.descricao || '-')}</div>
                     ${botoesDados}

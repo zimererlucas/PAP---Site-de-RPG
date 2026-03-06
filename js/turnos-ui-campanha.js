@@ -1,205 +1,53 @@
-// Página de Visualizar Campanha (Narrador)
+// ============================================
+// SISTEMA DE TURNOS - UI COMPARTILHADA
+// Usado tanto na visão do Narrador quanto na visão do Jogador
+// Depende de:
+//   - variável global campanhaId (definida em cada página)
+//   - funções de backend em turnos-campanha.js (passarTurnoCampanha, resetarTurnosCampanha)
+// ============================================
 
-let campanhaId = null;
+let campanhaDiceChannel = null;
+const CAMPANHA_DICE_HISTORY_MAX = 100;
 
-document.addEventListener('DOMContentLoaded', async function () {
-    // Verificar se usuário está logado
-    const isLoggedIn = await requireLogin();
-    if (!isLoggedIn) return;
+// ============================================
+// CONTROLES DE TURNOS (BOTÕES / VISUAL)
+// ============================================
 
-    // Obter ID da campanha da URL
-    const params = new URLSearchParams(window.location.search);
-    campanhaId = params.get('id');
+function passarTurnoUI() {
+    if (!campanhaId) return;
 
-    // Sinaliza campanha ativa para broadcast das fichas
-    if (campanhaId) localStorage.setItem('campanha-atual', campanhaId);
+    console.log('🎯 [DEBUG] Passando turno da campanha:', campanhaId);
 
-    if (!campanhaId) {
-        console.error('Campanha não encontrada!');
-        window.location.href = 'campanhas.html';
-        return;
-    }
-
-    // Carregar campanha e personagens
-    await loadCampanha();
-
-    // Iniciar histórico de dados da campanha (UI compartilhada)
-    iniciarHistoricoDadosCampanha();
-});
-
-window.addEventListener('beforeunload', () => {
-    if (campanhaId) localStorage.removeItem('campanha-atual');
-    if (typeof campanhaDiceChannel !== 'undefined' && campanhaDiceChannel) {
-        campanhaDiceChannel.unsubscribe();
-    }
-});
-
-async function loadCampanha() {
-    const loadingState = document.getElementById('loadingState');
-    const campanhaContent = document.getElementById('campanhaContent');
-
-    try {
-        const result = await getCampanhaById(campanhaId);
-
-        if (!result.success) {
-            console.error('Erro ao carregar campanha:', result.error);
-            loadingState.style.display = 'none';
-            return;
+    // Enviar para servidor sem esperar (fire-and-forget)
+    passarTurnoCampanha(campanhaId).then(resultado => {
+        console.log('🎯 [DEBUG] Resultado passarTurnoCampanha:', resultado);
+        if (resultado.success) {
+            console.log('✅', resultado.mensagem);
+            // Disparar evento cross-aba para forçar reload das fichas abertas
+            localStorage.setItem('turno-passado', `${campanhaId}-${Date.now()}`);
+        } else {
+            console.error('❌ Erro ao passar turno:', resultado.error);
         }
-
-        const campanha = result.data;
-
-        // Preencher informações da campanha
-        document.getElementById('campanhaTitle').textContent = `🎭 ${campanha.nome}`;
-        document.getElementById('descricao').textContent = campanha.descricao || '-';
-        document.getElementById('codigo').textContent = campanha.codigo;
-        document.getElementById('status').textContent = campanha.ativa ? '✅ Ativa' : '❌ Inativa';
-
-        loadingState.style.display = 'none';
-        campanhaContent.style.display = 'block';
-
-        // Atualizar exibição de turnos
-        await atualizarExibicaoTurnos(campanha);
-
-        // Carregar personagens
-        await loadPersonagens();
-
-        // Carregar iniciativas locais (UI compartilhada)
-        carregarIniciativa();
-
-    } catch (error) {
-        console.error('Erro ao carregar campanha:', error);
-        // alert('Erro ao carregar campanha'); // Removed alert
-        loadingState.style.display = 'none';
-    }
-}
-
-async function loadPersonagens() {
-    const loadingPersonagens = document.getElementById('loadingPersonagens');
-    const emptyPersonagens = document.getElementById('emptyPersonagens');
-    const container = document.getElementById('personagensContainer');
-
-    try {
-        const result = await getPersonagensDAcampanha(campanhaId);
-
-        if (!result.success) {
-            console.error('Erro ao carregar personagens:', result.error);
-            loadingPersonagens.style.display = 'none';
-            emptyPersonagens.style.display = 'block';
-            return;
-        }
-
-        const personagens = result.data || [];
-        loadingPersonagens.style.display = 'none';
-
-        if (personagens.length === 0) {
-            emptyPersonagens.style.display = 'block';
-            return;
-        }
-
-        // Renderizar personagens (filtrar apenas os com personagem válido)
-        const personagensValidos = personagens.filter(p => p.personagem && p.personagem.id);
-
-        if (personagensValidos.length === 0) {
-            emptyPersonagens.style.display = 'block';
-            return;
-        }
-
-        container.innerHTML = personagensValidos.map(p => {
-            const fotoUrl = p.personagem.foto_url || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-            const fotoStyle = p.personagem.foto_url ? '' : 'background: linear-gradient(135deg, #1a2a4e 0%, #667eea 100%);';
-
-            return `
-            <div class="col-md-6 col-lg-4">
-                <div class="card" style="background: rgba(26, 42, 78, 0.4); border: 1px solid rgba(102, 126, 234, 0.3); backdrop-filter: blur(8px); margin-bottom: 20px;">
-                    <div class="card-header" style="background: rgba(102, 126, 234, 0.1); border-bottom: 1px solid rgba(102, 126, 234, 0.2);">
-                        <h6 class="card-title mb-0" style="color: #fff; font-weight: 600;">🎮 ${p.personagem.nome}</h6>
-                    </div>
-                    <div class="card-body">
-                        <div style="display: flex; gap: 15px; align-items: flex-start;">
-                            <img src="${fotoUrl}" alt="" class="zoomable-image" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #667eea; ${fotoStyle}" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.background='linear-gradient(135deg, #1a2a4e 0%, #667eea 100%)'">
-                            <div style="flex-grow: 1; font-size: 0.9em; color: #e0e0e0; line-height: 1.4;">
-                                <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Raça:</strong> ${p.personagem.raca || '-'}</div>
-                                <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Idade:</strong> ${p.personagem.idade || '-'}</div>
-                                <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Nível:</strong> ${p.personagem.nivel || 0}</div>
-                                <div style="display: flex; gap: 10px;">
-                                    <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Altura:</strong> ${p.personagem.altura || '-'}</div>
-                                    <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Peso:</strong> ${p.personagem.peso || '-'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-transparent border-0 d-flex gap-2">
-                        <button class="btn btn-sm btn-primary w-100" onclick="viewPersonagem('${p.personagem.id}')" style="background: #667eea; border: none;">👁️ Ver Ficha</button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="removerJogador('${p.id}')" style="border-color: rgba(255,68,68,0.5); color: #ff4444;">🗑️</button>
-                    </div>
-                </div>
-            </div>
-            `;
-        }).join('');
-
-    } catch (error) {
-        console.error('Erro ao carregar personagens:', error);
-        loadingPersonagens.style.display = 'none';
-        emptyPersonagens.style.display = 'block';
-    }
-}
-
-function copiarCodigo() {
-    const codigo = document.getElementById('codigo').textContent;
-    navigator.clipboard.writeText(codigo).then(() => {
-        console.log('Código copiado para a área de transferência');
+    }).catch(erro => {
+        console.error('🎯 [DEBUG] Erro CATCH ao passar turno:', erro);
     });
 }
 
-function editarCampanha() {
-    window.location.href = `criar-campanha.html?id=${campanhaId}`;
-}
+function resetarTurnosUI() {
+    if (!campanhaId) return;
 
-function viewPersonagem(id) {
-    window.location.href = `visualizar-ficha.html?id=${id}`;
-}
-
-async function removerJogador(participacaoId) {
-    const confirmed = await showConfirmDialog('Tem certeza que deseja remover este jogador da campanha?');
-    if (!confirmed) return;
-
-    const result = await removerJogadorDaCampanha(participacaoId);
-
-    if (result.success) {
-        console.log('Jogador removido com sucesso!');
-        await loadPersonagens();
-    } else {
-        console.error('Erro ao remover jogador:', result.error);
-    }
-}
-
-async function handleLogout() {
-    const result = await signOutUser();
-
-    if (result.success) {
-        console.log('Logout realizado com sucesso!');
-        window.location.href = '../index.html';
-    } else {
-        console.error('Erro ao fazer logout:', result.error);
-    }
-}
-
-// ============================================
-// SISTEMA DE TURNOS
-// (Funções de UI principais agora em turnos-ui-campanha.js)
-// ============================================
-
-async function atualizarExibicaoTurnos(campanha) {
-    const turnosControl = document.getElementById('turnosControl');
-    const usuarioAtual = await getCurrentUser();
-
-    // Mostrar controle de turnos apenas se for o narrador
-    if (usuarioAtual && campanha.narrador_id === usuarioAtual.id) {
-        turnosControl.style.display = 'block';
-    } else {
-        turnosControl.style.display = 'none';
-    }
+    // Enviar para servidor sem esperar (fire-and-forget)
+    resetarTurnosCampanha(campanhaId).then(resultado => {
+        if (resultado.success) {
+            console.log('✅', resultado.mensagem);
+            // Disparar evento cross-aba para forçar reload das fichas abertas
+            localStorage.setItem('turno-passado', `${campanhaId}-${Date.now()}`);
+        } else {
+            console.error('❌ Erro ao resetar turnos:', resultado.error);
+        }
+    }).catch(erro => {
+        console.error('Erro ao resetar turnos:', erro);
+    });
 }
 
 // ============================================
@@ -563,3 +411,4 @@ function renderHistoricoCampanha(historico) {
         tbody.appendChild(row);
     });
 }
+
