@@ -25,13 +25,30 @@
             margin-top: 20px;
         }
 
-        /* Sidebar Sidebar */
+        /* Sidebar */
         .reader-sidebar {
             flex: 0 0 280px;
             padding: 20px;
             height: fit-content;
             position: sticky;
             top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.5) transparent;
+        }
+
+        .reader-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .reader-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .reader-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
         }
 
         .sidebar-title {
@@ -78,12 +95,26 @@
         .reader-content {
             flex: 1;
             padding: 40px;
-            overflow-y: auto;
             background: rgba(15, 15, 25, 0.95);
             /* Deixa quase sólido para leitura */
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             /* Cantos arredondados */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.5) transparent;
+        }
+
+        .reader-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reader-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .reader-content::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
         }
 
         .rule-section {

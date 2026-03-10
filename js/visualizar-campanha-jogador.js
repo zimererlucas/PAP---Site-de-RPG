@@ -52,6 +52,10 @@ async function loadCampanha() {
         // Carregar personagens
         await loadPersonagens();
 
+        // Inicializar Calendário
+        await inicializarCalendario(campanha);
+        assinarAtualizacoesCalendario();
+
     } catch (error) {
         console.error('Erro ao carregar campanha:', error);
         loadingState.style.display = 'none';

@@ -61,6 +61,10 @@ async function loadCampanha() {
         // Atualizar exibição de turnos
         await atualizarExibicaoTurnos(campanha);
 
+        // Inicializar Calendário
+        await inicializarCalendario(campanha);
+        assinarAtualizacoesCalendario();
+
         // Carregar personagens
         await loadPersonagens();
 
