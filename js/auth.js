@@ -28,31 +28,83 @@ const campanhasNav = document.getElementById('campanhasNav');
  * Atualiza a barra de navegação e a sidebar baseada no estado de autenticação.
  */
 async function updateNavbar() {
-    // Passo CRÍTICO: Pega a sessão atual, que lê o token da URL de redirecionamento.
     const { data: { session } } = await supabase.auth.getSession();
     const user = session?.user;
 
-    // Elementos do index.html
     const loginItem = document.getElementById('loginItem');
     const userItem = document.getElementById('userItem');
-    const userEmail = document.getElementById('userEmail');
+    
+    // Novos elementos da sidebar e perfil
+    const profilePic = document.getElementById('profile-picture');
+    const sidebarPic = document.getElementById('sidebar-pic');
+    const sidebarName = document.getElementById('sidebar-name');
+    const sidebarEmail = document.getElementById('sidebar-email');
+    const sidebarLevel = document.getElementById('sidebar-level');
+    const sidebarBio = document.getElementById('sidebar-bio');
 
     console.log('👤 Estado do Usuário:', user ? 'Logado como ' + user.email : 'Deslogado');
 
     if (userSidebar) userSidebar.classList.remove('open');
 
+    // Resetar modo de edição do username
+    const nameDisplay = document.getElementById('sidebar-name');
+    const nameInput = document.getElementById('sidebar-name-input');
+    const editBtn = document.getElementById('edit-username-btn');
+    const editBioBtn = document.getElementById('edit-bio-btn');
+    if (nameDisplay) nameDisplay.style.display = 'block';
+    if (nameInput) nameInput.style.display = 'none';
+    if (editBtn) editBtn.textContent = '✏️';
+
+    const bioDisplay = document.getElementById('sidebar-bio');
+    const bioInput = document.getElementById('sidebar-bio-input');
+    if (bioDisplay) bioDisplay.style.display = 'block';
+    if (bioInput) bioInput.style.display = 'none';
+    if (editBioBtn) editBioBtn.textContent = '✏️';
+
     if (user) {
         // --- USUÁRIO LOGADO ---
         if (loginItem) loginItem.style.display = 'none';
         if (userItem) userItem.style.display = 'flex';
-        if (userEmail) userEmail.textContent = user.email;
         if (fichasNav) fichasNav.style.display = 'block';
         if (campanhasNav) campanhasNav.style.display = 'block';
+
+        // Pega a foto do Google (user_metadata)
+        const googlePhoto = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+        const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
+
+        if (profilePic) profilePic.src = googlePhoto || '../assets/default-avatar.png'; // Fallback se necessário
+        if (sidebarPic) sidebarPic.src = googlePhoto || '../assets/default-avatar.png';
+        if (sidebarName) sidebarName.textContent = fullName;
+        if (sidebarEmail) sidebarEmail.textContent = user.email;
+
+        // Busca dados extras na tabela 'perfis'
+        try {
+            const { data: profile, error } = await supabase
+                .from('perfis')
+                .select('nivel_conta, bio, username')
+                .eq('id', user.id)
+                .single();
+
+            if (error && error.code !== 'PGRST116') { // PGRST116 = Not Found
+                console.error('Erro ao buscar perfil:', error.message);
+            }
+
+            if (profile) {
+                if (sidebarLevel) sidebarLevel.textContent = profile.nivel_conta || 1;
+                if (sidebarBio) sidebarBio.textContent = profile.bio || 'Nenhuma bio definida.';
+                if (sidebarName && profile.username) sidebarName.textContent = profile.username;
+            } else {
+                // Se não existir perfil, cria um básico (pode ser expandido conforme necessário)
+                await createOrUpdateProfile(user);
+            }
+        } catch (err) {
+            console.error('Erro inesperado ao processar perfil:', err);
+        }
+
     } else {
         // --- USUÁRIO DESLOGADO ---
         if (loginItem) loginItem.style.display = 'flex';
         if (userItem) userItem.style.display = 'none';
-        if (userEmail) userEmail.textContent = '';
         if (fichasNav) fichasNav.style.display = 'none';
         if (campanhasNav) campanhasNav.style.display = 'none';
     }
@@ -68,8 +120,7 @@ async function loginWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            // Garante que o redirecionamento volta para a URL principal do Vercel
-            redirectTo: 'https://genesisrpg.vercel.app/' 
+            redirectTo: window.location.origin + (window.location.pathname.includes('/pages/') ? '/../index.html' : '/index.html')
         }
     });
 
@@ -86,30 +137,40 @@ async function signOutUser() {
     return { success: !error };
 }
 
-// Função placeholder para criação/atualização de perfil (adapte se necessário)
-async function createOrUpdateProfile(user, username = null) {
-    console.log("Salvando perfil para:", user.email);
+// Função para garantir que o perfil existe na tabela 'perfis'
+async function createOrUpdateProfile(user) {
+    const googlePhoto = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+    const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
+
+    const { error } = await supabase
+        .from('perfis')
+        .upsert({
+            id: user.id,
+            username: fullName,
+            avatar_url: googlePhoto,
+            updated_at: new Date()
+        }, { onConflict: 'id' });
+
+    if (error) console.error('Erro ao criar/atualizar perfil:', error.message);
 }
 
-// Adicione esta função ao seu js/auth.js
-
 /**
- * Retorna o usuário logado atualmente ou null.
+ * Obtém o usuário atual de forma segura.
  */
 async function getCurrentUser() {
-    // Usa getSession() para garantir que a sessão foi lida do Storage/URL
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.user || null;
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) return null;
+    return user;
 }
 
 // ===============================================
 // 5. ESCUTADORES DE EVENTOS
 // ===============================================
 
-// Abrir/Fechar Sidebar
+// Abrir/Fechar Sidebar ao clicar no avatar
 if (userAvatarWrapper) {
     userAvatarWrapper.addEventListener('click', (e) => {
-        e.preventDefault();
+        e.stopPropagation(); // Evita fechar imediatamente pelo listener do document
         if (userSidebar) userSidebar.classList.toggle('open');
     });
 }
@@ -118,37 +179,86 @@ if (userAvatarWrapper) {
 document.addEventListener('click', (event) => {
     if (userSidebar && userSidebar.classList.contains('open') && 
         !userSidebar.contains(event.target) && 
-        !userAvatarWrapper.contains(event.target)) {
+        (userAvatarWrapper && !userAvatarWrapper.contains(event.target))) {
         userSidebar.classList.remove('open');
     }
 });
 
-// Botão de Sair (Logout)
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', signOutUser);
-}
+// Botão de Sair (podem haver múltiplos IDs se estiver em várias páginas, ou usamos querySelectorAll)
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'logoutBtn') {
+        signOutUser();
+    }
+});
 
 // Botão de Login
 if (loginBtn) {
     loginBtn.addEventListener('click', loginWithGoogle);
 }
 
+// Lógica para editar username na sidebar
+document.addEventListener('click', async (e) => {
+    const editBtn = e.target.closest('#edit-username-btn');
+    if (!editBtn) return;
+
+    const nameDisplay = document.getElementById('sidebar-name');
+    const nameInput = document.getElementById('sidebar-name-input');
+
+    if (nameInput.style.display === 'none') {
+        // Entrar em modo de edição
+        nameDisplay.style.display = 'none';
+        nameInput.style.display = 'block';
+        nameInput.value = nameDisplay.textContent;
+        nameInput.focus();
+        editBtn.textContent = '💾';
+    } else {
+        // Salvar alterações
+        const newName = nameInput.value.trim().substring(0, 20); // Garantir limite no JS
+        if (newName && newName !== nameDisplay.textContent) {
+            const user = await getCurrentUser();
+            if (user) {
+                const { error } = await supabase
+                    .from('perfis')
+                    .update({ username: newName })
+                    .eq('id', user.id);
+
+                if (!error) {
+                    nameDisplay.textContent = newName;
+                    // Atualizar em todo o lado que o nome aparece
+                    const sidebarName = document.getElementById('sidebar-name');
+                    if (sidebarName) sidebarName.textContent = newName;
+                } else {
+                    console.error('Erro ao salvar username:', error.message);
+                    alert('Erro ao salvar o nome de utilizador.');
+                }
+            }
+        }
+        nameDisplay.style.display = 'block';
+        nameInput.style.display = 'none';
+        editBtn.textContent = '✏️';
+    }
+});
+
+// Salvar ao pressionar Enter no input de username
+document.addEventListener('keydown', (e) => {
+    if (e.target.id === 'sidebar-name-input' && e.key === 'Enter') {
+        const editBtn = document.getElementById('edit-username-btn');
+        if (editBtn) editBtn.click();
+    }
+});
+
 // ===============================================
-// 6. INICIALIZAÇÃO E DETEÇÃO DE SESSÃO (A SOLUÇÃO)
+// 6. INICIALIZAÇÃO E DETEÇÃO DE SESSÃO
 // ===============================================
 
-// Listener de Estado: Captura a mudança de autenticação em tempo real
+// Listener de Estado
 supabase.auth.onAuthStateChange((event, session) => {
     console.log(`🔔 Evento Supabase: ${event}`);
     
-    // Se logou (SIGNED_IN) ou se a página carregou com o token (INITIAL_SESSION)
     if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
         updateNavbar();
         
-        // CORREÇÃO CRÍTICA: Limpa o token da URL (#access_token=...) para o utilizador
         if (window.location.hash && window.location.hash.includes('access_token')) {
-            console.log("🧹 Limpando token da URL...");
-            // Substitui o estado do histórico sem recarregar
             window.history.replaceState(null, '', window.location.pathname);
         }
     } else if (event === 'SIGNED_OUT') {
@@ -156,11 +266,51 @@ supabase.auth.onAuthStateChange((event, session) => {
     }
 });
 
-// Inicialização: Força a verificação da sessão imediatamente no carregamento
+// Inicialização
 (async function init() {
-    console.log("🚀 Auth Script Iniciado. Forçando verificação de sessão...");
+    console.log("🚀 Auth Script Iniciado.");
     await updateNavbar();
-})()
+})();
+// Lógica para editar bio na sidebar
+document.addEventListener('click', async (e) => {
+    const editBtn = e.target.closest('#edit-bio-btn');
+    if (!editBtn) return;
+
+    const bioDisplay = document.getElementById('sidebar-bio');
+    const bioInput = document.getElementById('sidebar-bio-input');
+
+    if (bioInput.style.display === 'none') {
+        // Entrar em modo de edição
+        bioDisplay.style.display = 'none';
+        bioInput.style.display = 'block';
+        bioInput.value = bioDisplay.textContent === 'Nenhuma bio definida.' ? '' : bioDisplay.textContent;
+        bioInput.focus();
+        editBtn.textContent = '💾';
+    } else {
+        // Salvar alterações
+        const newBio = bioInput.value.trim().substring(0, 150); // Garantir limite no JS
+        if (newBio !== bioDisplay.textContent) {
+            const user = await getCurrentUser();
+            if (user) {
+                const { error } = await supabase
+                    .from('perfis')
+                    .update({ bio: newBio || 'Nenhuma bio definida.' })
+                    .eq('id', user.id);
+
+                if (!error) {
+                    bioDisplay.textContent = newBio || 'Nenhuma bio definida.';
+                } else {
+                    console.error('Erro ao salvar bio:', error.message);
+                    alert('Erro ao salvar a bio.');
+                }
+            }
+        }
+        bioDisplay.style.display = 'block';
+        bioInput.style.display = 'none';
+        editBtn.textContent = '✏️';
+    }
+});
+
 /**
  * Bloqueia páginas que exigem login e mostra aviso.
  * Retorna true se o usuário estiver logado.

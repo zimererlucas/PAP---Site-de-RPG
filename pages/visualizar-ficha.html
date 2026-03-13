@@ -604,17 +604,58 @@
 <body>
     <!-- Navbar (estilo do index) -->
     <nav class="navbar">
-        <a href="../index.html" class="logo">Gênesis RPG</a>
+        <a href="../index.html" class="logo">
+            <img src="../assets/GenisisLogov6.png" alt="Logo" class="logo-img">
+            <span>Gênesis RPG</span>
+        </a>
 
         <ul class="nav-list">
             <li><a href="fichas.html" class="nav-link">Fichas</a></li>
             <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
             <li><a href="Sistema.html" class="nav-link">Sistema</a></li>
 
-            <button id="logoutBtn" class="nav-btn">Sair</button>
+            <li id="loginItem" class="nav-action" style="display:none;">
+                <button id="loginBtn" class="nav-btn">Login</button>
+            </li>
+            <li id="userItem" class="nav-action" style="display:none;">
+                <div id="user-avatar-wrapper" class="avatar-wrapper">
+                    <img id="profile-picture" src="" alt="Perfil" class="avatar-img">
+                </div>
             </li>
         </ul>
     </nav>
+
+    <!-- Sidebar de Perfil -->
+    <div id="user-sidebar" class="user-sidebar">
+        <div class="sidebar-header">
+            <img id="sidebar-pic" src="" alt="Foto de Perfil" class="sidebar-avatar">
+            <div class="username-container">
+                <h3 id="sidebar-name">Nome do Utilizador</h3>
+                <button id="edit-username-btn" class="edit-username-btn">✏️</button>
+                <input id="sidebar-name-input" class="username-input" style="display: none;" maxlength="20">
+            </div>
+            <p id="sidebar-email">email@exemplo.com</p>
+        </div>
+        <div class="sidebar-content">
+            <div class="profile-info">
+                <div class="info-item">
+                    <span class="info-label">Nível da Conta</span>
+                    <span id="sidebar-level" class="info-value">1</span>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">
+                        <span>Bio</span>
+                        <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
+                    </div>
+                    <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
+                    <textarea id="sidebar-bio-input" class="bio-input" style="display: none;" maxlength="150"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <button id="logoutBtn" class="nav-btn logout-full">Sair</button>
+        </div>
+    </div>
 
     <div class="container-fluid py-5">
         <div class="row justify-content-center">
@@ -1871,8 +1912,19 @@
 
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/personagens.js"></script>
     <script src="../js/viewer-imagem.js"></script>
     <script src="../js/navbar-scroll.js"></script>
+    <script src="../js/visualizar-ficha.js"></script>
+
+    <!-- Verificar se está logado -->
+    <script>
+        (async function () {
+            await requireLogin();
+        })();
+    </script>
 </body>
 
 </html>

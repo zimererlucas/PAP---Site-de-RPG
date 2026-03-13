@@ -23,10 +23,36 @@
 }
 
 .logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
     color: white;
-    font-size: 2em;
+    font-size: 1.8em;
     font-weight: bold;
-    margin-right: 20px;
+    margin-right: 25px;
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 85px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.6));
+    transition: transform 0.3s ease;
+    animation: logo-rotate 15s linear infinite;
+}
+
+@keyframes logo-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.logo:hover .logo-img {
+    transform: scale(1.1) rotate(5deg);
 }
 
 /* container dos itens */
@@ -167,4 +193,184 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* ------------------------------------- */
+/* 6. PERFIL E SIDEBAR                   */
+/* ------------------------------------- */
+
+.avatar-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-wrapper:hover {
+    transform: scale(1.1);
+    border-color: #667eea;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Sidebar Estilos */
+.user-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px; /* Escondido por padrão */
+    width: 320px;
+    height: 100vh;
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(15px);
+    z-index: 2000;
+    transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.user-sidebar.open {
+    right: 0;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 25px;
+}
+
+.sidebar-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    border: 3px solid #667eea;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.sidebar-header p {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.username-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.username-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.5);
+    border-radius: 4px;
+    color: white;
+    padding: 2px 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    width: 200px;
+}
+
+.edit-username-btn {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.edit-username-btn:hover {
+    color: #8b5cf6;
+}
+
+.sidebar-content {
+    flex-grow: 1;
+}
+
+.info-item {
+    margin-bottom: 20px;
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #667eea;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.bio-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.5);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.info-bio {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 8px;
+    margin: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.sidebar-footer {
+    padding-top: 20px;
+}
+
+.logout-full {
+    width: 100%;
+    text-align: center;
+    background: linear-gradient(45deg, #ff4b2b, #ff416c);
+    padding: 12px !important;
+    border-radius: 8px;
+}
+
+.logout-full::after {
+    display: none; /* Remove o glow padrão para usar o gradiente */
 }

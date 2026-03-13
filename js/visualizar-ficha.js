@@ -126,8 +126,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.warn('Erro ao verificar campanha do personagem:', err);
     }
 
-    // Atualizar navbar
-    atualizarNavbar();
 
     // Carregar ficha
     await loadFicha();
@@ -153,15 +151,6 @@ window.addEventListener('storage', (event) => {
     }
 });
 
-function irParaLogin() {
-    window.location.href = 'index.html';
-}
-
-function fazerLogout() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('session');
-    window.location.href = 'index.html';
-}
 
 // ============================================
 // ATUALIZAÇÃO EM TEMPO REAL DA FICHA
@@ -240,19 +229,6 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-function atualizarNavbar() {
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    if (user) {
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'block';
-    } else {
-        if (loginBtn) loginBtn.style.display = 'block';
-        if (logoutBtn) logoutBtn.style.display = 'none';
-    }
-}
 
 async function loadFicha() {
     const loadingState = document.getElementById('loadingState');
