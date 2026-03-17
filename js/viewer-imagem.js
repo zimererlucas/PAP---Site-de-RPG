@@ -1,5 +1,5 @@
 /**
- * Sistema Global de Visualização de Imagens para o Gênesis RPG
+ * Sistema Global de Visualização de Imagens para o Projeto Gênesis
  */
 
 function ampliarImagem(url) {

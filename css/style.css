@@ -113,7 +113,8 @@ body {
 }
 
 .form-control::placeholder {
-    color: #f9fafb !important; /* quase branco, como o texto das fichas */
+    color: #f9fafb !important;
+    /* quase branco, como o texto das fichas */
     opacity: 1;
 }
 
@@ -129,7 +130,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: -100px; /* Offset for navbar to be truly centered if navbar is fixed */
+    margin-top: -100px;
+    /* Offset for navbar to be truly centered if navbar is fixed */
 }
 
 .hero h1 {
