@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidade - Projeto Gênesis</title>
+    <meta name="description" content="Partilha personagens, mundos, homebrews e narrativas com a comunidade do Projeto Gênesis.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/galaxy.css">
+    <link rel="stylesheet" href="../css/glassmorphism.css">
+    <link rel="stylesheet" href="../css/comunidade.css">
+
+    <!-- Supabase (antes dos scripts) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- Fundo nebulosa -->
+    <canvas id="nebula-canvas"></canvas>
+
+    <div id="foreground">
+
+        <!-- ══════════════════════════════════
+             NAVBAR
+        ══════════════════════════════════ -->
+        <nav class="navbar">
+            <a href="../index.html" class="logo">
+                <img src="../assets/GenisisLogov6.png" alt="Logo" class="logo-img">
+                <span>Projeto Gênesis</span>
+            </a>
+            <ul class="nav-list">
+                <li><a href="fichas.html"     class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html"  class="nav-link">Campanhas</a></li>
+                <li><a href="comunidade.html" class="nav-link active">Comunidade</a></li>
+                <li><a href="Sistema.html"    class="nav-link">Sistema</a></li>
+                <li id="loginItem" class="nav-action" style="display:none;">
+                    <button id="loginBtn" class="nav-btn">Login</button>
+                </li>
+                <li id="userItem" class="nav-action" style="display:none;">
+                    <div id="user-avatar-wrapper" class="avatar-wrapper">
+                        <img id="profile-picture" src="" alt="Perfil" class="avatar-img">
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Sidebar de Perfil (igual às outras páginas) -->
+        <div id="user-sidebar" class="user-sidebar">
+            <div class="sidebar-header">
+                <img id="sidebar-pic" src="" alt="Foto de Perfil" class="sidebar-avatar">
+                <div class="username-container">
+                    <h3 id="sidebar-name">Nome do Utilizador</h3>
+                    <button id="edit-username-btn" class="edit-username-btn">✏️</button>
+                    <input id="sidebar-name-input" class="username-input" style="display: none;" maxlength="20">
+                </div>
+                <p id="sidebar-email">email@exemplo.com</p>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="info-label">Nível da Conta</span>
+                        <span id="sidebar-level" class="info-value">1</span>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <span>Bio</span>
+                            <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
+                        </div>
+                        <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
+                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;" maxlength="150"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="nav-btn logout-full">Sair</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════
+             CONTEÚDO PRINCIPAL
+        ══════════════════════════════════ -->
+        <div class="comunidade-page">
+
+            <!-- Cabeçalho -->
+            <div class="com-header">
+                <h1>🌐 Comunidade</h1>
+                <button id="btnPublicar" class="btn-publicar" style="display:none;">
+                    ✨ Publicar Post
+                </button>
+            </div>
+
+            <!-- ══ DESTAQUES ══ -->
+            <section class="destaques-section" id="destaquesSection" style="display:none;">
+                <div class="destaques-row">
+                    <!-- Painel Semana -->
+                    <div class="destaque-panel semana">
+                        <div class="destaque-panel-title">🔥 Mais Votados da Semana</div>
+                        <div class="destaque-list" id="destaqueSemanaList">
+                            <!-- JS renders here -->
+                        </div>
+                    </div>
+                    <!-- Painel Mês -->
+                    <div class="destaque-panel mes">
+                        <div class="destaque-panel-title">🌟 Mais Votados do Mês</div>
+                        <div class="destaque-list" id="destaqueMesList">
+                            <!-- JS renders here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══ TOOLBAR ══ -->
+            <div class="feed-toolbar">
+                <div class="feed-toolbar-title">Explorar Comunidade</div>
+                <div class="sort-btns">
+                    <button class="sort-btn active" data-ordem="recentes"  onclick="mudarOrdem('recentes')">🕒 Recentes</button>
+                    <button class="sort-btn"         data-ordem="votados"   onclick="mudarOrdem('votados')">🔥 Mais Votados</button>
+                    <button class="sort-btn"         data-ordem="tendencia" onclick="mudarOrdem('tendencia')">📈 Tendências</button>
+                </div>
+            </div>
+
+            <!-- ══ FEED ══ -->
+            <div id="postsFeed">
+                <!-- Cards renderizados no JS -->
+            </div>
+            
+            <div class="feed-loading" id="feedLoading">
+                <div class="spinner"></div>
+                <p>A carregar posts…</p>
+            </div>
+            <div class="feed-empty" id="feedEmpty" style="display:none;">
+                <div class="feed-empty-icon">📜</div>
+                <h3>Nenhum post ainda</h3>
+                <p>Sê o primeiro a partilhar conteúdo com a comunidade!</p>
+            </div>
+
+            <!-- Sentinel para infinite scroll -->
+            <div id="scrollSentinel" style="display:none;">
+                <div class="load-more-spinner"></div>
+            </div>
+
+        </div><!-- /comunidade-page -->
+
+    </div><!-- /foreground -->
+
+    <!-- ══════════════════════════════════════════
+         MODAL — CRIAR POST
+    ══════════════════════════════════════════ -->
+    <div class="modal-overlay" id="modalCriarPost">
+        <div class="modal-box" style="position:relative;">
+            <button class="modal-close" onclick="fecharModalCriar()">✕</button>
+            <h2>✨ Publicar Post</h2>
+
+            <form id="formCriarPost" onsubmit="submitPost(event)">
+
+                <!-- Tipo de post -->
+                <div class="form-group">
+                    <label>Tipo de Post</label>
+                    <div class="tipo-selector">
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-homebrew" value="homebrew" checked>
+                            <label for="tipo-homebrew" style="--tipo-color:#f59e0b; --tipo-rgb:245,158,11;">
+                                <span class="tipo-icon">⚗️</span>Homebrew
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-personagem" value="personagem">
+                            <label for="tipo-personagem" style="--tipo-color:#8b5cf6; --tipo-rgb:139,92,246;">
+                                <span class="tipo-icon">🧙</span>Personagem
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-mundo" value="mundo">
+                            <label for="tipo-mundo" style="--tipo-color:#10b981; --tipo-rgb:16,185,129;">
+                                <span class="tipo-icon">🌍</span>Mundo
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-narrativa" value="narrativa">
+                            <label for="tipo-narrativa" style="--tipo-color:#3b82f6; --tipo-rgb:59,130,246;">
+                                <span class="tipo-icon">📖</span>Narrativa
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-outro" value="outro">
+                            <label for="tipo-outro" style="--tipo-color:#6b7280; --tipo-rgb:107,114,128;">
+                                <span class="tipo-icon">💬</span>Outro
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referência a ficha (só aparece se tipo=personagem) -->
+                <div class="form-group ref-section" id="refPersonagemSection">
+                    <label>Vincular a uma Ficha (opcional)</label>
+                    <select id="selectPersonagem">
+                        <option value="">— Nenhuma —</option>
+                    </select>
+                    <div id="fichaPreview" style="display:none; margin-top:10px; padding:10px; background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:8px; font-size:0.82rem; color:rgba(255,255,255,0.7);">
+                    </div>
+                </div>
+
+                <!-- Referência a campanha (aparece em "mundo" e "narrativa") -->
+                <div class="form-group ref-section" id="refCampanhaSection">
+                    <label>Vincular a uma Campanha (opcional)</label>
+                    <select id="selectCampanha">
+                        <option value="">— Nenhuma —</option>
+                    </select>
+                </div>
+
+                <!-- Título -->
+                <div class="form-group">
+                    <label for="postTitulo">Título *</label>
+                    <input type="text" id="postTitulo" placeholder="Dá um título ao teu post…" maxlength="150" required>
+                </div>
+
+                <!-- Conteúdo -->
+                <div class="form-group">
+                    <label for="postConteudo">Conteúdo *</label>
+                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo…" maxlength="5000" required></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="fecharModalCriar()">Cancelar</button>
+                    <button type="submit" class="btn-submit" id="btnSubmitPost">Publicar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MODAL — DETALHE DO POST
+    ══════════════════════════════════════════ -->
+    <div class="modal-overlay" id="modalDetalhePost">
+        <div class="modal-box modal-detail-box" style="position:relative;">
+            <button class="modal-close" onclick="fecharModalDetalhe()">✕</button>
+
+            <!-- Conteúdo preenchido dinamicamente -->
+            <div id="detalheConteudo"></div>
+
+            <!-- Comentários -->
+            <div class="comments-section">
+                <div class="comments-title">💬 Comentários (<span id="comentariosCount">0</span>)</div>
+                <div id="comentariosList"></div>
+
+                <!-- Input de novo comentário (apenas logado) -->
+                <div id="comentarioInputArea" style="display:none;">
+                    <div class="comment-input-row">
+                        <textarea id="novoComentario" placeholder="Escreve um comentário…" maxlength="1000" rows="1"
+                            oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px'"></textarea>
+                        <button class="btn-comment-send" onclick="enviarComentario()" title="Enviar">➤</button>
+                    </div>
+                </div>
+                <p id="comentarioLoginAviso" style="font-size:0.82rem; color:rgba(255,255,255,0.35); display:none;">
+                    Faz <a href="#" onclick="loginWithGoogle(); return false;" style="color:#a78bfa;">login</a> para comentar.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de feedback -->
+    <div class="toast-comunidade" id="toastComunidade"></div>
+
+    <!-- ══════════════════════════════════════════
+         SCRIPTS
+    ══════════════════════════════════════════ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="../js/galaxy.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/navbar-scroll.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/personagens.js"></script>
+    <script src="../js/comunidade.js"></script>
+
+</body>
+</html>
