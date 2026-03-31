@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function carregarVotosDoUser() {
     if (!currentUser) return;
     try {
+        // Votos em POSTS
         const { data, error } = await supabase
             .from('votos_posts')
             .select('post_id, tipo_voto')
@@ -100,16 +101,16 @@ async function carregarVotosDoUser() {
             data.forEach(v => { userVotes[v.post_id] = v.tipo_voto; });
         }
 
-        // Carregar votos em comentários
-        const { data: cData, error: cError } = await supabase
+        // Votos em COMENTÁRIOS
+        const { data: dataC, error: errorC } = await supabase
             .from('votos_comentarios')
             .select('comentario_id, tipo_voto')
             .eq('user_id', currentUser.id);
-        if (!cError && cData) {
+        if (!errorC && dataC) {
             userCommentVotes = {};
-            cData.forEach(v => { userCommentVotes[v.comentario_id] = v.tipo_voto; });
+            dataC.forEach(v => { userCommentVotes[v.comentario_id] = v.tipo_voto; });
         }
-    } catch (e) { console.warn('votos:', e); }
+    } catch (e) { console.warn('Erro ao carregar votos:', e); }
 }
 
 // ================================================================
@@ -398,14 +399,17 @@ function actualizarVotoUI(postId, novoScore, meuVoto) {
     // Actualizar todos os elementos que mostram o score deste post (Card e Modal)
     const displays = document.querySelectorAll(`.score-val-${postId}`);
     displays.forEach(el => {
-        const isCard = el.id.startsWith('score-') && !el.id.includes('detalhe');
+        const isCard = el.id && el.id.startsWith('score-') && !el.id.includes('detalhe');
         el.textContent = isCard ? `▲ ${novoScore}` : novoScore;
         el.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-val-${postId}`;
     });
 
-    // Actualizar todos os grupos de botões ligados a este post
-    const postCards = document.querySelectorAll(`[data-post-id="${postId}"], #modalDetalhePost`);
-    postCards.forEach(container => {
+    // Actualizar todos os grupos de botões ligados a este post (apenas no container do POST, não nos comentários)
+    const postContainers = document.querySelectorAll(`[data-post-id="${postId}"], .post-footer, #modalDetalhePost .vote-group`);
+    postContainers.forEach(container => {
+        // Garantir que não estamos a mexer nos votos de comentários
+        if (container.classList.contains('small') || container.closest('.comment-item')) return;
+        
         container.querySelectorAll('.vote-btn.upvote').forEach(b => b.classList.toggle('active', meuVoto === 1));
         container.querySelectorAll('.vote-btn.downvote').forEach(b => b.classList.toggle('active', meuVoto === -1));
     });
@@ -647,10 +651,11 @@ function actualizarVotoComentarioUI(commentId, novoScore, meuVoto) {
         el.textContent = novoScore;
         el.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-comm-val-${commentId}`;
         
-        const item = el.closest('.comment-item');
-        if (item) {
-            item.querySelector('.vote-btn.upvote')?.classList.toggle('active', meuVoto === 1);
-            item.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
+        // Encontrar o vote-group específico deste comentário para evitar conflitos
+        const group = el.closest('.vote-group.small');
+        if (group) {
+            group.querySelector('.vote-btn.upvote')?.classList.toggle('active', meuVoto === 1);
+            group.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
         }
     });
 }
