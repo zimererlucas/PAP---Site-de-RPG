@@ -356,7 +356,9 @@ async function votar(postId, tipoVoto, event) {
 
     // UI Otimista: Actualizar localmente antes de confirmar no server
     const scoreDiff = (tipoVoto === votoAtual) ? -votoAtual : (tipoVoto - votoAtual);
-    const novoScoreTemp = (parseInt(scoreEl?.textContent.replace('▲ ', '') || '0')) + scoreDiff;
+    const currentScoreText = scoreEl?.textContent || '0';
+    const currentScore = parseInt(currentScoreText.replace(/[^\d-]/g, '') || '0');
+    const novoScoreTemp = currentScore + scoreDiff;
     actualizarVotoUI(postId, novoScoreTemp, tipoVoto === votoAtual ? 0 : tipoVoto);
 
     try {
@@ -376,21 +378,6 @@ async function votar(postId, tipoVoto, event) {
             if (error) throw error;
             userVotes[postId] = tipoVoto;
         }
-
-        // Buscar score actualizado (depois da trigger) - O Realtime tratará de sincronizar o valor exato
-        const { data } = await supabase
-            .from('posts').select('score').eq('id', postId).single();
-        const novoScore = data?.score ?? 0;
-
-        // Actualizar UI do card no feed
-        actualizarVotoUI(postId, novoScore, userVotes[postId]);
-
-        // Actualizar UI no modal de detalhe (se aberto)
-        if (postAtualId === postId) {
-            const scoreDetalhe = document.getElementById(`score-detalhe-${postId}`);
-            if (scoreDetalhe) scoreDetalhe.textContent = novoScore;
-        }
-
     } catch (err) {
         console.error('Erro ao votar:', err);
         mostrarToast('Erro ao registar voto.', 'error');
@@ -636,13 +623,6 @@ async function votarComentario(commentId, tipoVoto, event) {
             if (error) throw error;
             userCommentVotes[commentId] = tipoVoto;
         }
-
-        const { data } = await supabase
-            .from('comentarios_posts').select('score').eq('id', commentId).single();
-        const novoScore = data?.score ?? 0;
-
-        actualizarVotoComentarioUI(commentId, novoScore, userCommentVotes[commentId]);
-
     } catch (err) {
         console.error('Erro ao votar no comentário:', err);
         mostrarToast('Erro ao registar voto.', 'error');
