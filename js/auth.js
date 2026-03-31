@@ -68,30 +68,18 @@ async function updateNavbar() {
         if (fichasNav) fichasNav.style.display = 'block';
         if (campanhasNav) campanhasNav.style.display = 'block';
 
-        // Pega a foto do Google (user_metadata)
-        const googlePhoto = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+        // 1. Pega a foto do Google (user_metadata) inicialmente
+        let finalAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
         const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
-
         const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2a2a35&color=fff`;
 
-        if (profilePic) {
-            profilePic.referrerPolicy = "no-referrer";
-            profilePic.onerror = () => { profilePic.src = defaultAvatar; };
-            profilePic.src = googlePhoto || defaultAvatar;
-        }
-        if (sidebarPic) {
-            sidebarPic.referrerPolicy = "no-referrer";
-            sidebarPic.onerror = () => { sidebarPic.src = defaultAvatar; };
-            sidebarPic.src = googlePhoto || defaultAvatar;
-        }
-        if (sidebarName) sidebarName.textContent = fullName;
-        if (sidebarEmail) sidebarEmail.textContent = user.email;
+        if (!finalAvatar) finalAvatar = defaultAvatar;
 
-        // Busca dados extras na tabela 'perfis'
+        // 2. Busca dados extras na tabela 'perfis' para ver se há foto customizada
         try {
             const { data: profile, error } = await supabase
                 .from('perfis')
-                .select('nivel_conta, bio, username')
+                .select('nivel_conta, bio, username, avatar_url')
                 .eq('id', user.id)
                 .single();
 
@@ -100,16 +88,33 @@ async function updateNavbar() {
             }
 
             if (profile) {
+                // PRIORIDADE: Se houver avatar_url no perfil, usamos essa!
+                if (profile.avatar_url) finalAvatar = profile.avatar_url;
+                
                 if (sidebarLevel) sidebarLevel.textContent = profile.nivel_conta || 1;
                 if (sidebarBio) sidebarBio.textContent = profile.bio || 'Nenhuma bio definida.';
                 if (sidebarName && profile.username) sidebarName.textContent = profile.username;
             } else {
-                // Se não existir perfil, cria um básico (pode ser expandido conforme necessário)
+                // Se não existir perfil, cria um básico
                 await createOrUpdateProfile(user);
             }
         } catch (err) {
             console.error('Erro inesperado ao processar perfil:', err);
         }
+
+        // 3. Aplicar a imagem final (Google ou DB) na UI
+        if (profilePic) {
+            profilePic.referrerPolicy = "no-referrer";
+            profilePic.onerror = () => { profilePic.src = defaultAvatar; };
+            profilePic.src = finalAvatar;
+        }
+        if (sidebarPic) {
+            sidebarPic.referrerPolicy = "no-referrer";
+            sidebarPic.onerror = () => { sidebarPic.src = defaultAvatar; };
+            sidebarPic.src = finalAvatar;
+        }
+        if (sidebarName && !sidebarName.textContent) sidebarName.textContent = fullName;
+        if (sidebarEmail) sidebarEmail.textContent = user.email;
 
     } else {
         // --- USUÁRIO DESLOGADO ---
@@ -205,6 +210,193 @@ document.addEventListener('click', (e) => {
 if (loginBtn) {
     loginBtn.addEventListener('click', loginWithGoogle);
 }
+
+// ===============================================
+// Lógica de Upload de Avatar Customizado
+// ===============================================
+const avatarInput = document.createElement('input');
+avatarInput.type = 'file';
+avatarInput.id = 'avatarUploadInput';
+avatarInput.accept = 'image/*';
+avatarInput.style.display = 'none';
+document.body.appendChild(avatarInput);
+
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'sidebar-pic') {
+        avatarInput.click();
+    }
+});
+
+// Cursor pointer e hover effect via CSS dinâmico
+const avatarStyle = document.createElement('style');
+avatarStyle.innerHTML = `
+    #sidebar-pic {
+        cursor: pointer;
+        transition: filter 0.3s, transform 0.3s;
+    }
+    #sidebar-pic:hover {
+        filter: brightness(0.7);
+        transform: scale(1.05);
+    }
+`;
+document.head.appendChild(avatarStyle);
+
+// ===============================================
+// Funções de Recorte de Imagem (Cropper.js)
+// ===============================================
+function loadCropperJS() {
+    return new Promise((resolve) => {
+        if (window.Cropper) return resolve();
+        
+        const css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css';
+        document.head.appendChild(css);
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js';
+        script.onload = () => resolve();
+        document.head.appendChild(script);
+    });
+}
+
+const cropperModal = document.createElement('div');
+cropperModal.id = 'authCropperModal';
+cropperModal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; align-items:center; justify-content:center; flex-direction:column; padding:20px;';
+cropperModal.innerHTML = `
+    <div style="width:100%; max-width:500px; max-height:80vh; background:#1a2a4e; padding:15px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <div style="height:400px; width:100%; max-height:60vh; background:#000; overflow:hidden;">
+            <img id="authCropperImage" src="" style="max-width:100%; display:block;">
+        </div>
+        <div style="display:flex; justify-content:center; gap:15px; margin-top:20px;">
+            <button id="authCropperCancel" style="padding:10px 25px; border-radius:6px; font-weight:600; cursor:pointer; border:none; background:#ff4444; color:white; transition:transform 0.2s;">Cancelar</button>
+            <button id="authCropperSave" style="padding:10px 25px; border-radius:6px; font-weight:600; cursor:pointer; border:none; background:#667eea; color:white; transition:transform 0.2s;">Cortar & Salvar</button>
+        </div>
+    </div>
+`;
+document.body.appendChild(cropperModal);
+
+let authCropperInstance = null;
+
+avatarInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const user = await getCurrentUser();
+    if (!user) {
+        alert('Tens de ter sessão iniciada para alterar a imagem.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+        await loadCropperJS();
+        
+        const imageElement = document.getElementById('authCropperImage');
+        imageElement.src = ev.target.result;
+        cropperModal.style.display = 'flex';
+        
+        if (authCropperInstance) {
+            authCropperInstance.destroy();
+        }
+        
+        authCropperInstance = new Cropper(imageElement, {
+            aspectRatio: 1, // Para manter proporção quadrada
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+        });
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('authCropperCancel').addEventListener('click', () => {
+    cropperModal.style.display = 'none';
+    if (authCropperInstance) {
+        authCropperInstance.destroy();
+        authCropperInstance = null;
+    }
+    avatarInput.value = '';
+});
+
+document.getElementById('authCropperSave').addEventListener('click', async () => {
+    if (!authCropperInstance) return;
+    
+    const user = await getCurrentUser();
+    const btnSave = document.getElementById('authCropperSave');
+    btnSave.textContent = "A salvar...";
+    btnSave.disabled = true;
+
+    const canvas = authCropperInstance.getCroppedCanvas({
+        width: 300,
+        height: 300,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+    });
+
+    canvas.toBlob(async (blob) => {
+        const sidebarPic = document.getElementById('sidebar-pic');
+        const profilePic = document.getElementById('profile-picture');
+        const oldSrc = sidebarPic.src;
+        
+        cropperModal.style.display = 'none';
+        sidebarPic.src = 'https://ui-avatars.com/api/?name=Loading...&background=2a2a35&color=fff';
+
+        try {
+            const fileName = `${user.id}_${Date.now()}.jpg`;
+            const filePath = `${fileName}`; 
+
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, blob, { contentType: 'image/jpeg', cacheControl: '3600', upsert: false });
+
+            if (uploadError) throw uploadError;
+
+            const { data: publicUrlData } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+
+            const newAvatarUrl = publicUrlData.publicUrl;
+
+            const { error: profileError } = await supabase
+                .from('perfis')
+                .update({ avatar_url: newAvatarUrl })
+                .eq('id', user.id);
+
+            if (profileError) throw profileError;
+
+            sidebarPic.src = newAvatarUrl;
+            sidebarPic.referrerPolicy = "no-referrer";
+            if (profilePic) {
+                profilePic.src = newAvatarUrl;
+                profilePic.referrerPolicy = "no-referrer";
+            }
+            
+            console.log('Avatar cortado e atualizado com sucesso!');
+
+        } catch (error) {
+            console.error('Erro no upload do avatar recortado:', error);
+            sidebarPic.src = oldSrc;
+            alert('Falha ao atualizar a foto de perfil. Tenta novamente.');
+        } finally {
+            avatarInput.value = '';
+            btnSave.textContent = "Cortar & Salvar";
+            btnSave.disabled = false;
+            
+            if (authCropperInstance) {
+                authCropperInstance.destroy();
+                authCropperInstance = null;
+            }
+        }
+    }, 'image/jpeg', 0.9);
+});
 
 // Lógica para editar username na sidebar
 document.addEventListener('click', async (e) => {

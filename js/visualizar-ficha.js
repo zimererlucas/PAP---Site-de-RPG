@@ -90,6 +90,37 @@ function atualizarBarraEstamina() {
     if (estaminaPercent) estaminaPercent.textContent = percent + '%';
 }
 
+// ============================================
+// NAVEGAÇÃO ENTRE ABAS
+// ============================================
+function switchTab(tabName) {
+    // Esconder todos os conteúdos
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Remover estado ativo dos botões
+    document.querySelectorAll('.ficha-navbar-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Mostrar aba selecionada
+    const selectedTab = document.getElementById('tab-' + tabName);
+    if (selectedTab) selectedTab.classList.add('active');
+
+    // Ativar o botão que foi clicado (se o avento existir)
+    if (window.event && window.event.currentTarget) {
+        window.event.currentTarget.classList.add('active');
+    } else {
+        // Fallback: procurar botão pelo texto ou data
+        document.querySelectorAll('.ficha-navbar-btn').forEach(btn => {
+            if (btn.textContent.toLowerCase().includes(tabName.toLowerCase())) {
+                btn.classList.add('active');
+            }
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
     // Verificar se usuário está logado
     const isLoggedIn = await requireLogin();
@@ -100,8 +131,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     fichaId = params.get('id');
     window.fichaId = fichaId; // Tornar acessível globalmente
 
-    console.log('fichaId definido:', window.fichaId);
-
     if (!fichaId) {
         console.error('Ficha não encontrada!');
         window.location.href = 'fichas.html';
@@ -109,23 +138,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     carregarHistoricoDados();
-
-    // Identificar campanha do personagem para broadcast de dados
-    try {
-        const { data: participacoes } = await supabase
-            .from('campanha_personagens')
-            .select('campanha_id')
-            .eq('personagem_id', fichaId)
-            .limit(1);
-
-        if (participacoes && participacoes.length > 0) {
-            window.currentCampanhaId = participacoes[0].campanha_id;
-            console.log('📡 Conectado à campanha:', window.currentCampanhaId);
-        }
-    } catch (err) {
-        console.warn('Erro ao verificar campanha do personagem:', err);
-    }
-
 
     // Carregar ficha
     await loadFicha();
@@ -137,29 +149,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     setupImageUpload();
 });
 
-// Ouvir eventos de storage para updates disparados pela tela de campanha
-window.addEventListener('storage', (event) => {
-    if (event.key === 'turno-passado' && event.newValue) {
-        // Recarrega ficha quando um turno é passado na campanha
-        loadFicha();
-    }
-    if (event.key && event.key.startsWith('dice-history')) {
-        const key = getHistoricoKey();
-        if (key && event.key === key) {
-            carregarHistoricoDados();
-        }
-    }
-});
-
-
 // ============================================
 // ATUALIZAÇÃO EM TEMPO REAL DA FICHA
 // ============================================
 
-// Rastrear campos sendo editados
 let camposEditandoAtivo = new Set();
 
-// Adicionar listeners para detectar quando um campo está sendo editado
 function monitorarEdicaoCampos() {
     document.addEventListener('focus', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
@@ -172,7 +167,6 @@ function monitorarEdicaoCampos() {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
             const id = e.target.id;
             if (id) {
-                // Remover após um pequeno delay para permitir salvar
                 setTimeout(() => camposEditandoAtivo.delete(id), 500);
             }
         }
@@ -182,20 +176,13 @@ function monitorarEdicaoCampos() {
 function iniciarRealtimeFicha() {
     if (!fichaId || !window.supabase) return;
 
-    // Monitorar campos sendo editados
     monitorarEdicaoCampos();
 
-    // Evitar múltiplas inscrições
     if (fichaRealtimeChannel) {
         fichaRealtimeChannel.unsubscribe();
     }
-    if (fichaPollingInterval) {
-        clearInterval(fichaPollingInterval);
-        fichaPollingInterval = null;
-    }
 
     const handler = () => {
-        // Debounce para evitar chamadas múltiplas seguidas
         if (fichaRealtimeTimer) clearTimeout(fichaRealtimeTimer);
         fichaRealtimeTimer = setTimeout(async () => {
             await loadFicha();
@@ -207,298 +194,326 @@ function iniciarRealtimeFicha() {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'habilidades', filter: `personagem_id=eq.${fichaId}` }, handler)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'inventario', filter: `personagem_id=eq.${fichaId}` }, handler)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'personagens', filter: `id=eq.${fichaId}` }, handler)
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-                console.log('🔔 Realtime da ficha habilitado');
-            }
-        });
-
-    // Remover polling automático - só atualiza quando há mudanças reais
-    // fichaPollingInterval = setInterval(() => {
-    //     loadFicha();
-    // }, 2000);
+        .subscribe();
 }
 
-// Limpar inscrição ao sair
-window.addEventListener('beforeunload', () => {
-    if (fichaRealtimeChannel) {
-        fichaRealtimeChannel.unsubscribe();
-    }
-    if (fichaPollingInterval) {
-        clearInterval(fichaPollingInterval);
-    }
-});
-
-
 async function loadFicha() {
-    const loadingState = document.getElementById('loadingState');
-    const fichaContent = document.getElementById('fichaContent');
-
     try {
         const result = await getPersonagemById(fichaId);
-
-        if (!result.success) {
-            console.error('Erro ao carregar ficha:', result.error);
-            if (loadingState) loadingState.style.display = 'none';
-            return;
-        }
+        if (!result.success) return;
 
         const ficha = result.data;
 
-        // Função auxiliar para setar textContent com segurança
+        // Atualizar campos da UI com segurança
         const setElement = (id, value) => {
             const el = document.getElementById(id);
-            if (el) el.textContent = value || '-';
+            if (el && !camposEditandoAtivo.has(id)) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                    el.value = value || '';
+                } else {
+                    el.textContent = value || '-';
+                }
+            }
         };
 
-        // Função auxiliar para setar valor de input APENAS se não estiver sendo editado
-        const setInputSafe = (id, value) => {
-            if (camposEditandoAtivo.has(id)) return; // Skip se está sendo editado
-            const el = document.getElementById(id);
-            if (el) el.value = value || '';
-        };
-
-        // Header
-        setElement('nomePersonagemHeader', ficha.nome || 'Ficha de Personagem');
-        setElement('racaPersonagemHeader', ficha.raca || '-');
+        // Informações Básicas
+        setElement('nomePersonagem-view', ficha.nome);
+        setElement('racaPersonagem-view', ficha.raca);
+        setElement('nivelPersonagem-view', ficha.nivel);
+        setElement('idadePersonagem-view', ficha.idade);
+        setElement('header-raca', ficha.raca);
+        
+        const headerNome = document.getElementById('nomePersonagemHeader');
+        if(headerNome) headerNome.textContent = ficha.nome || 'Ficha';
 
         // Imagem do Personagem
-        const imgPersonagem = document.getElementById('fotoPersonagem');
-        if (imgPersonagem && ficha.foto_url) {
-            imgPersonagem.src = ficha.foto_url;
+        const charImg = document.getElementById('charImage');
+        if (charImg && ficha.imagem_url) {
+            charImg.src = ficha.imagem_url;
         }
 
-        // Informações pessoais (view e input)
-        setElement('nome-view', ficha.nome || '-');
-        setElement('raca-view', ficha.raca || '-');
-        setElement('idade-view', ficha.idade || '-');
-        setElement('nivel-view', ficha.nivel || 0);
-        setElement('altura-view', ficha.altura || '-');
-        setElement('peso-view', ficha.peso || '-');
+        // Status
+        setElement('vidaAtual', ficha.vida_atual);
+        setElement('vidaMaxima-view', ficha.vida_maxima);
+        setElement('manaAtual', ficha.mana_atual);
+        setElement('manaMaxima-view', ficha.mana_maxima);
+        setElement('estaminaAtual', ficha.estamina_atual);
+        setElement('estaminaMaxima-view', ficha.estamina_maxima);
 
-        setInputSafe('nome', ficha.nome);
-        setInputSafe('raca', ficha.raca);
-        setInputSafe('idade', ficha.idade);
-        setInputSafe('nivel', ficha.nivel || 0);
-        setInputSafe('altura', ficha.altura);
-        setInputSafe('peso', ficha.peso);
+        atualizarBarraVida();
+        atualizarBarraMana();
+        atualizarBarraEstamina();
 
-        // Atributos - Força
-        const forcaBaseVal = ficha.forca_base || 0;
-        const forcaBonusVal = ficha.forca_bonus || 0;
-        const forcaTotalVal = forcaBaseVal + forcaBonusVal;
-        setElement('forcaBase-view', forcaBaseVal);
-        setElement('forcaBonus-view', forcaBonusVal);
-        setElement('forcaTotal', forcaTotalVal);
-        setInputSafe('forcaBase', forcaBaseVal);
-        setInputSafe('forcaBonus', forcaBonusVal);
+        // Atributos
+        const atributos = ['forca', 'agilidade', 'sorte', 'inteligencia', 'foco', 'arcanismo'];
+        atributos.forEach(attr => {
+            const base = ficha[attr + '_base'] || 0;
+            const bonus = ficha[attr + '_bonus'] || 0;
+            const total = base + bonus;
+            
+            setElement(attr + 'Base-view', base);
+            setElement(attr + 'Bonus-view', bonus);
+            setElement(attr + 'Total-view', total);
+            
+            // Povoar inputs de edição
+            const input = document.getElementById(attr + 'Base');
+            if (input && !camposEditandoAtivo.has(attr + 'Base')) {
+                input.value = base;
+            }
+        });
 
-        // Atributos - Agilidade
-        const agilidadeBaseVal = ficha.agilidade_base || 0;
-        const agilidadeBonusVal = ficha.agilidade_bonus || 0;
-        const agilidadeTotalVal = agilidadeBaseVal + agilidadeBonusVal;
-        setElement('agilidadeBase-view', agilidadeBaseVal);
-        setElement('agilidadeBonus-view', agilidadeBonusVal);
-        setElement('agilidadeTotal', agilidadeTotalVal);
-        setInputSafe('agilidadeBase', agilidadeBaseVal);
-        setInputSafe('agilidadeBonus', agilidadeBonusVal);
+        // Peso
+        setElement('peso-view', ficha.peso);
 
-        // Atributos - Sorte
-        const sorteBaseVal = ficha.sorte_base || 0;
-        const sorteBonusVal = ficha.sorte_bonus || 0;
-        const sorteTotalVal = sorteBaseVal + sorteBonusVal;
-        setElement('sorteBase-view', sorteBaseVal);
-        setElement('sorteBonus-view', sorteBonusVal);
-        setElement('sorteTotal', sorteTotalVal);
-        setInputSafe('sorteBase', sorteBaseVal);
-        setInputSafe('sorteBonus', sorteBonusVal);
+    } catch (err) {
+        console.error('Erro ao processar dados da ficha:', err);
+    }
+}
 
-        // Atributos - Inteligência
-        const inteligenciaBaseVal = ficha.inteligencia_base || 0;
-        const inteligenciaBonusVal = ficha.inteligencia_bonus || 0;
-        const inteligenciaTotalVal = inteligenciaBaseVal + inteligenciaBonusVal;
-        setElement('inteligenciaBase-view', inteligenciaBaseVal);
-        setElement('inteligenciaBonus-view', inteligenciaBonusVal);
-        setElement('inteligenciaTotal', inteligenciaTotalVal);
-        setInputSafe('inteligenciaBase', inteligenciaBaseVal);
-        setInputSafe('inteligenciaBonus', inteligenciaBonusVal);
-
-        // Atributos - Foco
-        const focoBaseVal = ficha.foco_base || 0;
-        const focoBonusVal = ficha.foco_bonus || 0;
-        const focoTotalVal = focoBaseVal + focoBonusVal;
-        setElement('focoBase-view', focoBaseVal);
-        setElement('focoBonus-view', focoBonusVal);
-        setElement('focoTotal', focoTotalVal);
-        setInputSafe('focoBase', focoBaseVal);
-        setInputSafe('focoBonus', focoBonusVal);
-
-        // Atributos - Arcanismo
-        const arcanismoBaseVal = ficha.arcanismo_base || 0;
-        const arcanismoBonusVal = ficha.arcanismo_bonus || 0;
-        const arcanismoTotalVal = arcanismoBaseVal + arcanismoBonusVal;
-        setElement('arcanismoBase-view', arcanismoBaseVal);
-        setElement('arcanismoBonus-view', arcanismoBonusVal);
-        setElement('arcanismoTotal', arcanismoTotalVal);
-        setInputSafe('arcanismoBase', arcanismoBaseVal);
-        setInputSafe('arcanismoBonus', arcanismoBonusVal);
-        const arcanismoBaseInput = document.getElementById('arcanismoBase');
-        const arcanismoBonusInput = document.getElementById('arcanismoBonus');
-        if (arcanismoBaseInput) arcanismoBaseInput.value = arcanismoBaseVal;
-        if (arcanismoBonusInput) arcanismoBonusInput.value = arcanismoBonusVal;
-
-        // Calcular Esquiva e Acerto (1 de agilidade = 1 de acerto e esquiva)
-        const esquivaBase = agilidadeTotalVal;
-        const esquivaBonus = ficha.esquiva_bonus || 0;
-        const esquivaTotal = esquivaBase + esquivaBonus;
-        setElement('esquivaValor', esquivaTotal);
-
-        const acertoBase = agilidadeTotalVal;
-        const acertoBonus = ficha.acerto_bonus || 0;
-        const acertoTotal = acertoBase + acertoBonus;
-        setElement('acertoValor', acertoTotal);
-
-
-
-        // Status - Nível
-        setElement('nivel', ficha.nivel || 0);
-
-        // Status - Vida
-        const vidaMaximaBase = ficha.vida_maxima || 0;
-        const vidaMaximaBonus = ficha.vida_maxima_bonus || 0;
-        const vidaMaximaTotal = vidaMaximaBase + vidaMaximaBonus;
-        setElement('vidaAtual', ficha.vida_atual || 0);
-        setElement('vidaMaxima-view', vidaMaximaTotal);
-        setInputSafe('vidaMaxima', vidaMaximaBase);
-        const vidaBar = document.getElementById('vidaBar');
-        const vidaPercent = document.getElementById('vidaPercent');
-        if (vidaBar && vidaMaximaTotal) {
-            const vidaPercentage = (ficha.vida_atual / vidaMaximaTotal) * 100;
-            vidaBar.style.width = vidaPercentage + '%';
-            if (vidaPercent) vidaPercent.textContent = Math.round(vidaPercentage) + '%';
+// ============================================
+// EDIÇÃO DE INFORMAÇÕES BÁSICAS
+// ============================================
+function toggleEditarInfo() {
+    const view = document.getElementById('info-view');
+    const edit = document.getElementById('info-edit');
+    if (view && edit) {
+        if (view.style.display === 'none') {
+            view.style.display = 'block';
+            edit.style.display = 'none';
+        } else {
+            view.style.display = 'none';
+            edit.style.display = 'block';
+            
+            // Povoar inputs
+            document.getElementById('nomePersonagem').value = document.getElementById('nomePersonagem-view').textContent;
+            document.getElementById('racaPersonagem').value = document.getElementById('racaPersonagem-view').textContent;
+            document.getElementById('nivelPersonagem').value = document.getElementById('nivelPersonagem-view').textContent;
+            document.getElementById('idadePersonagem').value = document.getElementById('idadePersonagem-view').textContent;
         }
+    }
+}
 
-        // Status - Estamina
-        const estaminaMaximaBase = ficha.estamina_maxima || 0;
-        const estaminaMaximaBonus = ficha.estamina_maxima_bonus || 0;
-        const estaminaMaximaTotal = estaminaMaximaBase + estaminaMaximaBonus;
-        setElement('estaminaAtual', ficha.estamina_atual || 0);
-        setElement('estaminaMaxima-view', estaminaMaximaTotal);
-        setInputSafe('estaminaMaxima', estaminaMaximaBase);
-        const estaminaBar = document.getElementById('estaminaBar');
-        const estaminaPercent = document.getElementById('estaminaPercent');
-        if (estaminaBar && estaminaMaximaTotal) {
-            const estaminaPercentage = (ficha.estamina_atual / estaminaMaximaTotal) * 100;
-            estaminaBar.style.width = estaminaPercentage + '%';
-            if (estaminaPercent) estaminaPercent.textContent = Math.round(estaminaPercentage) + '%';
+async function salvarInfo() {
+    const nome = document.getElementById('nomePersonagem').value;
+    const raca = document.getElementById('racaPersonagem').value;
+    const nivel = document.getElementById('nivelPersonagem').value;
+    const idade = document.getElementById('idadePersonagem').value;
+
+    try {
+        const { error } = await supabase
+            .from('personagens')
+            .update({
+                nome: nome,
+                raca: raca,
+                nivel: parseInt(nivel) || 0,
+                idade: parseInt(idade) || 0
+            })
+            .eq('id', fichaId);
+
+        if (error) throw error;
+        
+        await loadFicha();
+        toggleEditarInfo();
+    } catch (err) {
+        console.error('Erro ao salvar info:', err);
+        alert('Erro ao salvar informações.');
+    }
+}
+
+// ============================================
+// EDIÇÃO DE ATRIBUTOS
+// ============================================
+function toggleEditarAtributos() {
+    const viewCalcs = document.querySelectorAll('.atributo-calculo');
+    const editCalcs = document.querySelectorAll('.atributo-calculo-edit');
+    
+    viewCalcs.forEach(el => {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    editCalcs.forEach(el => {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    });
+
+    const saveBtn = document.getElementById('atributos-save-btn');
+    if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
+}
+
+async function salvarAtributos() {
+    const atributos = ['forca', 'agilidade', 'sorte', 'inteligencia', 'foco', 'arcanismo'];
+    const updateData = {};
+
+    atributos.forEach(attr => {
+        const baseInput = document.getElementById(attr + 'Base');
+        if (baseInput) {
+            updateData[attr + '_base'] = parseInt(baseInput.value) || 0;
         }
+    });
 
-        // Status - Mana
-        const manaMaximaBase = ficha.mana_maxima || 0;
-        const manaMaximaBonus = ficha.mana_maxima_bonus || 0;
-        const manaMaximaTotal = manaMaximaBase + manaMaximaBonus;
-        setElement('manaAtual', ficha.mana_atual || 0);
-        setElement('manaMaxima-view', manaMaximaTotal);
-        setInputSafe('manaMaxima', manaMaximaBase);
-        const manaBar = document.getElementById('manaBar');
-        const manaPercent = document.getElementById('manaPercent');
-        if (manaBar && manaMaximaTotal) {
-            const manaPercentage = (ficha.mana_atual / manaMaximaTotal) * 100;
-            manaBar.style.width = manaPercentage + '%';
-            if (manaPercent) manaPercent.textContent = Math.round(manaPercentage) + '%';
-        }
+    try {
+        const { error } = await supabase.from('personagens').update(updateData).eq('id', fichaId);
+        if (error) throw error;
+        await loadFicha();
+        toggleEditarAtributos();
+    } catch (err) {
+        console.error('Erro ao salvar atributos:', err);
+        alert('Erro ao salvar atributos.');
+    }
+}
 
-        // Habilidades
-        setElement('fragmentoDivino', ficha.fragmento_divino || '-');
+function cancelarEditarAtributos() {
+    toggleEditarAtributos();
+}
 
-        // Passivas - lista de habilidades passivas
-        const passivasList = document.getElementById('passivas-list');
-        if (passivasList) {
-            passivasList.innerHTML = '';
-            if (ficha.passiva && Array.isArray(ficha.passiva)) {
-                ficha.passiva.forEach(passiva => {
-                    const li = document.createElement('li');
-                    li.textContent = passiva;
-                    passivasList.appendChild(li);
-                });
-            } else if (ficha.passiva) {
-                // Se for string, assumir separado por vírgula
-                const passivasArray = ficha.passiva.split(',').map(p => p.trim());
-                passivasArray.forEach(passiva => {
-                    const li = document.createElement('li');
-                    li.textContent = passiva;
-                    passivasList.appendChild(li);
-                });
+// ============================================
+// EDIÇÃO DE STATUS (VIDA, MANA, ESTAMINA)
+// ============================================
+function toggleEditarStatus() {
+    const components = ['vida', 'mana', 'estamina'];
+    
+    components.forEach(comp => {
+        const view = document.getElementById(comp + '-view');
+        const edit = document.getElementById(comp + '-edit');
+        if (view && edit) {
+            if (view.style.display === 'none') {
+                view.style.display = 'inline';
+                edit.style.display = 'none';
             } else {
-                const li = document.createElement('li');
-                li.textContent = '-';
-                passivasList.appendChild(li);
+                view.style.display = 'none';
+                edit.style.display = 'inline';
+                
+                // Povoar inputs
+                const atualVal = document.getElementById(comp + 'Atual').textContent;
+                const maximaVal = document.getElementById(comp + 'Maxima-view').textContent;
+                
+                const atualInput = document.getElementById(comp + 'Atual-edit');
+                const maximaInput = document.getElementById(comp + 'Maxima');
+                
+                if (atualInput) atualInput.value = atualVal;
+                if (maximaInput) maximaInput.value = maximaVal;
             }
         }
+    });
 
-        // Guardar dados da ficha para usar no modal de combate
-        window.fichaData = ficha;
+    const saveBtn = document.getElementById('status-save-btn');
+    if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
+}
 
-        // Recalcular bônus globais ao carregar a ficha
-        if (typeof recalcularBonusGlobais === 'function') {
-            await recalcularBonusGlobais(fichaId);
-        }
+async function salvarStatus() {
+    const updateData = {
+        vida_atual: parseInt(document.getElementById('vidaAtual-edit').value) || 0,
+        vida_maxima: parseInt(document.getElementById('vidaMaxima').value) || 1,
+        mana_atual: parseInt(document.getElementById('manaAtual-edit').value) || 0,
+        mana_maxima: parseInt(document.getElementById('manaMaxima').value) || 1,
+        estamina_atual: parseInt(document.getElementById('estaminaAtual-edit').value) || 0,
+        estamina_maxima: parseInt(document.getElementById('estaminaMaxima').value) || 1
+    };
 
-        // Recarregar listas dinâmicas (magias, habilidades, itens, etc.) para refletir turnos restantes
-        if (typeof carregarMagias === 'function') {
-            await Promise.all([
-                carregarMagias(),
-                carregarHabilidades(),
-                carregarItens(),
-                carregarConhecimentos?.(),
-                carregarAnotacoes?.(),
-                carregarPassivas?.()
-            ]);
-        }
-
-        if (loadingState) loadingState.style.display = 'none';
-        if (fichaContent) fichaContent.style.display = 'block';
-
-    } catch (error) {
-        console.error('Erro ao carregar ficha:', error);
-        if (loadingState) loadingState.style.display = 'none';
+    try {
+        const { error } = await supabase.from('personagens').update(updateData).eq('id', fichaId);
+        if (error) throw error;
+        await loadFicha();
+        toggleEditarStatus();
+    } catch (err) {
+        console.error('Erro ao salvar status:', err);
+        alert('Erro ao salvar status.');
     }
 }
 
-function voltarParaFichas() {
-    window.location.href = 'fichas.html';
+function cancelarEditarStatus() {
+    toggleEditarStatus();
 }
-
-
-
-function editarFicha() {
-    window.location.href = `criar-ficha.html?id=${fichaId}`;
-}
-
-function switchTab(tabName) {
-    // Ocultar todas as abas
-    const tabs = document.querySelectorAll('.tab-content');
-    tabs.forEach(tab => tab.classList.remove('active'));
-
-    // Remover classe active de todos os botões
-    const buttons = document.querySelectorAll('.ficha-tab');
-    buttons.forEach(btn => btn.classList.remove('active'));
-
-    // Mostrar aba selecionada
-    const selectedTab = document.getElementById('tab-' + tabName);
-    if (selectedTab) {
-        selectedTab.classList.add('active');
-    }
-
-    // Adicionar classe active ao botão clicado
-    event.target.classList.add('active');
-}
-
 
 // ============================================
-// HISTÓRICO DE ROLAGENS DE DADOS
+// UPLOAD DE IMAGEM DO PERSONAGEM
 // ============================================
+let cropper = null;
 
+function setupImageUpload() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'charImageInput';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+
+    input.addEventListener('change', handleImageSelect);
+}
+
+function triggerImageUpload() {
+    document.getElementById('charImageInput').click();
+}
+
+function handleImageSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const modal = document.getElementById('cropperModal');
+        const img = document.getElementById('imageToCrop');
+        img.src = e.target.result;
+        modal.style.display = 'flex';
+
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(img, {
+            aspectRatio: 3 / 4,
+            viewMode: 1
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+async function saveCrop() {
+    if (!cropper) return;
+
+    const loading = document.getElementById('cropperLoading');
+    loading.style.display = 'flex';
+
+    const canvas = cropper.getCroppedCanvas({ width: 600, height: 800 });
+    canvas.toBlob(async (blob) => {
+        try {
+            const fileName = `${fichaId}_${Date.now()}.jpg`;
+            const { error: uploadError } = await supabase.storage
+                .from('personagens')
+                .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage.from('personagens').getPublicUrl(fileName);
+
+            const { error: updateError } = await supabase
+                .from('personagens')
+                .update({ imagem_url: publicUrl })
+                .eq('id', fichaId);
+
+            if (updateError) throw updateError;
+
+            document.getElementById('charImage').src = publicUrl;
+            fecharModalCropper();
+        } catch (err) {
+            console.error('Erro no upload:', err);
+            alert('Erro ao salvar imagem.');
+        } finally {
+            loading.style.display = 'none';
+        }
+    }, 'image/jpeg');
+}
+
+function fecharModalCropper() {
+    document.getElementById('cropperModal').style.display = 'none';
+    if (cropper) cropper.destroy();
+    cropper = null;
+    document.getElementById('charImageInput').value = '';
+}
+
+function cancelCrop() {
+    fecharModalCropper();
+}
+
+// ============================================
+// HISTÓRICO DE ROLAGENS
+// ============================================
 document.addEventListener('diceRolled', (event) => {
     const { tipo, nome, dados, resultado } = event.detail || {};
     if (!resultado) return;
@@ -522,17 +537,13 @@ function carregarHistoricoDados() {
     if (!tbody) return;
 
     const key = getHistoricoKey();
-    if (!key) {
-        renderHistoricoDados([]);
-        return;
-    }
+    if (!key) return;
 
     try {
         const historico = JSON.parse(localStorage.getItem(key) || '[]');
-        renderHistoricoDados(Array.isArray(historico) ? historico : []);
+        renderHistoricoDados(historico);
     } catch (err) {
-        console.error('Erro ao carregar histórico de dados:', err);
-        renderHistoricoDados([]);
+        console.error('Erro ao carregar histórico:', err);
     }
 }
 
@@ -540,19 +551,9 @@ function registrarHistoricoDado(entry) {
     const key = getHistoricoKey();
     if (!key) return;
 
-    let historico = [];
-
-    try {
-        historico = JSON.parse(localStorage.getItem(key) || '[]');
-        if (!Array.isArray(historico)) historico = [];
-    } catch (err) {
-        historico = [];
-    }
-
+    let historico = JSON.parse(localStorage.getItem(key) || '[]');
     historico.unshift(entry);
-    if (historico.length > HISTORICO_DADOS_MAX) {
-        historico.length = HISTORICO_DADOS_MAX;
-    }
+    if (historico.length > HISTORICO_DADOS_MAX) historico.length = HISTORICO_DADOS_MAX;
 
     localStorage.setItem(key, JSON.stringify(historico));
     renderHistoricoDados(historico);
@@ -563,186 +564,19 @@ function renderHistoricoDados(historico) {
     if (!tbody) return;
 
     tbody.innerHTML = '';
-
     if (!historico || historico.length === 0) {
-        const row = document.createElement('tr');
-        const cell = document.createElement('td');
-        cell.colSpan = 4;
-        cell.style.textAlign = 'center';
-        cell.textContent = 'Sem rolagens registradas ainda.';
-        row.appendChild(cell);
-        tbody.appendChild(row);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Sem rolagens recentes</td></tr>';
         return;
     }
 
-    historico.forEach((item) => {
+    historico.forEach(item => {
         const row = document.createElement('tr');
-
-        const dataCell = document.createElement('td');
-        dataCell.textContent = new Date(item.timestamp).toLocaleTimeString('pt-BR', { hour12: false });
-        row.appendChild(dataCell);
-
-        const itemCell = document.createElement('td');
-        itemCell.textContent = item.nome || '-';
-        row.appendChild(itemCell);
-
-        const totalCell = document.createElement('td');
-        totalCell.textContent = item.total ?? '-';
-        row.appendChild(totalCell);
-
-        const detalhesCell = document.createElement('td');
-        detalhesCell.textContent = item.detalhes || '-';
-        row.appendChild(detalhesCell);
-
+        row.innerHTML = `
+            <td>${new Date(item.timestamp).toLocaleTimeString()}</td>
+            <td>${item.nome}</td>
+            <td>${item.total}</td>
+            <td style="font-size: 0.85em; opacity: 0.8">${item.detalhes}</td>
+        `;
         tbody.appendChild(row);
     });
-}
-
-// ============================================
-// UPLOAD DE IMAGEM COM CORTE (CROPPER.JS)
-// ============================================
-
-let cropper = null;
-let currentCropFile = null;
-
-function setupImageUpload() {
-    const fotoInput = document.getElementById('fotoInput');
-    if (!fotoInput) return;
-
-    fotoInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // Validar tamanho (max 5MB agora, já que vamos cortar)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('A imagem original deve ter no máximo 5MB.');
-            return;
-        }
-
-        currentCropFile = file;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const imageToCrop = document.getElementById('imageToCrop');
-            imageToCrop.src = event.target.result;
-
-            document.getElementById('cropperModal').style.display = 'flex';
-
-            if (cropper) {
-                cropper.destroy();
-            }
-
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: 1,
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 1,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false,
-            });
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-async function saveCrop() {
-    if (!cropper) return;
-
-    const modal = document.getElementById('cropperModal');
-    const loading = document.getElementById('cropperLoading');
-    loading.style.display = 'flex';
-
-    try {
-        // Obter o canvas recortado
-        const canvas = cropper.getCroppedCanvas({
-            width: 500, // Tamanho final bom para web
-            height: 500,
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high',
-        });
-
-        // Converter para Blob
-        canvas.toBlob(async (blob) => {
-            if (!blob) {
-                alert('Erro ao processar imagem.');
-                loading.style.display = 'none';
-                return;
-            }
-
-            try {
-                // Criar um novo File a partir do Blob
-                const croppedFile = new File([blob], currentCropFile.name, {
-                    type: 'image/jpeg',
-                    lastModified: Date.now()
-                });
-
-                const publicUrl = await uploadImagem(croppedFile);
-
-                // Atualizar no banco
-                const { error } = await supabase
-                    .from('personagens')
-                    .update({ foto_url: publicUrl })
-                    .eq('id', fichaId);
-
-                if (error) throw error;
-
-                // Atualizar UI
-                const img = document.getElementById('fotoPersonagem');
-                if (img) img.src = publicUrl;
-
-                closeCropper();
-            } catch (error) {
-                console.error('Erro ao fazer upload:', error);
-                alert('Erro ao atualizar a imagem. Tente novamente.');
-            } finally {
-                loading.style.display = 'none';
-            }
-        }, 'image/jpeg', 0.9);
-
-    } catch (error) {
-        console.error('Erro no processamento do cropper:', error);
-        alert('Erro ao processar o corte da imagem.');
-        loading.style.display = 'none';
-    }
-}
-
-function cancelCrop() {
-    closeCropper();
-    // Limpar o input file para permitir selecionar a mesma imagem se quiser
-    const fotoInput = document.getElementById('fotoInput');
-    if (fotoInput) fotoInput.value = '';
-}
-
-function closeCropper() {
-    if (cropper) {
-        cropper.destroy();
-        cropper = null;
-    }
-    document.getElementById('cropperModal').style.display = 'none';
-    currentCropFile = null;
-}
-
-async function uploadImagem(file) {
-    const user = await getCurrentUser();
-    if (!user) throw new Error('Usuário não logado');
-
-    const fileExt = file.name.split('.').pop() || 'jpg';
-    const fileName = `${user.id}/${fichaId}/${Date.now()}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-        .from('fichas')
-        .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage
-        .from('fichas')
-        .getPublicUrl(filePath);
-
-    return data.publicUrl;
 }
