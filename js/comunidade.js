@@ -111,7 +111,7 @@ async function carregarDestaques() {
             .from('posts')
             .select(`
                 id, titulo, tipo, score, criado_em, user_id,
-                perfis ( username, avatar_url )
+                perfis:user_id ( username, avatar_url )
             `)
             .gte('score', 1)
             .gte('criado_em', umMes.toISOString())
@@ -193,7 +193,7 @@ async function carregarFeed(reset = false) {
             .select(`
                 id, tipo, titulo, conteudo, score, criado_em, user_id,
                 personagem_id, campanha_id,
-                perfis ( username, avatar_url ),
+                perfis:user_id ( username, avatar_url ),
                 personagens ( nome, raca, nivel ),
                 campanhas ( nome )
             `);
@@ -420,7 +420,7 @@ async function abrirDetalhe(postId) {
             .select(`
                 id, tipo, titulo, conteudo, score, criado_em, user_id,
                 personagem_id, campanha_id,
-                perfis ( username, avatar_url ),
+                perfis:user_id ( username, avatar_url ),
                 personagens ( nome, raca, nivel ),
                 campanhas ( nome )
             `)
