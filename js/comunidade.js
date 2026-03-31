@@ -60,6 +60,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     await carregarDestaques();
     await carregarFeed(true);
 
+    // Inicializar Tempo-Real
+    initRealtime();
+
     // Infinite scroll via IntersectionObserver
     const sentinel = document.getElementById('scrollSentinel');
     if (sentinel) {
@@ -351,28 +354,30 @@ async function votar(postId, tipoVoto, event) {
     const votoAtual = userVotes[postId] || 0;
     const scoreEl   = document.getElementById(`score-${postId}`);
 
-    // Animar botão clicado
-    const btnClicado = event?.currentTarget;
-    btnClicado?.classList.add('pop');
-    setTimeout(() => btnClicado?.classList.remove('pop'), 300);
+    // UI Otimista: Actualizar localmente antes de confirmar no server
+    const scoreDiff = (tipoVoto === votoAtual) ? -votoAtual : (tipoVoto - votoAtual);
+    const novoScoreTemp = (parseInt(scoreEl?.textContent.replace('▲ ', '') || '0')) + scoreDiff;
+    actualizarVotoUI(postId, novoScoreTemp, tipoVoto === votoAtual ? 0 : tipoVoto);
 
     try {
         if (votoAtual === tipoVoto) {
             // Remover voto (toggle off)
-            await supabase.from('votos_posts').delete()
+            const { error } = await supabase.from('votos_posts').delete()
                 .eq('post_id', postId)
                 .eq('user_id', currentUser.id);
+            if (error) throw error;
             userVotes[postId] = 0;
         } else {
             // Upsert (inserir ou alterar voto)
-            await supabase.from('votos_posts').upsert(
+            const { error } = await supabase.from('votos_posts').upsert(
                 { post_id: postId, user_id: currentUser.id, tipo_voto: tipoVoto },
                 { onConflict: 'post_id,user_id' }
             );
+            if (error) throw error;
             userVotes[postId] = tipoVoto;
         }
 
-        // Buscar score actualizado (depois da trigger)
+        // Buscar score actualizado (depois da trigger) - O Realtime tratará de sincronizar o valor exato
         const { data } = await supabase
             .from('posts').select('score').eq('id', postId).single();
         const novoScore = data?.score ?? 0;
@@ -606,21 +611,29 @@ async function votarComentario(commentId, tipoVoto, event) {
     }
 
     const votoAtual = userCommentVotes[commentId] || 0;
+    const scoreEl   = document.getElementById(`score-comment-${commentId}`);
     const btnClicado = event?.currentTarget;
     btnClicado?.classList.add('pop');
     setTimeout(() => btnClicado?.classList.remove('pop'), 300);
 
+    // UI Otimista
+    const scoreDiff = (tipoVoto === votoAtual) ? -votoAtual : (tipoVoto - votoAtual);
+    const novoScoreTemp = (parseInt(scoreEl?.textContent || '0')) + scoreDiff;
+    actualizarVotoComentarioUI(commentId, novoScoreTemp, tipoVoto === votoAtual ? 0 : tipoVoto);
+
     try {
         if (votoAtual === tipoVoto) {
-            await supabase.from('votos_comentarios').delete()
+            const { error } = await supabase.from('votos_comentarios').delete()
                 .eq('comentario_id', commentId)
                 .eq('user_id', currentUser.id);
+            if (error) throw error;
             userCommentVotes[commentId] = 0;
         } else {
-            await supabase.from('votos_comentarios').upsert(
+            const { error } = await supabase.from('votos_comentarios').upsert(
                 { comentario_id: commentId, user_id: currentUser.id, tipo_voto: tipoVoto },
                 { onConflict: 'comentario_id,user_id' }
             );
+            if (error) throw error;
             userCommentVotes[commentId] = tipoVoto;
         }
 
@@ -647,6 +660,29 @@ function actualizarVotoComentarioUI(commentId, novoScore, meuVoto) {
         commentItem.querySelector('.vote-btn.upvote')  ?.classList.toggle('active', meuVoto === 1);
         commentItem.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
     }
+}
+
+// ================================================================
+// 8.2 CONFIGURAR REALTIME (TEMPO-REAL)
+// ================================================================
+function initRealtime() {
+    // Canal para Posts
+    supabase
+        .channel('public:posts')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts' }, payload => {
+            const up = payload.new;
+            actualizarVotoUI(up.id, up.score, userVotes[up.id] || 0);
+        })
+        .subscribe();
+
+    // Canal para Comentários
+    supabase
+        .channel('public:comentarios_posts')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'comentarios_posts' }, payload => {
+            const up = payload.new;
+            actualizarVotoComentarioUI(up.id, up.score, userCommentVotes[up.id] || 0);
+        })
+        .subscribe();
 }
 
 // ================================================================
