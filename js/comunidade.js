@@ -276,7 +276,7 @@ function criarCardPost(post) {
 
     const tipo   = TIPOS[post.tipo] || TIPOS.outro;
     const meuVoto = userVotes[post.id] || 0;
-    const avatar = post.perfis?.avatar_url || '../assets/default-avatar.png';
+    const avatar = post.perfis?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff';
     const nomeUser = escapeHtml(post.perfis?.username || 'Utilizador');
     const data   = formatarData(post.criado_em);
 
@@ -292,7 +292,7 @@ function criarCardPost(post) {
 
     div.innerHTML = `
         <div class="post-header">
-            <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='../assets/default-avatar.png'">
+            <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'">
             <div class="post-meta">
                 <div class="post-autor-nome">${nomeUser}</div>
                 <div class="post-data">${data}</div>
@@ -430,7 +430,7 @@ async function abrirDetalhe(postId) {
 
         const tipo = TIPOS[post.tipo] || TIPOS.outro;
         const meuVoto = userVotes[post.id] || 0;
-        const avatar = post.perfis?.avatar_url || '../assets/default-avatar.png';
+        const avatar = post.perfis?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff';
 
         let refHtml = '';
         if (post.personagens) {
@@ -441,7 +441,7 @@ async function abrirDetalhe(postId) {
 
         detalheDiv.innerHTML = `
             <div class="post-header">
-                <img class="post-avatar" src="${avatar}" alt="" onerror="this.src='../assets/default-avatar.png'">
+                <img class="post-avatar" src="${avatar}" alt="" onerror="this.src='https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'">
                 <div class="post-meta">
                     <div class="post-autor-nome">${escapeHtml(post.perfis?.username || 'Utilizador')}</div>
                     <div class="post-data">${formatarData(post.criado_em)}</div>
@@ -519,8 +519,8 @@ async function carregarComentarios(postId) {
 
         lista.innerHTML = data.map(c => `
             <div class="comment-item">
-                <img class="comment-avatar" src="${c.perfis?.avatar_url || '../assets/default-avatar.png'}" alt=""
-                     onerror="this.src='../assets/default-avatar.png'">
+                <img class="comment-avatar" src="${c.perfis?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'}" alt=""
+                     onerror="this.src='https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'">
                 <div class="comment-body">
                     <div class="comment-autor">
                         ${escapeHtml(c.perfis?.username || 'Utilizador')}
