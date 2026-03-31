@@ -11,6 +11,7 @@ let   feedCarregando  = false;
 let   postAtualId     = null;    // id do post aberto no detalhe
 let   currentUser     = null;    // utilizador supabase
 let   userVotes       = {};      // { post_id: tipo_voto }
+let   userCommentVotes = {};     // { comment_id: tipo_voto }
 let   destaquePeriodo = 'semana'; // (legacy, not really used in split view)
 
 // Dados para o modal de criação
@@ -94,6 +95,16 @@ async function carregarVotosDoUser() {
             userVotes = {};
             data.forEach(v => { userVotes[v.post_id] = v.tipo_voto; });
         }
+
+        // Carregar votos em comentários
+        const { data: cData, error: cError } = await supabase
+            .from('votos_comentarios')
+            .select('comentario_id, tipo_voto')
+            .eq('user_id', currentUser.id);
+        if (!cError && cData) {
+            userCommentVotes = {};
+            cData.forEach(v => { userCommentVotes[v.comentario_id] = v.tipo_voto; });
+        }
     } catch (e) { console.warn('votos:', e); }
 }
 
@@ -111,7 +122,8 @@ async function carregarDestaques() {
             .from('posts')
             .select(`
                 id, titulo, tipo, score, criado_em, user_id,
-                perfis:user_id ( username, avatar_url )
+                perfis:user_id ( username, avatar_url ),
+                comentarios_posts ( count )
             `)
             .gte('score', 1)
             .gte('criado_em', umMes.toISOString())
@@ -195,7 +207,8 @@ async function carregarFeed(reset = false) {
                 personagem_id, campanha_id,
                 perfis:user_id ( username, avatar_url ),
                 personagens ( nome, raca, nivel ),
-                campanhas ( nome )
+                campanhas ( nome ),
+                comentarios_posts ( count )
             `);
 
         if (feedOrdem === 'recentes') {
@@ -275,7 +288,6 @@ function criarCardPost(post) {
     div.dataset.postId = post.id;
 
     const tipo   = TIPOS[post.tipo] || TIPOS.outro;
-    const meuVoto = userVotes[post.id] || 0;
     const nomeUser = escapeHtml(post.perfis?.username || 'Utilizador');
     const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
     const avatar = post.perfis?.avatar_url || defaultAvatar;
@@ -290,40 +302,37 @@ function criarCardPost(post) {
     }
 
     const scoreClass = post.score > 0 ? 'positive' : post.score < 0 ? 'negative' : '';
+    const totalComentarios = post.comentarios_posts?.[0]?.count || 0;
 
     div.innerHTML = `
-        <div class="post-header">
-            <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
-            <div class="post-meta">
-                <div class="post-autor-nome">${nomeUser}</div>
-                <div class="post-data">${data}</div>
+        <div class="post-header-total" onclick="abrirDetalhe('${post.id}')">
+            <div class="post-header">
+                <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
+                <div class="post-meta">
+                    <div class="post-autor-nome">${nomeUser}</div>
+                    <div class="post-data">${data}</div>
+                </div>
+                <span class="post-tipo-tag tipo-${post.tipo}">${tipo.emoji} ${tipo.label}</span>
             </div>
-            <span class="post-tipo-tag tipo-${post.tipo}">${tipo.emoji} ${tipo.label}</span>
+
+            <div class="post-titulo">${escapeHtml(post.titulo)}</div>
+            <div class="post-conteudo">${escapeHtml(post.conteudo)}</div>
+            ${refHtml}
         </div>
 
-        <div class="post-titulo">${escapeHtml(post.titulo)}</div>
-        <div class="post-conteudo">${escapeHtml(post.conteudo)}</div>
-        ${refHtml}
-
         <div class="post-footer">
-            <div class="vote-group">
-                <button class="vote-btn upvote ${meuVoto === 1 ? 'active' : ''}"
-                    onclick="votar('${post.id}', 1, event)" title="Gosto">▲</button>
-                <span class="vote-score ${scoreClass}" id="score-${post.id}">${post.score}</span>
-                <button class="vote-btn downvote ${meuVoto === -1 ? 'active' : ''}"
-                    onclick="votar('${post.id}', -1, event)" title="Não gosto">▼</button>
+            <div class="vote-group-simple">
+                <span class="vote-score ${scoreClass}" id="score-${post.id}">▲ ${post.score}</span>
             </div>
-            <button class="comment-btn" onclick="abrirDetalhe('${post.id}')">
-                💬 Comentários
-            </button>
-            <button class="expand-btn" onclick="abrirDetalhe('${post.id}')">
-                Ver mais →
-            </button>
+            <div class="post-stats-simple">
+                <span class="comment-count-badge">💬 ${totalComentarios}</span>
+            </div>
         </div>
     `;
 
     // Barra colorida lateral
     div.style.setProperty('--tipo-color', tipo.cor);
+    div.style.cursor = 'pointer';
 
     return div;
 }
@@ -502,7 +511,7 @@ async function carregarComentarios(postId) {
         const { data, error } = await supabase
             .from('comentarios_posts')
             .select(`
-                id, texto, criado_em, user_id,
+                id, texto, criado_em, user_id, score,
                 perfis:user_id ( username, avatar_url )
             `)
             .eq('post_id', postId)
@@ -516,7 +525,7 @@ async function carregarComentarios(postId) {
         count.textContent = (data || []).length;
 
         if (!data || data.length === 0) {
-            lista.innerHTML = '<p style="font-size:0.85rem; color:rgba(255,255,255,0.3); padding:8px 0;">Ainda não há comentários. Sê o primeiro!</p>';
+            lista.innerHTML = '';
             return;
         }
 
@@ -524,6 +533,8 @@ async function carregarComentarios(postId) {
             const nomeUser = escapeHtml(c.perfis?.username || 'Utilizador');
             const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
             const avatar = c.perfis?.avatar_url || defaultAvatar;
+            const meuVoto = userCommentVotes[c.id] || 0;
+            const scoreClass = c.score > 0 ? 'positive' : c.score < 0 ? 'negative' : '';
             return `
             <div class="comment-item">
                 <img class="comment-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
@@ -533,6 +544,15 @@ async function carregarComentarios(postId) {
                         <span class="comment-data">${formatarData(c.criado_em)}</span>
                     </div>
                     <div class="comment-texto">${escapeHtml(c.texto)}</div>
+                    <div class="comment-footer-votes">
+                        <div class="vote-group small">
+                            <button class="vote-btn upvote ${meuVoto === 1 ? 'active' : ''}"
+                                onclick="votarComentario('${c.id}', 1, event)" title="Gosto">▲</button>
+                            <span class="vote-score ${scoreClass}" id="score-comment-${c.id}">${c.score || 0}</span>
+                            <button class="vote-btn downvote ${meuVoto === -1 ? 'active' : ''}"
+                                onclick="votarComentario('${c.id}', -1, event)" title="Não gosto">▼</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `}).join('');
@@ -571,6 +591,61 @@ async function enviarComentario() {
         mostrarToast('Erro ao publicar comentário.', 'error');
     } finally {
         btn.disabled = false;
+    }
+}
+
+// ================================================================
+// 8.1 VOTAR EM COMENTÁRIO
+// ================================================================
+async function votarComentario(commentId, tipoVoto, event) {
+    event?.stopPropagation();
+
+    if (!currentUser) {
+        mostrarToast('Faz login para votar! 🔐', 'error');
+        return;
+    }
+
+    const votoAtual = userCommentVotes[commentId] || 0;
+    const btnClicado = event?.currentTarget;
+    btnClicado?.classList.add('pop');
+    setTimeout(() => btnClicado?.classList.remove('pop'), 300);
+
+    try {
+        if (votoAtual === tipoVoto) {
+            await supabase.from('votos_comentarios').delete()
+                .eq('comentario_id', commentId)
+                .eq('user_id', currentUser.id);
+            userCommentVotes[commentId] = 0;
+        } else {
+            await supabase.from('votos_comentarios').upsert(
+                { comentario_id: commentId, user_id: currentUser.id, tipo_voto: tipoVoto },
+                { onConflict: 'comentario_id,user_id' }
+            );
+            userCommentVotes[commentId] = tipoVoto;
+        }
+
+        const { data } = await supabase
+            .from('comentarios_posts').select('score').eq('id', commentId).single();
+        const novoScore = data?.score ?? 0;
+
+        actualizarVotoComentarioUI(commentId, novoScore, userCommentVotes[commentId]);
+
+    } catch (err) {
+        console.error('Erro ao votar no comentário:', err);
+        mostrarToast('Erro ao registar voto.', 'error');
+    }
+}
+
+function actualizarVotoComentarioUI(commentId, novoScore, meuVoto) {
+    const scoreEl = document.getElementById(`score-comment-${commentId}`);
+    if (scoreEl) {
+        scoreEl.textContent = novoScore;
+        scoreEl.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''}`;
+    }
+    const commentItem = scoreEl?.closest('.comment-item');
+    if (commentItem) {
+        commentItem.querySelector('.vote-btn.upvote')  ?.classList.toggle('active', meuVoto === 1);
+        commentItem.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
     }
 }
 

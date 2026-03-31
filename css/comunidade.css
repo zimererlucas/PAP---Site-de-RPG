@@ -284,9 +284,15 @@
 }
 
 .post-card:hover {
-    border-color: rgba(255,255,255,0.18);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-    transform: translateY(-3px);
+    border-color: rgba(139,92,246,0.3);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 20px rgba(139,92,246,0.1);
+    transform: translateY(-5px);
+}
+
+/* Tornar o cabeçalho e conteúdo clicáveis sem selecionar texto */
+.post-header-total {
+    cursor: pointer;
+    user-select: none;
 }
 
 /* Linha de topo: avatar + info + tag */
@@ -409,6 +415,32 @@
     padding: 3px 5px;
 }
 
+.vote-group-simple {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 4px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.vote-group.small {
+    padding: 2px 4px;
+    border-radius: 7px;
+    gap: 1px;
+}
+
+.vote-group.small .vote-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+}
+
+.vote-group.small .vote-score {
+    font-size: 0.75rem;
+    min-width: 18px;
+}
+
 .vote-btn {
     background: transparent;
     border: none;
@@ -469,29 +501,31 @@
 
 /* Botão de comentários e expandir */
 .comment-btn, .expand-btn {
-    background: transparent;
-    border: none;
-    color: rgba(255,255,255,0.4);
-    cursor: pointer;
-    font-size: 0.78rem;
-    font-family: 'Poppins', sans-serif;
-    padding: 4px 7px;
-    border-radius: 7px;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    display: none !important;
 }
 
-.comment-btn:hover { color: white; background: rgba(255,255,255,0.07); }
-
-.expand-btn {
+.post-stats-simple {
     margin-left: auto;
-    color: rgba(139,92,246,0.7);
-    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.expand-btn:hover { color: #a78bfa; background: rgba(139,92,246,0.1); }
+.comment-count-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.03);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.comment-footer-votes {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+}
 
 /* -------------------------------------------------------
    8. ESTADOS DE LOADING / VAZIO
