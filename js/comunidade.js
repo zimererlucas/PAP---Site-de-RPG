@@ -12,6 +12,7 @@ let   postAtualId     = null;    // id do post aberto no detalhe
 let   currentUser     = null;    // utilizador supabase
 let   userVotes       = {};      // { post_id: tipo_voto }
 let   userCommentVotes = {};     // { comment_id: tipo_voto }
+let   isVoting        = {};      // { id: true/false } para evitar spam
 let   destaquePeriodo = 'semana'; // (legacy, not really used in split view)
 
 // Dados para o modal de criação
@@ -325,7 +326,7 @@ function criarCardPost(post) {
 
         <div class="post-footer">
             <div class="vote-group-simple">
-                <span class="vote-score ${scoreClass}" id="score-${post.id}">▲ ${post.score}</span>
+                <span class="vote-score ${scoreClass} score-val-${post.id}" id="score-${post.id}">▲ ${post.score}</span>
             </div>
             <div class="post-stats-simple">
                 <span class="comment-count-badge">💬 ${totalComentarios}</span>
@@ -351,14 +352,20 @@ async function votar(postId, tipoVoto, event) {
         return;
     }
 
+    if (isVoting[postId]) return;
     const votoAtual = userVotes[postId] || 0;
-    const scoreEl   = document.getElementById(`score-${postId}`);
+    
+    // Tentar encontrar o elemento de score (no card ou no modal)
+    const scoreEl = document.querySelector(`.score-val-${postId}`);
+    if (!scoreEl) return;
 
-    // UI Otimista: Actualizar localmente antes de confirmar no server
+    // UI Otimista
     const scoreDiff = (tipoVoto === votoAtual) ? -votoAtual : (tipoVoto - votoAtual);
-    const currentScoreText = scoreEl?.textContent || '0';
-    const currentScore = parseInt(currentScoreText.replace(/[^\d-]/g, '') || '0');
+    const currentScore = parseInt(scoreEl.textContent.replace(/[^\d-]/g, '') || '0');
     const novoScoreTemp = currentScore + scoreDiff;
+    
+    // Bloquear clique até terminar
+    isVoting[postId] = true;
     actualizarVotoUI(postId, novoScoreTemp, tipoVoto === votoAtual ? 0 : tipoVoto);
 
     try {
@@ -381,21 +388,27 @@ async function votar(postId, tipoVoto, event) {
     } catch (err) {
         console.error('Erro ao votar:', err);
         mostrarToast('Erro ao registar voto.', 'error');
+        // Reverter UI (O Realtime acabará por pôr o valor certo, mas isto ajuda)
+    } finally {
+        isVoting[postId] = false;
     }
 }
 
 function actualizarVotoUI(postId, novoScore, meuVoto) {
-    // Card no feed
-    const scoreEl = document.getElementById(`score-${postId}`);
-    if (scoreEl) {
-        scoreEl.textContent = novoScore;
-        scoreEl.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''}`;
-    }
-    const card = document.querySelector(`[data-post-id="${postId}"]`);
-    if (card) {
-        card.querySelector('.vote-btn.upvote')  ?.classList.toggle('active', meuVoto === 1);
-        card.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
-    }
+    // Actualizar todos os elementos que mostram o score deste post (Card e Modal)
+    const displays = document.querySelectorAll(`.score-val-${postId}`);
+    displays.forEach(el => {
+        const isCard = el.id.startsWith('score-') && !el.id.includes('detalhe');
+        el.textContent = isCard ? `▲ ${novoScore}` : novoScore;
+        el.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-val-${postId}`;
+    });
+
+    // Actualizar todos os grupos de botões ligados a este post
+    const postCards = document.querySelectorAll(`[data-post-id="${postId}"], #modalDetalhePost`);
+    postCards.forEach(container => {
+        container.querySelectorAll('.vote-btn.upvote').forEach(b => b.classList.toggle('active', meuVoto === 1));
+        container.querySelectorAll('.vote-btn.downvote').forEach(b => b.classList.toggle('active', meuVoto === -1));
+    });
 }
 
 // ================================================================
@@ -459,10 +472,10 @@ async function abrirDetalhe(postId) {
                 <div class="vote-group">
                     <button class="vote-btn upvote ${meuVoto === 1 ? 'active' : ''}"
                         onclick="votar('${post.id}', 1, event)" title="Gosto">▲</button>
-                    <span class="vote-score ${post.score > 0 ? 'positive' : post.score < 0 ? 'negative' : ''}"
-                          id="score-detalhe-${post.id}">${post.score}</span>
                     <button class="vote-btn downvote ${meuVoto === -1 ? 'active' : ''}"
                         onclick="votar('${post.id}', -1, event)" title="Não gosto">▼</button>
+                    <span class="vote-score ${post.score > 0 ? 'positive' : post.score < 0 ? 'negative' : ''} score-val-${post.id}"
+                          id="score-detalhe-${post.id}">${post.score}</span>
                 </div>
             </div>
         `;
@@ -540,7 +553,7 @@ async function carregarComentarios(postId) {
                         <div class="vote-group small">
                             <button class="vote-btn upvote ${meuVoto === 1 ? 'active' : ''}"
                                 onclick="votarComentario('${c.id}', 1, event)" title="Gosto">▲</button>
-                            <span class="vote-score ${scoreClass}" id="score-comment-${c.id}">${c.score || 0}</span>
+                            <span class="vote-score ${scoreClass} score-comm-val-${c.id}" id="score-comment-${c.id}">${c.score || 0}</span>
                             <button class="vote-btn downvote ${meuVoto === -1 ? 'active' : ''}"
                                 onclick="votarComentario('${c.id}', -1, event)" title="Não gosto">▼</button>
                         </div>
@@ -592,20 +605,17 @@ async function enviarComentario() {
 async function votarComentario(commentId, tipoVoto, event) {
     event?.stopPropagation();
 
-    if (!currentUser) {
-        mostrarToast('Faz login para votar! 🔐', 'error');
-        return;
-    }
-
+    if (isVoting[commentId]) return;
     const votoAtual = userCommentVotes[commentId] || 0;
-    const scoreEl   = document.getElementById(`score-comment-${commentId}`);
-    const btnClicado = event?.currentTarget;
-    btnClicado?.classList.add('pop');
-    setTimeout(() => btnClicado?.classList.remove('pop'), 300);
+    const scoreEl = document.querySelector(`.score-comm-val-${commentId}`);
+    if (!scoreEl) return;
 
     // UI Otimista
     const scoreDiff = (tipoVoto === votoAtual) ? -votoAtual : (tipoVoto - votoAtual);
-    const novoScoreTemp = (parseInt(scoreEl?.textContent || '0')) + scoreDiff;
+    const currentScore = parseInt(scoreEl.textContent.replace(/[^\d-]/g, '') || '0');
+    const novoScoreTemp = currentScore + scoreDiff;
+    
+    isVoting[commentId] = true;
     actualizarVotoComentarioUI(commentId, novoScoreTemp, tipoVoto === votoAtual ? 0 : tipoVoto);
 
     try {
@@ -626,20 +636,23 @@ async function votarComentario(commentId, tipoVoto, event) {
     } catch (err) {
         console.error('Erro ao votar no comentário:', err);
         mostrarToast('Erro ao registar voto.', 'error');
+    } finally {
+        isVoting[commentId] = false;
     }
 }
 
 function actualizarVotoComentarioUI(commentId, novoScore, meuVoto) {
-    const scoreEl = document.getElementById(`score-comment-${commentId}`);
-    if (scoreEl) {
-        scoreEl.textContent = novoScore;
-        scoreEl.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''}`;
-    }
-    const commentItem = scoreEl?.closest('.comment-item');
-    if (commentItem) {
-        commentItem.querySelector('.vote-btn.upvote')  ?.classList.toggle('active', meuVoto === 1);
-        commentItem.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
-    }
+    const displays = document.querySelectorAll(`.score-comm-val-${commentId}`);
+    displays.forEach(el => {
+        el.textContent = novoScore;
+        el.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-comm-val-${commentId}`;
+        
+        const item = el.closest('.comment-item');
+        if (item) {
+            item.querySelector('.vote-btn.upvote')?.classList.toggle('active', meuVoto === 1);
+            item.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
+        }
+    });
 }
 
 // ================================================================
