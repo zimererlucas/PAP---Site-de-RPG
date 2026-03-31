@@ -72,8 +72,18 @@ async function updateNavbar() {
         const googlePhoto = user.user_metadata?.avatar_url || user.user_metadata?.picture;
         const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
 
-        if (profilePic) profilePic.src = googlePhoto || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'; // Fallback se necessário
-        if (sidebarPic) sidebarPic.src = googlePhoto || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff';
+        const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2a2a35&color=fff`;
+
+        if (profilePic) {
+            profilePic.referrerPolicy = "no-referrer";
+            profilePic.onerror = () => { profilePic.src = defaultAvatar; };
+            profilePic.src = googlePhoto || defaultAvatar;
+        }
+        if (sidebarPic) {
+            sidebarPic.referrerPolicy = "no-referrer";
+            sidebarPic.onerror = () => { sidebarPic.src = defaultAvatar; };
+            sidebarPic.src = googlePhoto || defaultAvatar;
+        }
         if (sidebarName) sidebarName.textContent = fullName;
         if (sidebarEmail) sidebarEmail.textContent = user.email;
 

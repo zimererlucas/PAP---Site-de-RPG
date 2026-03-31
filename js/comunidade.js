@@ -276,8 +276,9 @@ function criarCardPost(post) {
 
     const tipo   = TIPOS[post.tipo] || TIPOS.outro;
     const meuVoto = userVotes[post.id] || 0;
-    const avatar = post.perfis?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff';
     const nomeUser = escapeHtml(post.perfis?.username || 'Utilizador');
+    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
+    const avatar = post.perfis?.avatar_url || defaultAvatar;
     const data   = formatarData(post.criado_em);
 
     // Referência (ficha ou campanha)
@@ -292,7 +293,7 @@ function criarCardPost(post) {
 
     div.innerHTML = `
         <div class="post-header">
-            <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'">
+            <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
             <div class="post-meta">
                 <div class="post-autor-nome">${nomeUser}</div>
                 <div class="post-data">${data}</div>
@@ -430,7 +431,9 @@ async function abrirDetalhe(postId) {
 
         const tipo = TIPOS[post.tipo] || TIPOS.outro;
         const meuVoto = userVotes[post.id] || 0;
-        const avatar = post.perfis?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff';
+        const nomeUser = escapeHtml(post.perfis?.username || 'Utilizador');
+        const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
+        const avatar = post.perfis?.avatar_url || defaultAvatar;
 
         let refHtml = '';
         if (post.personagens) {
@@ -441,9 +444,9 @@ async function abrirDetalhe(postId) {
 
         detalheDiv.innerHTML = `
             <div class="post-header">
-                <img class="post-avatar" src="${avatar}" alt="" onerror="this.src='https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'">
+                <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
                 <div class="post-meta">
-                    <div class="post-autor-nome">${escapeHtml(post.perfis?.username || 'Utilizador')}</div>
+                    <div class="post-autor-nome">${nomeUser}</div>
                     <div class="post-data">${formatarData(post.criado_em)}</div>
                 </div>
                 <span class="post-tipo-tag tipo-${post.tipo}">${tipo.emoji} ${tipo.label}</span>
@@ -517,19 +520,22 @@ async function carregarComentarios(postId) {
             return;
         }
 
-        lista.innerHTML = data.map(c => `
+        lista.innerHTML = data.map(c => {
+            const nomeUser = escapeHtml(c.perfis?.username || 'Utilizador');
+            const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
+            const avatar = c.perfis?.avatar_url || defaultAvatar;
+            return `
             <div class="comment-item">
-                <img class="comment-avatar" src="${c.perfis?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'}" alt=""
-                     onerror="this.src='https://ui-avatars.com/api/?name=User&background=2a2a35&color=fff'">
+                <img class="comment-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
                 <div class="comment-body">
                     <div class="comment-autor">
-                        ${escapeHtml(c.perfis?.username || 'Utilizador')}
+                        ${nomeUser}
                         <span class="comment-data">${formatarData(c.criado_em)}</span>
                     </div>
                     <div class="comment-texto">${escapeHtml(c.texto)}</div>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
     } catch (err) {
         console.error('Erro ao carregar comentários:', err);
