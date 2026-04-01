@@ -156,6 +156,21 @@ async function visualizarFicha(personagemId) {
         // Adicionar dados do perfil à ficha
         ficha.perfis = perfil;
 
+        // Carregar dados relacionados da ficha
+        const [habilidadesResult, magiasResult, conhecimentosResult, inventarioResult, anotacoesResult] = await Promise.all([
+            supabase.from('habilidades').select('*').eq('personagem_id', personagemId).order('nome'),
+            supabase.from('magias').select('*').eq('personagem_id', personagemId).order('nome'),
+            supabase.from('conhecimentos').select('*').eq('personagem_id', personagemId).order('nome'),
+            supabase.from('inventario').select('*').eq('personagem_id', personagemId).order('nome'),
+            supabase.from('anotacoes').select('*').eq('personagem_id', personagemId).order('titulo')
+        ]);
+
+        const habilidades = habilidadesResult.data || [];
+        const magias = magiasResult.data || [];
+        const conhecimentos = conhecimentosResult.data || [];
+        const inventario = inventarioResult.data || [];
+        const anotacoes = anotacoesResult.data || [];
+
         // Renderizar ficha em modo somente leitura
         fichaDiv.innerHTML = `
             <div class="ficha-header">
@@ -192,6 +207,23 @@ async function visualizarFicha(personagemId) {
                     <div class="stat-item">
                         <label>CAR</label>
                         <span class="stat-value">${ficha.carisma || 0}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ficha-resources">
+                <div class="resource-group">
+                    <div class="resource-item">
+                        <label>❤️ Vida</label>
+                        <span class="resource-value">${ficha.vida || 0}/${(ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0)}</span>
+                    </div>
+                    <div class="resource-item">
+                        <label>🔮 Mana</label>
+                        <span class="resource-value">${ficha.mana || 0}/${(ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0)}</span>
+                    </div>
+                    <div class="resource-item">
+                        <label>⚡ Estamina</label>
+                        <span class="resource-value">${ficha.estamina || 0}/${(ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0)}</span>
                     </div>
                 </div>
             </div>
@@ -237,6 +269,81 @@ async function visualizarFicha(personagemId) {
                 <div class="info-section">
                     <h3>📝 Notas</h3>
                     <p>${escapeHtml(ficha.notas)}</p>
+                </div>
+                ` : ''}
+
+                ${habilidades.length > 0 ? `
+                <div class="info-section">
+                    <h3>⚔️ Habilidades</h3>
+                    <div class="ficha-list">
+                        ${habilidades.map(h => `
+                            <div class="list-item">
+                                <span class="item-name">${escapeHtml(h.nome)}</span>
+                                <span class="item-level">Nível ${h.nivel || 1}</span>
+                                ${h.descricao ? `<div class="item-desc">${escapeHtml(h.descricao)}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${magias.length > 0 ? `
+                <div class="info-section">
+                    <h3>🔮 Magias</h3>
+                    <div class="ficha-list">
+                        ${magias.map(m => `
+                            <div class="list-item">
+                                <span class="item-name">${escapeHtml(m.nome)}</span>
+                                <span class="item-level">Nível ${m.nivel || 1}</span>
+                                ${m.descricao ? `<div class="item-desc">${escapeHtml(m.descricao)}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${conhecimentos.length > 0 ? `
+                <div class="info-section">
+                    <h3>📚 Conhecimentos</h3>
+                    <div class="ficha-list">
+                        ${conhecimentos.map(c => `
+                            <div class="list-item">
+                                <span class="item-name">${escapeHtml(c.nome)}</span>
+                                <span class="item-level">Nível ${c.nivel || 1}</span>
+                                ${c.descricao ? `<div class="item-desc">${escapeHtml(c.descricao)}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${inventario.length > 0 ? `
+                <div class="info-section">
+                    <h3>🎒 Inventário</h3>
+                    <div class="ficha-list">
+                        ${inventario.map(i => `
+                            <div class="list-item">
+                                <span class="item-name">${escapeHtml(i.nome)}</span>
+                                <span class="item-quantity">x${i.quantidade}</span>
+                                <span class="item-weight">${i.peso}kg</span>
+                                ${i.descricao ? `<div class="item-desc">${escapeHtml(i.descricao)}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${anotacoes.length > 0 ? `
+                <div class="info-section">
+                    <h3>📋 Anotações</h3>
+                    <div class="ficha-list">
+                        ${anotacoes.map(a => `
+                            <div class="list-item">
+                                <span class="item-name">${escapeHtml(a.titulo)}</span>
+                                ${a.descricao ? `<div class="item-desc">${escapeHtml(a.descricao)}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
                 ` : ''}
             </div>

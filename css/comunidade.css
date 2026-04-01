@@ -1224,6 +1224,38 @@
     color: #60a5fa;
 }
 
+.ficha-resources {
+    margin-bottom: 24px;
+}
+
+.resource-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.resource-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.resource-item label {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.resource-item .resource-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
 .ficha-info {
     margin-bottom: 24px;
 }
@@ -1273,6 +1305,43 @@
     margin: 0;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+.ficha-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.list-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.list-item .item-name {
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.list-item .item-level,
+.list-item .item-quantity,
+.list-item .item-weight {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    margin-right: 12px;
+}
+
+.list-item .item-desc {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.4;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 .ficha-footer {
