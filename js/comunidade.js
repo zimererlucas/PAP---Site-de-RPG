@@ -171,187 +171,272 @@ async function visualizarFicha(personagemId) {
         const inventario = inventarioResult.data || [];
         const anotacoes = anotacoesResult.data || [];
 
-        // Renderizar ficha em modo somente leitura
+        // Renderizar ficha em modo somente leitura (igual à página de fichas)
         fichaDiv.innerHTML = `
-            <div class="ficha-header">
-                <h2>${escapeHtml(ficha.nome)}</h2>
-                <div class="ficha-meta">
-                    <span class="ficha-raca">🏛️ ${escapeHtml(ficha.raca || 'Raça não definida')}</span>
-                    <span class="ficha-classe">⚔️ ${escapeHtml(ficha.classe || 'Classe não definida')}</span>
-                    <span class="ficha-nivel">⭐ Nível ${ficha.nivel || 1}</span>
-                </div>
-            </div>
+            <div class="ficha-container" style="max-width: 100%; margin: 0; padding: 20px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); backdrop-filter: blur(8px);">
 
-            <div class="ficha-stats">
-                <div class="stat-group">
-                    <div class="stat-item">
-                        <label>FOR</label>
-                        <span class="stat-value">${ficha.forca || 0}</span>
+                <!-- Cabeçalho da Ficha -->
+                <div class="ficha-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid var(--accent);">
+                    <div class="ficha-header-left" style="flex: 1;">
+                        <h1 id="nomePersonagemHeader" style="margin: 0; font-size: 2em; font-weight: 700; color: #fff;">${escapeHtml(ficha.nome)}</h1>
+                        <p style="margin: 5px 0 0 0; color: var(--muted); font-size: 1.05em;">${escapeHtml(ficha.raca || 'Raça não definida')}</p>
                     </div>
-                    <div class="stat-item">
-                        <label>DES</label>
-                        <span class="stat-value">${ficha.destreza || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <label>CON</label>
-                        <span class="stat-value">${ficha.constituicao || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <label>INT</label>
-                        <span class="stat-value">${ficha.inteligencia || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <label>SAB</label>
-                        <span class="stat-value">${ficha.sabedoria || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <label>CAR</label>
-                        <span class="stat-value">${ficha.carisma || 0}</span>
+                    <div class="ficha-header-right" style="text-align: right;">
+                        <div style="font-size: 1.2em; color: var(--accent); font-weight: 700;">Nível ${ficha.nivel || 1}</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="ficha-resources">
-                <div class="resource-group">
-                    <div class="resource-item">
-                        <label>❤️ Vida</label>
-                        <span class="resource-value">${ficha.vida || 0}/${(ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0)}</span>
-                    </div>
-                    <div class="resource-item">
-                        <label>🔮 Mana</label>
-                        <span class="resource-value">${ficha.mana || 0}/${(ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0)}</span>
-                    </div>
-                    <div class="resource-item">
-                        <label>⚡ Estamina</label>
-                        <span class="resource-value">${ficha.estamina || 0}/${(ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0)}</span>
-                    </div>
-                </div>
-            </div>
+                <!-- Conteúdo principal -->
+                <div class="ficha-main" style="display: flex; flex-direction: column; gap: 30px;">
 
-            <div class="ficha-info">
-                <div class="info-section">
-                    <h3>📊 Informações Básicas</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <label>Altura</label>
-                            <span>${ficha.altura || 'Não definido'}</span>
+                    <!-- Grid para a linha superior: 2 colunas (Info+Atributos | Status) -->
+                    <div class="ficha-top-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+
+                        <!-- Coluna Esquerda: Informações + Atributos -->
+                        <div>
+
+                            <!-- Informações Básicas -->
+                            <div style="margin-bottom: 30px;">
+                                <h3 style="color: var(--accent); margin-bottom: 15px; font-size: 1.2em;">📊 Informações Básicas</h3>
+                                <div class="info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
+                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Classe</div>
+                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${escapeHtml(ficha.classe || 'Não definida')}</div>
+                                    </div>
+                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
+                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Idade</div>
+                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${ficha.idade || 'Não definida'}</div>
+                                    </div>
+                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
+                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Altura</div>
+                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${ficha.altura || 'Não definida'}</div>
+                                    </div>
+                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
+                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Peso</div>
+                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${ficha.peso || 'Não definido'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Atributos -->
+                            <div>
+                                <h3 style="color: var(--accent); margin-bottom: 15px; font-size: 1.2em;">⚔️ Atributos</h3>
+                                <div class="atributos-list" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
+                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">💪</div>
+                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Força</div>
+                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.forca || 0}</div>
+                                    </div>
+                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
+                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🏃</div>
+                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Destreza</div>
+                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.destreza || 0}</div>
+                                    </div>
+                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
+                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🛡️</div>
+                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Constituição</div>
+                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.constituicao || 0}</div>
+                                    </div>
+                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
+                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🧠</div>
+                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Inteligência</div>
+                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.inteligencia || 0}</div>
+                                    </div>
+                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
+                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🎯</div>
+                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sabedoria</div>
+                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.sabedoria || 0}</div>
+                                    </div>
+                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
+                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🎭</div>
+                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Carisma</div>
+                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.carisma || 0}</div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="info-item">
-                            <label>Peso</label>
-                            <span>${ficha.peso || 'Não definido'}</span>
+
+                        <!-- Coluna Direita: Status (Vida, Mana, Estamina) -->
+                        <div>
+
+                            <!-- Status -->
+                            <h3 style="color: var(--accent); margin-bottom: 15px; font-size: 1.2em;">❤️ Status</h3>
+
+                            <!-- Barra de Vida -->
+                            <div class="status-bar" style="margin-bottom: 15px;">
+                                <div class="status-bar-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <strong style="color: #fff;">Vida</strong>
+                                    <span style="color: var(--muted); font-size: 0.85em;">${ficha.vida || 0} / ${(ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0)}</span>
+                                </div>
+                                <div class="status-bar-container" style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; height: 24px; overflow: hidden; border: 1px solid #16213e; position: relative;">
+                                    <div class="status-bar-fill" style="height: 100%; background: linear-gradient(90deg, #ff4444, #ff6666); position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: 700; color: #fff; width: ${Math.round(((ficha.vida || 0) / ((ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0))) * 100)}%;">
+                                        <span class="status-percent" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; white-space: nowrap; text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); font-size: 0.75em; font-weight: 700; color: #fff;">${Math.round(((ficha.vida || 0) / ((ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0))) * 100)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Barra de Mana -->
+                            <div class="status-bar" style="margin-bottom: 15px;">
+                                <div class="status-bar-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <strong style="color: #fff;">Mana</strong>
+                                    <span style="color: var(--muted); font-size: 0.85em;">${ficha.mana || 0} / ${(ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0)}</span>
+                                </div>
+                                <div class="status-bar-container" style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; height: 24px; overflow: hidden; border: 1px solid #16213e; position: relative;">
+                                    <div class="status-bar-fill" style="height: 100%; background: linear-gradient(90deg, #4444ff, #6666ff); position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: 700; color: #fff; width: ${Math.round(((ficha.mana || 0) / ((ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0))) * 100)}%;">
+                                        <span class="status-percent" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; white-space: nowrap; text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); font-size: 0.75em; font-weight: 700; color: #fff;">${Math.round(((ficha.mana || 0) / ((ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0))) * 100)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Barra de Estamina -->
+                            <div class="status-bar" style="margin-bottom: 15px;">
+                                <div class="status-bar-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <strong style="color: #fff;">Estamina</strong>
+                                    <span style="color: var(--muted); font-size: 0.85em;">${ficha.estamina || 0} / ${(ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0)}</span>
+                                </div>
+                                <div class="status-bar-container" style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; height: 24px; overflow: hidden; border: 1px solid #16213e; position: relative;">
+                                    <div class="status-bar-fill" style="height: 100%; background: linear-gradient(90deg, #ffaa00, #ffcc00); position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: 700; color: #fff; width: ${Math.round(((ficha.estamina || 0) / ((ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0))) * 100)}%;">
+                                        <span class="status-percent" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; white-space: nowrap; text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); font-size: 0.75em; font-weight: 700; color: #fff;">${Math.round(((ficha.estamina || 0) / ((ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0))) * 100)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="info-item">
-                            <label>Idade</label>
-                            <span>${ficha.idade || 'Não definido'}</span>
+
+                    </div>
+
+                    <!-- Abas da Ficha -->
+                    <div>
+
+                        <!-- Navbar das Abas -->
+                        <div class="ficha-navbar" style="display: flex; gap: 15px; padding: 15px 20px; background: rgba(0, 0, 0, 0.28); border-bottom: 2px solid var(--accent); border-radius: 8px; border: 1px solid #16213e; flex-wrap: wrap; margin-bottom: 15px;">
+                            <button class="ficha-navbar-btn active" onclick="switchTabComunidade('magias')" style="padding: 8px 16px; background: var(--accent); border: 2px solid var(--accent); color: white; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">🪄 Magias</button>
+                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('habilidades')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">⚔️ Habilidades</button>
+                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('conhecimentos')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">📚 Conhecimentos</button>
+                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('inventario')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">🎒 Inventário</button>
+                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('anotacoes')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">📝 Anotações</button>
                         </div>
-                        <div class="info-item">
-                            <label>Alinhamento</label>
-                            <span>${ficha.alinhamento || 'Não definido'}</span>
+
+                        <!-- Conteúdo das Abas -->
+                        <div id="tab-magias-comunidade" class="tab-content-comunidade active" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">🪄 Magias</div>
+                            </div>
+                            <div id="lista-magias-comunidade">
+                                ${magias.length > 0 ? magias.map(magia => `
+                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
+                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                                            <span style="font-weight: bold;">${escapeHtml(magia.nome)} (Nível ${magia.nivel})</span>
+                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
+                                        </button>
+                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
+                                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Dados:</strong> ${magia.dados || '-'}</div>
+                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Mana:</strong> ${magia.custo_mana || 0}</div>
+                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Estamina:</strong> ${magia.custo_estamina || 0}</div>
+                                            </div>
+                                            ${magia.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5; margin-top: 10px;">${escapeHtml(magia.descricao)}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('') : '<p style="color: var(--muted);">Nenhuma magia adicionada ainda.</p>'}
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                ${ficha.aparencia ? `
-                <div class="info-section">
-                    <h3>👁️ Aparência</h3>
-                    <p>${escapeHtml(ficha.aparencia)}</p>
-                </div>
-                ` : ''}
-
-                ${ficha.historia ? `
-                <div class="info-section">
-                    <h3>📖 História</h3>
-                    <p>${escapeHtml(ficha.historia)}</p>
-                </div>
-                ` : ''}
-
-                ${ficha.notas ? `
-                <div class="info-section">
-                    <h3>📝 Notas</h3>
-                    <p>${escapeHtml(ficha.notas)}</p>
-                </div>
-                ` : ''}
-
-                ${habilidades.length > 0 ? `
-                <div class="info-section">
-                    <h3>⚔️ Habilidades</h3>
-                    <div class="ficha-list">
-                        ${habilidades.map(h => `
-                            <div class="list-item">
-                                <span class="item-name">${escapeHtml(h.nome)}</span>
-                                <span class="item-level">Nível ${h.nivel || 1}</span>
-                                ${h.descricao ? `<div class="item-desc">${escapeHtml(h.descricao)}</div>` : ''}
+                        <div id="tab-habilidades-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">⚔️ Habilidades</div>
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : ''}
-
-                ${magias.length > 0 ? `
-                <div class="info-section">
-                    <h3>🔮 Magias</h3>
-                    <div class="ficha-list">
-                        ${magias.map(m => `
-                            <div class="list-item">
-                                <span class="item-name">${escapeHtml(m.nome)}</span>
-                                <span class="item-level">Nível ${m.nivel || 1}</span>
-                                ${m.descricao ? `<div class="item-desc">${escapeHtml(m.descricao)}</div>` : ''}
+                            <div id="lista-habilidades-comunidade">
+                                ${habilidades.length > 0 ? habilidades.map(habilidade => `
+                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
+                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                                            <span style="font-weight: bold;">${escapeHtml(habilidade.nome)} (Nível ${habilidade.nivel})</span>
+                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
+                                        </button>
+                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
+                                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Dados:</strong> ${habilidade.dados || '-'}</div>
+                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Estamina:</strong> ${habilidade.custo_estamina || 0}</div>
+                                            </div>
+                                            ${habilidade.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5; margin-top: 10px;">${escapeHtml(habilidade.descricao)}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('') : '<p style="color: var(--muted);">Nenhuma habilidade adicionada ainda.</p>'}
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : ''}
+                        </div>
 
-                ${conhecimentos.length > 0 ? `
-                <div class="info-section">
-                    <h3>📚 Conhecimentos</h3>
-                    <div class="ficha-list">
-                        ${conhecimentos.map(c => `
-                            <div class="list-item">
-                                <span class="item-name">${escapeHtml(c.nome)}</span>
-                                <span class="item-level">Nível ${c.nivel || 1}</span>
-                                ${c.descricao ? `<div class="item-desc">${escapeHtml(c.descricao)}</div>` : ''}
+                        <div id="tab-conhecimentos-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">📚 Conhecimentos</div>
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : ''}
-
-                ${inventario.length > 0 ? `
-                <div class="info-section">
-                    <h3>🎒 Inventário</h3>
-                    <div class="ficha-list">
-                        ${inventario.map(i => `
-                            <div class="list-item">
-                                <span class="item-name">${escapeHtml(i.nome)}</span>
-                                <span class="item-quantity">x${i.quantidade}</span>
-                                <span class="item-weight">${i.peso}kg</span>
-                                ${i.descricao ? `<div class="item-desc">${escapeHtml(i.descricao)}</div>` : ''}
+                            <div id="lista-conhecimentos-comunidade">
+                                ${conhecimentos.length > 0 ? conhecimentos.map(conhecimento => `
+                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
+                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                                            <span style="font-weight: bold;">${escapeHtml(conhecimento.nome)} (Nível ${conhecimento.nivel})</span>
+                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
+                                        </button>
+                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
+                                            ${conhecimento.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5;">${escapeHtml(conhecimento.descricao)}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('') : '<p style="color: var(--muted);">Nenhum conhecimento adicionado ainda.</p>'}
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : ''}
+                        </div>
 
-                ${anotacoes.length > 0 ? `
-                <div class="info-section">
-                    <h3>📋 Anotações</h3>
-                    <div class="ficha-list">
-                        ${anotacoes.map(a => `
-                            <div class="list-item">
-                                <span class="item-name">${escapeHtml(a.titulo)}</span>
-                                ${a.descricao ? `<div class="item-desc">${escapeHtml(a.descricao)}</div>` : ''}
+                        <div id="tab-inventario-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">🎒 Inventário</div>
                             </div>
-                        `).join('')}
+                            <div id="lista-inventario-comunidade">
+                                ${inventario.length > 0 ? inventario.map(item => `
+                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
+                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                                            <span style="font-weight: bold;">${escapeHtml(item.nome)} (x${item.quantidade})</span>
+                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
+                                        </button>
+                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
+                                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Peso:</strong> ${item.peso}kg</div>
+                                            </div>
+                                            ${item.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5; margin-top: 10px;">${escapeHtml(item.descricao)}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('') : '<p style="color: var(--muted);">Nenhum item no inventário ainda.</p>'}
+                            </div>
+                        </div>
+
+                        <div id="tab-anotacoes-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">📝 Anotações</div>
+                            </div>
+                            <div id="lista-anotacoes-comunidade">
+                                ${anotacoes.length > 0 ? anotacoes.map(anotacao => `
+                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
+                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
+                                            <span style="font-weight: bold;">${escapeHtml(anotacao.titulo)}</span>
+                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
+                                        </button>
+                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
+                                            ${anotacao.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5;">${escapeHtml(anotacao.descricao)}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('') : '<p style="color: var(--muted);">Nenhuma anotação adicionada ainda.</p>'}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Rodapé da Ficha -->
+                <div style="padding-top: 16px; border-top: 1px solid var(--glass-border); text-align: center; margin-top: 30px;">
+                    <div style="font-size: 0.85rem; color: var(--muted);">
+                        Criado por: ${escapeHtml(ficha.perfis?.username || 'Usuário')}
                     </div>
                 </div>
-                ` : ''}
-            </div>
 
-            <div class="ficha-footer">
-                <div class="ficha-owner">
-                    <span>Criado por: ${escapeHtml(ficha.perfis?.username || 'Usuário')}</span>
-                </div>
             </div>
         `;
 
@@ -361,10 +446,49 @@ async function visualizarFicha(personagemId) {
     }
 }
 
-function fecharModalFicha() {
-    const modal = document.getElementById('modalVisualizarFicha');
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
+// ============================================
+// FUNÇÕES PARA CONTROLE DE ABAS NA VISUALIZAÇÃO DE FICHA
+// ============================================
+
+function switchTabComunidade(tabName) {
+    // Esconder todos os conteúdos
+    document.querySelectorAll('.tab-content-comunidade').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Remover classe active de todos os botões
+    document.querySelectorAll('.ficha-navbar-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--accent)';
+    });
+
+    // Mostrar aba selecionada
+    const selectedTab = document.getElementById('tab-' + tabName + '-comunidade');
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+
+    // Ativar botão selecionado
+    const selectedBtn = document.querySelector(`[onclick="switchTabComunidade('${tabName}')"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('active');
+        selectedBtn.style.background = 'var(--accent)';
+        selectedBtn.style.color = 'white';
+    }
+}
+
+function toggleAccordionComunidade(button) {
+    const content = button.nextElementSibling;
+    const arrow = button.querySelector('span:last-child');
+
+    if (content.style.display === 'block') {
+        content.style.display = 'none';
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    } else {
+        content.style.display = 'block';
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+    }
 }
 
 // ================================================================
