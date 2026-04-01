@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Markdown - Projeto Gênesis</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a2e; color: white; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 8px; }
+        .input-area { width: 100%; height: 100px; background: #2a2a3e; border: 1px solid #444; color: white; padding: 10px; border-radius: 4px; }
+        .output-area { background: #2a2a3e; padding: 10px; border-radius: 4px; min-height: 100px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Markdown Básico</h1>
+
+    <div class="test-section">
+        <h3>Entrada (Markdown):</h3>
+        <textarea class="input-area" id="markdownInput"># Título Principal
+
+Este é um **texto em negrito** e este é *itálico*.
+
+Aqui vai um pouco de `código inline`.
+
+## Lista de Itens
+- Item 1
+- Item 2
+- Item 3
+
+> Esta é uma citação bonita
+
+[Link para Google](https://google.com)</textarea>
+    </div>
+
+    <div class="test-section">
+        <h3>Saída (HTML processado):</h3>
+        <div class="output-area" id="output"></div>
+    </div>
+
+    <script>
+// Função copiada do comunidade.js
+function processarMarkdownBasico(texto) {
+    if (!texto) return '';
+
+    return texto
+        // Headers (h1-h3)
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+
+        // Negrito e itálico
+        .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+
+        // Código inline
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+
+        // Links [texto](url)
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+
+        // Quebras de linha
+        .replace(/\n/g, '<br>')
+
+        // Limpar tags HTML potencialmente perigosas (básico)
+        .replace(/<script[^>]*>.*?<\/script>/gis, '')
+        .replace(/<style[^>]*>.*?<\/style>/gis, '');
+}
+
+function updateOutput() {
+    const input = document.getElementById('markdownInput').value;
+    const output = document.getElementById('output');
+    output.innerHTML = processarMarkdownBasico(input);
+}
+
+document.getElementById('markdownInput').addEventListener('input', updateOutput);
+updateOutput(); // Inicial
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">markdown_test.html

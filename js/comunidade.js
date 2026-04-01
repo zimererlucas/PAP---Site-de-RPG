@@ -4,7 +4,8 @@
 
 // ─── Estado Global ────────────────────────────────────────────
 const POSTS_PER_PAGE = 20;
-let   feedOrdem       = 'recentes';
+let   feedOrdem       = 'score_desc'; // score_desc | score_asc
+let   feedSearchDebounce = null;
 let   feedOffset      = 0;
 let   feedEsgotado    = false;
 let   feedCarregando  = false;
@@ -13,8 +14,6 @@ let   currentUser     = null;    // utilizador supabase
 let   userVotes       = {};      // { post_id: tipo_voto }
 let   userCommentVotes = {};     // { comment_id: tipo_voto }
 let   isVoting        = {};      // { id: true/false } para evitar spam
-let   destaquePeriodo = 'semana'; // (legacy, not really used in split view)
-
 // Dados para o modal de criação
 let fichasDoUser    = [];
 let campanhasDoUser = [];
@@ -27,6 +26,239 @@ const TIPOS = {
     narrativa:  { label: 'Narrativa',  cor: '#3b82f6', emoji: '📖' },
     outro:      { label: 'Outro',      cor: '#6b7280', emoji: '💬' }
 };
+
+// ─── Função de Processamento Markdown Básico ──────────────────
+function processarMarkdownBasico(texto) {
+    if (!texto) return '';
+
+    return texto
+        // Headers (h1-h3)
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+
+        // Negrito e itálico
+        .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+
+        // Código inline
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+
+        // Links [texto](url)
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+
+        // Quebras de linha
+        .replace(/\n/g, '<br>')
+
+        // Limpar tags HTML potencialmente perigosas (básico)
+        .replace(/<script[^>]*>.*?<\/script>/gis, '')
+        .replace(/<style[^>]*>.*?<\/style>/gis, '');
+}
+
+// ─── Função para criar preview do conteúdo ────────────────────
+function criarPreviewConteudo(conteudo, maxLength = 200) {
+    if (!conteudo) return '';
+
+    // Remover markdown para preview limpo
+    const textoLimpo = conteudo
+        .replace(/^###?\s*/gm, '') // headers
+        .replace(/\*\*\*(.*?)\*\*\*/g, '$1') // bold+italic
+        .replace(/\*\*(.*?)\*\*/g, '$1') // bold
+        .replace(/\*(.*?)\*/g, '$1') // italic
+        .replace(/`([^`]+)`/g, '$1') // code
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1') // links
+        .replace(/\n+/g, ' ') // quebras de linha
+        .trim();
+
+    if (textoLimpo.length <= maxLength) {
+        return processarMarkdownBasico(conteudo);
+    }
+
+    // Cortar no limite e adicionar "..."
+    const cortado = textoLimpo.substring(0, maxLength);
+    const ultimoEspaco = cortado.lastIndexOf(' ');
+    const preview = ultimoEspaco > 0 ? cortado.substring(0, ultimoEspaco) : cortado;
+
+    return processarMarkdownBasico(preview + '...');
+}
+
+// ─── Função para inserir formatação no textarea ───────────────
+function insertFormat(before, after) {
+    const textarea = document.getElementById('postConteudo');
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    const replacement = before + selectedText + after;
+
+    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+    textarea.focus();
+
+    // Reposicionar cursor
+    const newCursorPos = start + before.length + selectedText.length + after.length;
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+}
+
+// ─── Função para visualizar ficha (somente leitura) ────────────
+async function visualizarFicha(personagemId) {
+    // Impedir que o clique no card do post seja acionado
+    event?.stopPropagation();
+
+    // Verificar se o ID é válido
+    if (!personagemId || personagemId === 'null' || personagemId === 'undefined') {
+        console.error('ID de personagem inválido:', personagemId);
+        mostrarToast('Ficha não encontrada.', 'error');
+        return;
+    }
+
+    // Abrir modal de visualização de ficha
+    const modal = document.getElementById('modalVisualizarFicha');
+    if (!modal) {
+        console.error('Modal de visualização de ficha não encontrado');
+        return;
+    }
+
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    const fichaDiv = document.getElementById('fichaConteudo');
+    fichaDiv.innerHTML = '<div class="feed-loading"><div class="spinner"></div></div>';
+
+    try {
+        // Carregar dados da ficha
+        const { data: ficha, error } = await supabase
+            .from('personagens')
+            .select('*')
+            .eq('id', personagemId)
+            .single();
+
+        if (error) {
+            console.error('Erro ao carregar ficha:', error);
+            throw error;
+        }
+
+        // Carregar dados do perfil do criador
+        let perfil = null;
+        if (ficha.perfil_id) {
+            const { data: perfilData, error: perfilError } = await supabase
+                .from('perfis')
+                .select('username, avatar_url')
+                .eq('id', ficha.perfil_id)
+                .single();
+
+            if (!perfilError) {
+                perfil = perfilData;
+            }
+        }
+
+        // Adicionar dados do perfil à ficha
+        ficha.perfis = perfil;
+
+        // Renderizar ficha em modo somente leitura
+        fichaDiv.innerHTML = `
+            <div class="ficha-header">
+                <h2>${escapeHtml(ficha.nome)}</h2>
+                <div class="ficha-meta">
+                    <span class="ficha-raca">🏛️ ${escapeHtml(ficha.raca || 'Raça não definida')}</span>
+                    <span class="ficha-classe">⚔️ ${escapeHtml(ficha.classe || 'Classe não definida')}</span>
+                    <span class="ficha-nivel">⭐ Nível ${ficha.nivel || 1}</span>
+                </div>
+            </div>
+
+            <div class="ficha-stats">
+                <div class="stat-group">
+                    <div class="stat-item">
+                        <label>FOR</label>
+                        <span class="stat-value">${ficha.forca || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <label>DES</label>
+                        <span class="stat-value">${ficha.destreza || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <label>CON</label>
+                        <span class="stat-value">${ficha.constituicao || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <label>INT</label>
+                        <span class="stat-value">${ficha.inteligencia || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <label>SAB</label>
+                        <span class="stat-value">${ficha.sabedoria || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <label>CAR</label>
+                        <span class="stat-value">${ficha.carisma || 0}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ficha-info">
+                <div class="info-section">
+                    <h3>📊 Informações Básicas</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Altura</label>
+                            <span>${ficha.altura || 'Não definido'}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Peso</label>
+                            <span>${ficha.peso || 'Não definido'}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Idade</label>
+                            <span>${ficha.idade || 'Não definido'}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Alinhamento</label>
+                            <span>${ficha.alinhamento || 'Não definido'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                ${ficha.aparencia ? `
+                <div class="info-section">
+                    <h3>👁️ Aparência</h3>
+                    <p>${escapeHtml(ficha.aparencia)}</p>
+                </div>
+                ` : ''}
+
+                ${ficha.historia ? `
+                <div class="info-section">
+                    <h3>📖 História</h3>
+                    <p>${escapeHtml(ficha.historia)}</p>
+                </div>
+                ` : ''}
+
+                ${ficha.notas ? `
+                <div class="info-section">
+                    <h3>📝 Notas</h3>
+                    <p>${escapeHtml(ficha.notas)}</p>
+                </div>
+                ` : ''}
+            </div>
+
+            <div class="ficha-footer">
+                <div class="ficha-owner">
+                    <span>Criado por: ${escapeHtml(ficha.perfis?.username || 'Usuário')}</span>
+                </div>
+            </div>
+        `;
+
+    } catch (err) {
+        console.error('Erro ao carregar ficha:', err);
+        fichaDiv.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Erro ao carregar ficha.</p>';
+    }
+}
+
+function fecharModalFicha() {
+    const modal = document.getElementById('modalVisualizarFicha');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+}
 
 // ================================================================
 // 1. INICIALIZAÇÃO
@@ -75,13 +307,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         observer.observe(sentinel);
     }
 
+    const feedSearch = document.getElementById('feedSearch');
+    const feedTipoSel = document.getElementById('feedTipoFiltro');
+    if (feedSearch) {
+        feedSearch.addEventListener('input', () => {
+            clearTimeout(feedSearchDebounce);
+            feedSearchDebounce = setTimeout(() => carregarFeed(true), 380);
+        });
+    }
+    feedTipoSel?.addEventListener('change', () => carregarFeed(true));
+
     // Fechar modais ao clicar no overlay
     document.getElementById('modalCriarPost')  ?.addEventListener('click', e => { if (e.target.id === 'modalCriarPost')  fecharModalCriar(); });
     document.getElementById('modalDetalhePost')?.addEventListener('click', e => { if (e.target.id === 'modalDetalhePost') fecharModalDetalhe(); });
+    document.getElementById('modalVisualizarFicha')?.addEventListener('click', e => { if (e.target.id === 'modalVisualizarFicha') fecharModalFicha(); });
 
     // Tecla Escape fecha modais
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { fecharModalCriar(); fecharModalDetalhe(); }
+        if (e.key === 'Escape') { fecharModalCriar(); fecharModalDetalhe(); fecharModalFicha(); }
     });
 });
 
@@ -191,6 +434,7 @@ function renderDestaquesDuplos(semana, mes) {
 // ================================================================
 async function carregarFeed(reset = false) {
     if (feedCarregando) return;
+    if (document.getElementById('modeFeed')?.hidden) return;
 
     if (reset) {
         feedOffset   = 0;
@@ -205,6 +449,9 @@ async function carregarFeed(reset = false) {
     feedCarregando = true;
 
     try {
+        const tipoFiltro = document.getElementById('feedTipoFiltro')?.value || '';
+        const searchRaw  = document.getElementById('feedSearch')?.value || '';
+
         let query = supabase
             .from('posts')
             .select(`
@@ -216,21 +463,21 @@ async function carregarFeed(reset = false) {
                 comentarios_posts ( count )
             `);
 
-        if (feedOrdem === 'recentes') {
-            query = query
-                .order('criado_em', { ascending: false })
-                .range(feedOffset, feedOffset + POSTS_PER_PAGE - 1);
-        } else if (feedOrdem === 'votados') {
-            query = query
-                .order('score', { ascending: false })
-                .range(feedOffset, feedOffset + POSTS_PER_PAGE - 1);
-        } else {
-            // Tendência: busca recente e ordena por tendência no cliente
-            query = query
-                .gte('criado_em', new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString())
-                .order('criado_em', { ascending: false })
-                .limit(50);
+        if (tipoFiltro) {
+            query = query.eq('tipo', tipoFiltro);
         }
+
+        const pattern = buildIlikePattern(searchRaw);
+        if (pattern) {
+            const quoted = quotePostgrestFilterValue(pattern);
+            query = query.or(`titulo.ilike.${quoted},conteudo.ilike.${quoted}`);
+        }
+
+        const scoreAsc = feedOrdem === 'score_asc';
+        query = query
+            .order('score', { ascending: scoreAsc })
+            .order('criado_em', { ascending: false })
+            .range(feedOffset, feedOffset + POSTS_PER_PAGE - 1);
 
         const { data, error } = await query;
 
@@ -238,18 +485,23 @@ async function carregarFeed(reset = false) {
 
         if (error) throw error;
 
-        let posts = data || [];
-
-        // Ordenação de tendência no cliente
-        if (feedOrdem === 'tendencia') {
-            posts = posts
-                .map(p => ({ ...p, _trend: calcularTendencia(p) }))
-                .sort((a, b) => b._trend - a._trend)
-                .slice(0, POSTS_PER_PAGE);
-        }
+        const posts = data || [];
 
         if (posts.length === 0 && feedOffset === 0) {
-            document.getElementById('feedEmpty').style.display = '';
+            const emptyEl = document.getElementById('feedEmpty');
+            emptyEl.style.display = '';
+            const hasFilters = Boolean(tipoFiltro || buildIlikePattern(searchRaw));
+            const h3 = emptyEl.querySelector('h3');
+            const p = emptyEl.querySelector('p');
+            if (h3 && p) {
+                if (hasFilters) {
+                    h3.textContent = 'Nenhum resultado';
+                    p.textContent = 'Ajusta a pesquisa ou o filtro de tipo.';
+                } else {
+                    h3.textContent = 'Nenhum post ainda';
+                    p.textContent = 'Sê o primeiro a partilhar conteúdo com a comunidade!';
+                }
+            }
             document.getElementById('scrollSentinel').style.display = 'none';
             return;
         }
@@ -278,10 +530,17 @@ async function carregarFeed(reset = false) {
     }
 }
 
-// ─── Fórmula de tendência ──────────────────────────────────────
-function calcularTendencia(post) {
-    const horasDesde = (Date.now() - new Date(post.criado_em)) / 3600000;
-    return post.score / Math.pow(horasDesde + 2, 1.5);
+/** Normaliza texto de pesquisa e devolve padrão ilike ou null */
+function buildIlikePattern(raw) {
+    if (typeof raw !== 'string') return null;
+    const t = raw.replace(/[%_\\]/g, ' ').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!t) return null;
+    return `%${t}%`;
+}
+
+/** Valor entre aspas para filtros PostgREST (evita ambiguidade com vírgulas / caracteres especiais) */
+function quotePostgrestFilterValue(value) {
+    return `"${String(value).replace(/"/g, '""')}"`;
 }
 
 // ================================================================
@@ -300,14 +559,20 @@ function criarCardPost(post) {
 
     // Referência (ficha ou campanha)
     let refHtml = '';
-    if (post.personagens) {
-        refHtml = `<div class="post-referencia">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}</div>`;
+    if (post.personagens && post.personagem_id) {
+        refHtml = `<div class="post-referencia" onclick="visualizarFicha('${post.personagem_id}')" style="cursor:pointer;">
+            🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}
+            <span class="ref-link">👁️ Ver ficha</span>
+        </div>`;
     } else if (post.campanhas) {
         refHtml = `<div class="post-referencia">🎭 Campanha: ${escapeHtml(post.campanhas.nome)}</div>`;
     }
 
     const scoreClass = post.score > 0 ? 'positive' : post.score < 0 ? 'negative' : '';
     const totalComentarios = post.comentarios_posts?.[0]?.count || 0;
+
+    // Criar preview do conteúdo com markdown
+    const conteudoPreview = criarPreviewConteudo(post.conteudo, 250);
 
     div.innerHTML = `
         <div class="post-header-total" onclick="abrirDetalhe('${post.id}')">
@@ -321,7 +586,7 @@ function criarCardPost(post) {
             </div>
 
             <div class="post-titulo">${escapeHtml(post.titulo)}</div>
-            <div class="post-conteudo">${escapeHtml(post.conteudo)}</div>
+            <div class="post-conteudo">${conteudoPreview}</div>
             ${refHtml}
         </div>
 
@@ -454,8 +719,11 @@ async function abrirDetalhe(postId) {
         const avatar = post.perfis?.avatar_url || defaultAvatar;
 
         let refHtml = '';
-        if (post.personagens) {
-            refHtml = `<div class="post-referencia">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}</div>`;
+        if (post.personagens && post.personagem_id) {
+            refHtml = `<div class="post-referencia" onclick="visualizarFicha('${post.personagem_id}')" style="cursor:pointer;">
+                🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}
+                <span class="ref-link">👁️ Ver ficha</span>
+            </div>`;
         } else if (post.campanhas) {
             refHtml = `<div class="post-referencia">🎭 Campanha: ${escapeHtml(post.campanhas.nome)}</div>`;
         }
@@ -471,7 +739,7 @@ async function abrirDetalhe(postId) {
             </div>
             <div class="post-titulo" style="font-size:1.25rem; margin:14px 0 10px;">${escapeHtml(post.titulo)}</div>
             ${refHtml}
-            <div class="detail-conteudo">${escapeHtml(post.conteudo)}</div>
+            <div class="detail-conteudo">${processarMarkdownBasico(post.conteudo)}</div>
             <div class="post-footer" style="border-top:1px solid rgba(255,255,255,0.07); padding-top:14px; margin-top:10px;">
                 <div class="vote-group">
                     <button class="vote-btn upvote ${meuVoto === 1 ? 'active' : ''}"
@@ -744,7 +1012,7 @@ async function submitPost(event) {
         document.getElementById('refPersonagemSection').classList.remove('visible');
         document.getElementById('refCampanhaSection').classList.remove('visible');
         mostrarToast('Post publicado com sucesso! 🎉', 'success');
-        mudarOrdem('recentes');
+        carregarFeed(true);
 
     } catch (err) {
         console.error('Erro ao publicar:', err);
@@ -833,8 +1101,9 @@ function onPersonagemSelected() {
 // 10. ORDENAÇÃO DO FEED
 // ================================================================
 function mudarOrdem(ordem) {
+    if (ordem !== 'score_desc' && ordem !== 'score_asc') return;
     feedOrdem = ordem;
-    document.querySelectorAll('.sort-btn').forEach(b => {
+    document.querySelectorAll('.feed-sort-btns .sort-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.ordem === ordem);
     });
     carregarFeed(true);
@@ -876,3 +1145,5 @@ function mostrarToast(msg, tipo = '') {
     clearTimeout(_toastTimer);
     _toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
 }
+
+window.feedComunidadeRecarregar = () => carregarFeed(true);

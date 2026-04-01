@@ -92,10 +92,20 @@
             <!-- Cabeçalho -->
             <div class="com-header">
                 <h1>🌐 Comunidade</h1>
-                <button id="btnPublicar" class="btn-publicar" style="display:none;">
-                    ✨ Publicar Post
-                </button>
+                <div class="com-header-actions">
+                    <button id="btnPublicar" class="btn-publicar" style="display:none;" type="button">
+                        ✨ Publicar Post
+                    </button>
+                </div>
             </div>
+
+            <!-- Separador Discussão -->
+            <div class="comunidade-mode-tabs" role="tablist">
+                <button type="button" class="comunidade-tab active" data-tab="feed" role="tab" aria-selected="true">💬 Discussão</button>
+            </div>
+
+            <!-- ══ MODO: FEED ══ -->
+            <div id="modeFeed">
 
             <!-- ══ DESTAQUES ══ -->
             <section class="destaques-section" id="destaquesSection" style="display:none;">
@@ -117,13 +127,32 @@
                 </div>
             </section>
 
-            <!-- ══ TOOLBAR ══ -->
+            <!-- ══ TOOLBAR — busca, filtros e ordenação por votos ══ -->
             <div class="feed-toolbar">
-                <div class="feed-toolbar-title">Explorar Comunidade</div>
-                <div class="sort-btns">
-                    <button class="sort-btn active" data-ordem="recentes"  onclick="mudarOrdem('recentes')">🕒 Recentes</button>
-                    <button class="sort-btn"         data-ordem="votados"   onclick="mudarOrdem('votados')">🔥 Mais Votados</button>
-                    <button class="sort-btn"         data-ordem="tendencia" onclick="mudarOrdem('tendencia')">📈 Tendências</button>
+                <div class="feed-toolbar-head">
+                    <div class="feed-toolbar-title">Explorar Comunidade</div>
+                    <div class="feed-sort-btns">
+                        <button type="button" class="sort-btn active" data-ordem="score_desc" onclick="mudarOrdem('score_desc')">▲ Mais votos</button>
+                        <button type="button" class="sort-btn" data-ordem="score_asc" onclick="mudarOrdem('score_asc')">▼ Menos votos</button>
+                    </div>
+                </div>
+                <div class="feed-toolbar-search">
+                    <label class="feed-search-label" for="feedSearch">Pesquisar</label>
+                    <div class="feed-search-wrap">
+                        <span class="feed-search-icon" aria-hidden="true">🔍</span>
+                        <input type="search" id="feedSearch" class="feed-search-input" placeholder="Título ou conteúdo do post…" autocomplete="off" maxlength="200">
+                    </div>
+                </div>
+                <div class="feed-toolbar-filters">
+                    <label class="feed-filter-label" for="feedTipoFiltro">Tipo</label>
+                    <select id="feedTipoFiltro" class="feed-select">
+                        <option value="">Todos os tipos</option>
+                        <option value="homebrew">⚗️ Homebrew</option>
+                        <option value="personagem">🧙 Personagem</option>
+                        <option value="mundo">🌍 Mundo</option>
+                        <option value="narrativa">📖 Narrativa</option>
+                        <option value="outro">💬 Outro</option>
+                    </select>
                 </div>
             </div>
 
@@ -146,6 +175,8 @@
             <div id="scrollSentinel" style="display:none;">
                 <div class="load-more-spinner"></div>
             </div>
+
+            </div><!-- /modeFeed -->
 
         </div><!-- /comunidade-page -->
 
@@ -225,7 +256,15 @@
                 <!-- Conteúdo -->
                 <div class="form-group">
                     <label for="postConteudo">Conteúdo *</label>
-                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo…" maxlength="5000" required></textarea>
+                    <div class="format-toolbar">
+                        <button type="button" class="format-btn" onclick="insertFormat('**', '**')" title="Negrito">B</button>
+                        <button type="button" class="format-btn" onclick="insertFormat('*', '*')" title="Itálico">I</button>
+                        <button type="button" class="format-btn" onclick="insertFormat('`', '`')" title="Código">` `</button>
+                        <button type="button" class="format-btn" onclick="insertFormat('- ', '')" title="Lista">• Lista</button>
+                        <button type="button" class="format-btn" onclick="insertFormat('[', '](url)')" title="Link">🔗 Link</button>
+                        <span class="format-help">Formatação Markdown suportada</span>
+                    </div>
+                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo… Suporta **negrito**, *itálico*, `código`, - listas e [links](url)" maxlength="5000" required></textarea>
                 </div>
 
                 <div class="modal-actions">
@@ -266,6 +305,19 @@
         </div>
     </div>
 
+    <!-- ══════════════════════════════════════════
+         MODAL — VISUALIZAR FICHA (SOMENTE LEITURA)
+    ══════════════════════════════════════════ -->
+    <div class="modal-overlay" id="modalVisualizarFicha">
+        <div class="modal-box modal-ficha-box" style="position:relative; max-width: 800px;">
+            <button class="modal-close" onclick="fecharModalFicha()">✕</button>
+            <h2 style="margin-bottom: 20px; color: #a78bfa;">👁️ Visualizar Ficha</h2>
+
+            <!-- Conteúdo da ficha preenchido dinamicamente -->
+            <div id="fichaConteudo"></div>
+        </div>
+    </div>
+
     <!-- Toast de feedback -->
     <div class="toast-comunidade" id="toastComunidade"></div>
 
@@ -278,6 +330,8 @@
     <script src="../js/navbar-scroll.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/personagens.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
     <script src="../js/comunidade.js"></script>
 
 </body>
