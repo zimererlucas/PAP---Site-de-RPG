@@ -203,6 +203,7 @@ async function loadFicha() {
         if (!result.success) return;
 
         const ficha = result.data;
+        window.dadosFicha = ficha; // Salva para uso na edição
 
         // Atualizar campos da UI com segurança
         const setElement = (id, value) => {
@@ -217,19 +218,24 @@ async function loadFicha() {
         };
 
         // Informações Básicas
-        setElement('nomePersonagem-view', ficha.nome);
-        setElement('racaPersonagem-view', ficha.raca);
-        setElement('nivelPersonagem-view', ficha.nivel);
-        setElement('idadePersonagem-view', ficha.idade);
+        setElement('nome-view', ficha.nome);
+        setElement('raca-view', ficha.raca);
+        setElement('nivel-view', ficha.nivel);
+        setElement('idade-view', ficha.idade);
+        
+        setElement('altura-view', ficha.altura);
+        setElement('peso-view', ficha.peso);
         setElement('header-raca', ficha.raca);
         
         const headerNome = document.getElementById('nomePersonagemHeader');
         if(headerNome) headerNome.textContent = ficha.nome || 'Ficha';
 
         // Imagem do Personagem
-        const charImg = document.getElementById('charImage');
-        if (charImg && ficha.imagem_url) {
-            charImg.src = ficha.imagem_url;
+        const fotoImg = document.getElementById('fotoPersonagem');
+        // Usa `foto_url` ou `foto` consoante qual estiver popular do banco de dados (foto_url foi o que encontrámos por inspeção, foto é legado)
+        const URLImagem = ficha.foto_url || ficha.foto;
+        if (fotoImg && URLImagem) {
+            fotoImg.src = URLImagem;
         }
 
         // Status
@@ -274,46 +280,85 @@ async function loadFicha() {
 // EDIÇÃO DE INFORMAÇÕES BÁSICAS
 // ============================================
 function toggleEditarInfo() {
-    const view = document.getElementById('info-view');
-    const edit = document.getElementById('info-edit');
-    if (view && edit) {
-        if (view.style.display === 'none') {
-            view.style.display = 'block';
-            edit.style.display = 'none';
-        } else {
-            view.style.display = 'none';
-            edit.style.display = 'block';
-            
-            // Povoar inputs
-            document.getElementById('nomePersonagem').value = document.getElementById('nomePersonagem-view').textContent;
-            document.getElementById('racaPersonagem').value = document.getElementById('racaPersonagem-view').textContent;
-            document.getElementById('nivelPersonagem').value = document.getElementById('nivelPersonagem-view').textContent;
-            document.getElementById('idadePersonagem').value = document.getElementById('idadePersonagem-view').textContent;
-        }
+    const fields = ['nome', 'raca', 'idade', 'nivel', 'altura', 'peso'];
+    const saveBtn = document.getElementById('info-save-btn');
+    
+    const isEditing = saveBtn && saveBtn.style.display !== 'none';
+    
+    if (isEditing) {
+        fields.forEach(f => {
+            const view = document.getElementById(f === 'raca' ? 'raca-container' : f + '-view');
+            const input = document.getElementById(f);
+            if (view) view.style.display = 'block';
+            // Para as colunas manter o design (ex node.innerHTML vs display)
+            if (input) input.style.display = 'none';
+        });
+        if (saveBtn) saveBtn.style.display = 'none';
+        
+        // Ajustar visualização do nome, já que display: 'block' quebra a flexbox e o estilo
+        const nomeView = document.getElementById('nome-view');
+        if (nomeView) nomeView.style.display = '';
+        const racaView = document.getElementById('raca-container');
+        if (racaView) racaView.style.display = '';
+        const idadeView = document.getElementById('idade-view');
+        if (idadeView) idadeView.style.display = '';
+        const nivelView = document.getElementById('nivel-view');
+        if (nivelView) nivelView.style.display = '';
+        const alturaView = document.getElementById('altura-view');
+        if (alturaView) alturaView.style.display = '';
+        const pesoView = document.getElementById('peso-view');
+        if (pesoView) pesoView.style.display = '';
+        
+    } else {
+        const fichaDados = window.dadosFicha || {};
+        fields.forEach(f => {
+            const view = document.getElementById(f === 'raca' ? 'raca-container' : f + '-view');
+            const input = document.getElementById(f);
+            if (view && input) {
+                view.style.display = 'none';
+                input.style.display = 'block';
+                input.value = fichaDados[f] !== undefined && fichaDados[f] !== null ? fichaDados[f] : '';
+            }
+        });
+        if (saveBtn) saveBtn.style.display = 'block';
     }
 }
 
+function cancelarEditarInfo() {
+    toggleEditarInfo();
+}
+
 async function salvarInfo() {
-    const nome = document.getElementById('nomePersonagem').value;
-    const raca = document.getElementById('racaPersonagem').value;
-    const nivel = document.getElementById('nivelPersonagem').value;
-    const idade = document.getElementById('idadePersonagem').value;
+    const nome = document.getElementById('nome').value;
+    const raca = document.getElementById('raca').value;
+    const nivel = document.getElementById('nivel').value;
+    const idade = document.getElementById('idade').value;
+    const altura = document.getElementById('altura') ? document.getElementById('altura').value : null;
+    const peso = document.getElementById('peso') ? document.getElementById('peso').value : null;
 
     try {
+        const updateData = {
+            nome: nome,
+            raca: raca,
+            nivel: parseInt(nivel) || 0,
+            idade: parseInt(idade) || 0
+        };
+        if (altura !== null) updateData.altura = altura;
+        if (peso !== null) updateData.peso = peso;
+
         const { error } = await supabase
             .from('personagens')
-            .update({
-                nome: nome,
-                raca: raca,
-                nivel: parseInt(nivel) || 0,
-                idade: parseInt(idade) || 0
-            })
+            .update(updateData)
             .eq('id', fichaId);
 
         if (error) throw error;
         
         await loadFicha();
-        toggleEditarInfo();
+        // Clicar novamente no toggleEditarInfo vai fechar a edição
+        const saveBtn = document.getElementById('info-save-btn');
+        if (saveBtn && saveBtn.style.display !== 'none') {
+            toggleEditarInfo();
+        }
     } catch (err) {
         console.error('Erro ao salvar info:', err);
         alert('Erro ao salvar informações.');
@@ -430,18 +475,15 @@ function cancelarEditarStatus() {
 let cropper = null;
 
 function setupImageUpload() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.id = 'charImageInput';
-    input.accept = 'image/*';
-    input.style.display = 'none';
-    document.body.appendChild(input);
-
-    input.addEventListener('change', handleImageSelect);
+    const input = document.getElementById('fotoInput');
+    if (input) {
+        input.addEventListener('change', handleImageSelect);
+    }
 }
 
 function triggerImageUpload() {
-    document.getElementById('charImageInput').click();
+    const input = document.getElementById('fotoInput');
+    if (input) input.click();
 }
 
 function handleImageSelect(event) {
@@ -484,12 +526,12 @@ async function saveCrop() {
 
             const { error: updateError } = await supabase
                 .from('personagens')
-                .update({ imagem_url: publicUrl })
+                .update({ foto_url: publicUrl })
                 .eq('id', fichaId);
 
             if (updateError) throw updateError;
 
-            document.getElementById('charImage').src = publicUrl;
+            document.getElementById('fotoPersonagem').src = publicUrl;
             fecharModalCropper();
         } catch (err) {
             console.error('Erro no upload:', err);
@@ -504,7 +546,8 @@ function fecharModalCropper() {
     document.getElementById('cropperModal').style.display = 'none';
     if (cropper) cropper.destroy();
     cropper = null;
-    document.getElementById('charImageInput').value = '';
+    const input = document.getElementById('fotoInput');
+    if (input) input.value = '';
 }
 
 function cancelCrop() {

@@ -256,15 +256,7 @@
                 <!-- Conteúdo -->
                 <div class="form-group">
                     <label for="postConteudo">Conteúdo *</label>
-                    <div class="format-toolbar">
-                        <button type="button" class="format-btn" onclick="insertFormat('**', '**')" title="Negrito">B</button>
-                        <button type="button" class="format-btn" onclick="insertFormat('*', '*')" title="Itálico">I</button>
-                        <button type="button" class="format-btn" onclick="insertFormat('`', '`')" title="Código">` `</button>
-                        <button type="button" class="format-btn" onclick="insertFormat('- ', '')" title="Lista">• Lista</button>
-                        <button type="button" class="format-btn" onclick="insertFormat('[', '](url)')" title="Link">🔗 Link</button>
-                        <span class="format-help">Formatação Markdown suportada</span>
-                    </div>
-                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo… Suporta **negrito**, *itálico*, `código`, - listas e [links](url)" maxlength="5000" required></textarea>
+                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo…" maxlength="5000" required></textarea>
                 </div>
 
                 <div class="modal-actions">
@@ -302,19 +294,6 @@
                     Faz <a href="#" onclick="loginWithGoogle(); return false;" style="color:#a78bfa;">login</a> para comentar.
                 </p>
             </div>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         MODAL — VISUALIZAR FICHA (SOMENTE LEITURA)
-    ══════════════════════════════════════════ -->
-    <div class="modal-overlay" id="modalVisualizarFicha">
-        <div class="modal-box modal-ficha-box" style="position:relative; max-width: 800px;">
-            <button class="modal-close" onclick="fecharModalFicha()">✕</button>
-            <h2 style="margin-bottom: 20px; color: #a78bfa;">👁️ Visualizar Ficha</h2>
-
-            <!-- Conteúdo da ficha preenchido dinamicamente -->
-            <div id="fichaConteudo"></div>
         </div>
     </div>
 

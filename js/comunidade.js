@@ -27,470 +27,6 @@ const TIPOS = {
     outro:      { label: 'Outro',      cor: '#6b7280', emoji: '💬' }
 };
 
-// ─── Função de Processamento Markdown Básico ──────────────────
-function processarMarkdownBasico(texto) {
-    if (!texto) return '';
-
-    return texto
-        // Headers (h1-h3)
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-
-        // Negrito e itálico
-        .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-
-        // Código inline
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-
-        // Links [texto](url)
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-
-        // Quebras de linha
-        .replace(/\n/g, '<br>')
-
-        // Limpar tags HTML potencialmente perigosas (básico)
-        .replace(/<script[^>]*>.*?<\/script>/gis, '')
-        .replace(/<style[^>]*>.*?<\/style>/gis, '');
-}
-
-// ─── Função para criar preview do conteúdo ────────────────────
-function criarPreviewConteudo(conteudo, maxLength = 200) {
-    if (!conteudo) return '';
-
-    // Remover markdown para preview limpo
-    const textoLimpo = conteudo
-        .replace(/^###?\s*/gm, '') // headers
-        .replace(/\*\*\*(.*?)\*\*\*/g, '$1') // bold+italic
-        .replace(/\*\*(.*?)\*\*/g, '$1') // bold
-        .replace(/\*(.*?)\*/g, '$1') // italic
-        .replace(/`([^`]+)`/g, '$1') // code
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1') // links
-        .replace(/\n+/g, ' ') // quebras de linha
-        .trim();
-
-    if (textoLimpo.length <= maxLength) {
-        return processarMarkdownBasico(conteudo);
-    }
-
-    // Cortar no limite e adicionar "..."
-    const cortado = textoLimpo.substring(0, maxLength);
-    const ultimoEspaco = cortado.lastIndexOf(' ');
-    const preview = ultimoEspaco > 0 ? cortado.substring(0, ultimoEspaco) : cortado;
-
-    return processarMarkdownBasico(preview + '...');
-}
-
-// ─── Função para inserir formatação no textarea ───────────────
-function insertFormat(before, after) {
-    const textarea = document.getElementById('postConteudo');
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    const replacement = before + selectedText + after;
-
-    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
-    textarea.focus();
-
-    // Reposicionar cursor
-    const newCursorPos = start + before.length + selectedText.length + after.length;
-    textarea.setSelectionRange(newCursorPos, newCursorPos);
-}
-
-// ─── Função para visualizar ficha (somente leitura) ────────────
-async function visualizarFicha(personagemId) {
-    // Impedir que o clique no card do post seja acionado
-    event?.stopPropagation();
-
-    // Verificar se o ID é válido
-    if (!personagemId || personagemId === 'null' || personagemId === 'undefined') {
-        console.error('ID de personagem inválido:', personagemId);
-        mostrarToast('Ficha não encontrada.', 'error');
-        return;
-    }
-
-    // Abrir modal de visualização de ficha
-    const modal = document.getElementById('modalVisualizarFicha');
-    if (!modal) {
-        console.error('Modal de visualização de ficha não encontrado');
-        return;
-    }
-
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-
-    const fichaDiv = document.getElementById('fichaConteudo');
-    fichaDiv.innerHTML = '<div class="feed-loading"><div class="spinner"></div></div>';
-
-    try {
-        // Carregar dados da ficha
-        const { data: ficha, error } = await supabase
-            .from('personagens')
-            .select('*')
-            .eq('id', personagemId)
-            .single();
-
-        if (error) {
-            console.error('Erro ao carregar ficha:', error);
-            throw error;
-        }
-
-        // Carregar dados do perfil do criador
-        let perfil = null;
-        if (ficha.perfil_id) {
-            const { data: perfilData, error: perfilError } = await supabase
-                .from('perfis')
-                .select('username, avatar_url')
-                .eq('id', ficha.perfil_id)
-                .single();
-
-            if (!perfilError) {
-                perfil = perfilData;
-            }
-        }
-
-        // Adicionar dados do perfil à ficha
-        ficha.perfis = perfil;
-
-        // Carregar dados relacionados da ficha
-        const [habilidadesResult, magiasResult, conhecimentosResult, inventarioResult, anotacoesResult] = await Promise.all([
-            supabase.from('habilidades').select('*').eq('personagem_id', personagemId).order('nome'),
-            supabase.from('magias').select('*').eq('personagem_id', personagemId).order('nome'),
-            supabase.from('conhecimentos').select('*').eq('personagem_id', personagemId).order('nome'),
-            supabase.from('inventario').select('*').eq('personagem_id', personagemId).order('nome'),
-            supabase.from('anotacoes').select('*').eq('personagem_id', personagemId).order('titulo')
-        ]);
-
-        const habilidades = habilidadesResult.data || [];
-        const magias = magiasResult.data || [];
-        const conhecimentos = conhecimentosResult.data || [];
-        const inventario = inventarioResult.data || [];
-        const anotacoes = anotacoesResult.data || [];
-
-        // Renderizar ficha em modo somente leitura (igual à página de fichas)
-        fichaDiv.innerHTML = `
-            <div class="ficha-container" style="max-width: 100%; margin: 0; padding: 20px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); backdrop-filter: blur(8px);">
-
-                <!-- Cabeçalho da Ficha -->
-                <div class="ficha-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid var(--accent);">
-                    <div class="ficha-header-left" style="flex: 1;">
-                        <h1 id="nomePersonagemHeader" style="margin: 0; font-size: 2em; font-weight: 700; color: #fff;">${escapeHtml(ficha.nome)}</h1>
-                        <p style="margin: 5px 0 0 0; color: var(--muted); font-size: 1.05em;">${escapeHtml(ficha.raca || 'Raça não definida')}</p>
-                    </div>
-                    <div class="ficha-header-right" style="text-align: right;">
-                        <div style="font-size: 1.2em; color: var(--accent); font-weight: 700;">Nível ${ficha.nivel || 1}</div>
-                    </div>
-                </div>
-
-                <!-- Conteúdo principal -->
-                <div class="ficha-main" style="display: flex; flex-direction: column; gap: 30px;">
-
-                    <!-- Grid para a linha superior: 2 colunas (Info+Atributos | Status) -->
-                    <div class="ficha-top-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-
-                        <!-- Coluna Esquerda: Informações + Atributos -->
-                        <div>
-
-                            <!-- Informações Básicas -->
-                            <div style="margin-bottom: 30px;">
-                                <h3 style="color: var(--accent); margin-bottom: 15px; font-size: 1.2em;">📊 Informações Básicas</h3>
-                                <div class="info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
-                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Classe</div>
-                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${escapeHtml(ficha.classe || 'Não definida')}</div>
-                                    </div>
-                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
-                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Idade</div>
-                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${ficha.idade || 'Não definida'}</div>
-                                    </div>
-                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
-                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Altura</div>
-                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${ficha.altura || 'Não definida'}</div>
-                                    </div>
-                                    <div class="info-item" style="background: rgba(0, 0, 0, 0.28); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent);">
-                                        <div class="info-item-label" style="font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 5px;">Peso</div>
-                                        <div class="info-item-value" style="font-size: 1.1em; color: #fff; font-weight: 600;">${ficha.peso || 'Não definido'}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Atributos -->
-                            <div>
-                                <h3 style="color: var(--accent); margin-bottom: 15px; font-size: 1.2em;">⚔️ Atributos</h3>
-                                <div class="atributos-list" style="display: flex; flex-direction: column; gap: 8px;">
-                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
-                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">💪</div>
-                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Força</div>
-                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.forca || 0}</div>
-                                    </div>
-                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
-                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🏃</div>
-                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Destreza</div>
-                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.destreza || 0}</div>
-                                    </div>
-                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
-                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🛡️</div>
-                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Constituição</div>
-                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.constituicao || 0}</div>
-                                    </div>
-                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
-                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🧠</div>
-                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Inteligência</div>
-                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.inteligencia || 0}</div>
-                                    </div>
-                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
-                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🎯</div>
-                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sabedoria</div>
-                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.sabedoria || 0}</div>
-                                    </div>
-                                    <div class="atributo-row" style="display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px; background: rgba(0, 0, 0, 0.28); border-radius: 6px; border-left: 2px solid var(--accent);">
-                                        <div class="atributo-emoji" style="font-size: 1.2em; text-align: center;">🎭</div>
-                                        <div class="atributo-nome" style="font-size: 0.9em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Carisma</div>
-                                        <div class="atributo-calculo" style="font-size: 0.85em; color: var(--accent); text-align: right; font-weight: 600;">${ficha.carisma || 0}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <!-- Coluna Direita: Status (Vida, Mana, Estamina) -->
-                        <div>
-
-                            <!-- Status -->
-                            <h3 style="color: var(--accent); margin-bottom: 15px; font-size: 1.2em;">❤️ Status</h3>
-
-                            <!-- Barra de Vida -->
-                            <div class="status-bar" style="margin-bottom: 15px;">
-                                <div class="status-bar-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                    <strong style="color: #fff;">Vida</strong>
-                                    <span style="color: var(--muted); font-size: 0.85em;">${ficha.vida || 0} / ${(ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0)}</span>
-                                </div>
-                                <div class="status-bar-container" style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; height: 24px; overflow: hidden; border: 1px solid #16213e; position: relative;">
-                                    <div class="status-bar-fill" style="height: 100%; background: linear-gradient(90deg, #ff4444, #ff6666); position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: 700; color: #fff; width: ${Math.round(((ficha.vida || 0) / ((ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0))) * 100)}%;">
-                                        <span class="status-percent" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; white-space: nowrap; text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); font-size: 0.75em; font-weight: 700; color: #fff;">${Math.round(((ficha.vida || 0) / ((ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0))) * 100)}%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Barra de Mana -->
-                            <div class="status-bar" style="margin-bottom: 15px;">
-                                <div class="status-bar-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                    <strong style="color: #fff;">Mana</strong>
-                                    <span style="color: var(--muted); font-size: 0.85em;">${ficha.mana || 0} / ${(ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0)}</span>
-                                </div>
-                                <div class="status-bar-container" style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; height: 24px; overflow: hidden; border: 1px solid #16213e; position: relative;">
-                                    <div class="status-bar-fill" style="height: 100%; background: linear-gradient(90deg, #4444ff, #6666ff); position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: 700; color: #fff; width: ${Math.round(((ficha.mana || 0) / ((ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0))) * 100)}%;">
-                                        <span class="status-percent" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; white-space: nowrap; text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); font-size: 0.75em; font-weight: 700; color: #fff;">${Math.round(((ficha.mana || 0) / ((ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0))) * 100)}%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Barra de Estamina -->
-                            <div class="status-bar" style="margin-bottom: 15px;">
-                                <div class="status-bar-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                    <strong style="color: #fff;">Estamina</strong>
-                                    <span style="color: var(--muted); font-size: 0.85em;">${ficha.estamina || 0} / ${(ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0)}</span>
-                                </div>
-                                <div class="status-bar-container" style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; height: 24px; overflow: hidden; border: 1px solid #16213e; position: relative;">
-                                    <div class="status-bar-fill" style="height: 100%; background: linear-gradient(90deg, #ffaa00, #ffcc00); position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: 700; color: #fff; width: ${Math.round(((ficha.estamina || 0) / ((ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0))) * 100)}%;">
-                                        <span class="status-percent" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; white-space: nowrap; text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); font-size: 0.75em; font-weight: 700; color: #fff;">${Math.round(((ficha.estamina || 0) / ((ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0))) * 100)}%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Abas da Ficha -->
-                    <div>
-
-                        <!-- Navbar das Abas -->
-                        <div class="ficha-navbar" style="display: flex; gap: 15px; padding: 15px 20px; background: rgba(0, 0, 0, 0.28); border-bottom: 2px solid var(--accent); border-radius: 8px; border: 1px solid #16213e; flex-wrap: wrap; margin-bottom: 15px;">
-                            <button class="ficha-navbar-btn active" onclick="switchTabComunidade('magias')" style="padding: 8px 16px; background: var(--accent); border: 2px solid var(--accent); color: white; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">🪄 Magias</button>
-                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('habilidades')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">⚔️ Habilidades</button>
-                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('conhecimentos')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">📚 Conhecimentos</button>
-                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('inventario')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">🎒 Inventário</button>
-                            <button class="ficha-navbar-btn" onclick="switchTabComunidade('anotacoes')" style="padding: 8px 16px; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;">📝 Anotações</button>
-                        </div>
-
-                        <!-- Conteúdo das Abas -->
-                        <div id="tab-magias-comunidade" class="tab-content-comunidade active" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">🪄 Magias</div>
-                            </div>
-                            <div id="lista-magias-comunidade">
-                                ${magias.length > 0 ? magias.map(magia => `
-                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
-                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                                            <span style="font-weight: bold;">${escapeHtml(magia.nome)} (Nível ${magia.nivel})</span>
-                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
-                                        </button>
-                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
-                                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Dados:</strong> ${magia.dados || '-'}</div>
-                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Mana:</strong> ${magia.custo_mana || 0}</div>
-                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Estamina:</strong> ${magia.custo_estamina || 0}</div>
-                                            </div>
-                                            ${magia.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5; margin-top: 10px;">${escapeHtml(magia.descricao)}</div>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('') : '<p style="color: var(--muted);">Nenhuma magia adicionada ainda.</p>'}
-                            </div>
-                        </div>
-
-                        <div id="tab-habilidades-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">⚔️ Habilidades</div>
-                            </div>
-                            <div id="lista-habilidades-comunidade">
-                                ${habilidades.length > 0 ? habilidades.map(habilidade => `
-                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
-                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                                            <span style="font-weight: bold;">${escapeHtml(habilidade.nome)} (Nível ${habilidade.nivel})</span>
-                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
-                                        </button>
-                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
-                                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Dados:</strong> ${habilidade.dados || '-'}</div>
-                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Estamina:</strong> ${habilidade.custo_estamina || 0}</div>
-                                            </div>
-                                            ${habilidade.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5; margin-top: 10px;">${escapeHtml(habilidade.descricao)}</div>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('') : '<p style="color: var(--muted);">Nenhuma habilidade adicionada ainda.</p>'}
-                            </div>
-                        </div>
-
-                        <div id="tab-conhecimentos-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">📚 Conhecimentos</div>
-                            </div>
-                            <div id="lista-conhecimentos-comunidade">
-                                ${conhecimentos.length > 0 ? conhecimentos.map(conhecimento => `
-                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
-                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                                            <span style="font-weight: bold;">${escapeHtml(conhecimento.nome)} (Nível ${conhecimento.nivel})</span>
-                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
-                                        </button>
-                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
-                                            ${conhecimento.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5;">${escapeHtml(conhecimento.descricao)}</div>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('') : '<p style="color: var(--muted);">Nenhum conhecimento adicionado ainda.</p>'}
-                            </div>
-                        </div>
-
-                        <div id="tab-inventario-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">🎒 Inventário</div>
-                            </div>
-                            <div id="lista-inventario-comunidade">
-                                ${inventario.length > 0 ? inventario.map(item => `
-                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
-                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                                            <span style="font-weight: bold;">${escapeHtml(item.nome)} (x${item.quantidade})</span>
-                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
-                                        </button>
-                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
-                                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-                                                <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85em;"><strong>Peso:</strong> ${item.peso}kg</div>
-                                            </div>
-                                            ${item.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5; margin-top: 10px;">${escapeHtml(item.descricao)}</div>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('') : '<p style="color: var(--muted);">Nenhum item no inventário ainda.</p>'}
-                            </div>
-                        </div>
-
-                        <div id="tab-anotacoes-comunidade" class="tab-content-comunidade" style="max-height: 400px; overflow-y: auto; border-radius: 8px; padding: 20px; background: rgba(0, 0, 0, 0.2);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div class="section-title" style="margin: 0; color: var(--accent); font-size: 1.2em;">📝 Anotações</div>
-                            </div>
-                            <div id="lista-anotacoes-comunidade">
-                                ${anotacoes.length > 0 ? anotacoes.map(anotacao => `
-                                    <div class="accordion-item" style="border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.28);">
-                                        <button class="accordion-header" onclick="toggleAccordionComunidade(this)" style="width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
-                                            <span style="font-weight: bold;">${escapeHtml(anotacao.titulo)}</span>
-                                            <span style="font-size: 12px; color: var(--accent); transition: transform 0.3s ease;">▼</span>
-                                        </button>
-                                        <div class="accordion-content" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2);">
-                                            ${anotacao.descricao ? `<div style="color: rgba(255,255,255,0.8); line-height: 1.5;">${escapeHtml(anotacao.descricao)}</div>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('') : '<p style="color: var(--muted);">Nenhuma anotação adicionada ainda.</p>'}
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- Rodapé da Ficha -->
-                <div style="padding-top: 16px; border-top: 1px solid var(--glass-border); text-align: center; margin-top: 30px;">
-                    <div style="font-size: 0.85rem; color: var(--muted);">
-                        Criado por: ${escapeHtml(ficha.perfis?.username || 'Usuário')}
-                    </div>
-                </div>
-
-            </div>
-        `;
-
-    } catch (err) {
-        console.error('Erro ao carregar ficha:', err);
-        fichaDiv.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Erro ao carregar ficha.</p>';
-    }
-}
-
-// ============================================
-// FUNÇÕES PARA CONTROLE DE ABAS NA VISUALIZAÇÃO DE FICHA
-// ============================================
-
-function switchTabComunidade(tabName) {
-    // Esconder todos os conteúdos
-    document.querySelectorAll('.tab-content-comunidade').forEach(tab => {
-        tab.classList.remove('active');
-    });
-
-    // Remover classe active de todos os botões
-    document.querySelectorAll('.ficha-navbar-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.background = 'transparent';
-        btn.style.color = 'var(--accent)';
-    });
-
-    // Mostrar aba selecionada
-    const selectedTab = document.getElementById('tab-' + tabName + '-comunidade');
-    if (selectedTab) {
-        selectedTab.classList.add('active');
-    }
-
-    // Ativar botão selecionado
-    const selectedBtn = document.querySelector(`[onclick="switchTabComunidade('${tabName}')"]`);
-    if (selectedBtn) {
-        selectedBtn.classList.add('active');
-        selectedBtn.style.background = 'var(--accent)';
-        selectedBtn.style.color = 'white';
-    }
-}
-
-function toggleAccordionComunidade(button) {
-    const content = button.nextElementSibling;
-    const arrow = button.querySelector('span:last-child');
-
-    if (content.style.display === 'block') {
-        content.style.display = 'none';
-        if (arrow) arrow.style.transform = 'rotate(0deg)';
-    } else {
-        content.style.display = 'block';
-        if (arrow) arrow.style.transform = 'rotate(180deg)';
-    }
-}
-
 // ================================================================
 // 1. INICIALIZAÇÃO
 // ================================================================
@@ -551,11 +87,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fechar modais ao clicar no overlay
     document.getElementById('modalCriarPost')  ?.addEventListener('click', e => { if (e.target.id === 'modalCriarPost')  fecharModalCriar(); });
     document.getElementById('modalDetalhePost')?.addEventListener('click', e => { if (e.target.id === 'modalDetalhePost') fecharModalDetalhe(); });
-    document.getElementById('modalVisualizarFicha')?.addEventListener('click', e => { if (e.target.id === 'modalVisualizarFicha') fecharModalFicha(); });
 
     // Tecla Escape fecha modais
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { fecharModalCriar(); fecharModalDetalhe(); fecharModalFicha(); }
+        if (e.key === 'Escape') { fecharModalCriar(); fecharModalDetalhe(); }
     });
 });
 
@@ -790,20 +325,14 @@ function criarCardPost(post) {
 
     // Referência (ficha ou campanha)
     let refHtml = '';
-    if (post.personagens && post.personagem_id) {
-        refHtml = `<div class="post-referencia" onclick="visualizarFicha('${post.personagem_id}')" style="cursor:pointer;">
-            🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}
-            <span class="ref-link">👁️ Ver ficha</span>
-        </div>`;
+    if (post.personagens) {
+        refHtml = `<div class="post-referencia">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}</div>`;
     } else if (post.campanhas) {
         refHtml = `<div class="post-referencia">🎭 Campanha: ${escapeHtml(post.campanhas.nome)}</div>`;
     }
 
     const scoreClass = post.score > 0 ? 'positive' : post.score < 0 ? 'negative' : '';
     const totalComentarios = post.comentarios_posts?.[0]?.count || 0;
-
-    // Criar preview do conteúdo com markdown
-    const conteudoPreview = criarPreviewConteudo(post.conteudo, 250);
 
     div.innerHTML = `
         <div class="post-header-total" onclick="abrirDetalhe('${post.id}')">
@@ -817,7 +346,7 @@ function criarCardPost(post) {
             </div>
 
             <div class="post-titulo">${escapeHtml(post.titulo)}</div>
-            <div class="post-conteudo">${conteudoPreview}</div>
+            <div class="post-conteudo">${escapeHtml(post.conteudo)}</div>
             ${refHtml}
         </div>
 
@@ -950,11 +479,8 @@ async function abrirDetalhe(postId) {
         const avatar = post.perfis?.avatar_url || defaultAvatar;
 
         let refHtml = '';
-        if (post.personagens && post.personagem_id) {
-            refHtml = `<div class="post-referencia" onclick="visualizarFicha('${post.personagem_id}')" style="cursor:pointer;">
-                🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}
-                <span class="ref-link">👁️ Ver ficha</span>
-            </div>`;
+        if (post.personagens) {
+            refHtml = `<div class="post-referencia">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}</div>`;
         } else if (post.campanhas) {
             refHtml = `<div class="post-referencia">🎭 Campanha: ${escapeHtml(post.campanhas.nome)}</div>`;
         }
@@ -970,7 +496,7 @@ async function abrirDetalhe(postId) {
             </div>
             <div class="post-titulo" style="font-size:1.25rem; margin:14px 0 10px;">${escapeHtml(post.titulo)}</div>
             ${refHtml}
-            <div class="detail-conteudo">${processarMarkdownBasico(post.conteudo)}</div>
+            <div class="detail-conteudo">${escapeHtml(post.conteudo)}</div>
             <div class="post-footer" style="border-top:1px solid rgba(255,255,255,0.07); padding-top:14px; margin-top:10px;">
                 <div class="vote-group">
                     <button class="vote-btn upvote ${meuVoto === 1 ? 'active' : ''}"
