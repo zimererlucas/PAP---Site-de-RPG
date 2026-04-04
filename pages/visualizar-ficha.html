@@ -528,6 +528,102 @@
             opacity: 1 !important;
         }
 
+        /* Tabela de Pontos */
+        .pontos-tabela {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+            border-radius: 12px;
+            padding: 12px;
+            align-self: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .ponto-celula {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.25);
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+            position: relative;
+            min-width: 80px;
+        }
+
+        .ponto-celula:hover {
+            background: rgba(102, 126, 234, 0.22);
+            border-color: rgba(102, 126, 234, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .ponto-celula.editando {
+            background: rgba(102, 126, 234, 0.18);
+            border-color: #667eea;
+            cursor: default;
+        }
+
+        .ponto-sigla {
+            font-size: 0.7em;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2px;
+        }
+
+        .ponto-valor {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .ponto-nome {
+            font-size: 0.6em;
+            color: var(--muted);
+            margin-top: 4px;
+            line-height: 1.1;
+            font-weight: 500;
+        }
+
+        .ponto-input-inline {
+            width: 60px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            padding: 0px 2px;
+            background: #1a2a4e;
+            border: 2px solid #667eea;
+            color: #fff;
+            border-radius: 6px;
+            outline: none;
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+        .ponto-input-inline::-webkit-outer-spin-button,
+        .ponto-input-inline::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .ponto-hint {
+            font-size: 0.6em;
+            color: rgba(102, 126, 234, 0.7);
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .ponto-celula:hover .ponto-hint {
+            opacity: 1;
+        }
+
         /* Modal de Corte de Imagem */
         .cropper-modal-container {
             display: none;
@@ -682,8 +778,8 @@
 
                             <!-- Coluna de Informações -->
                             <div style="flex-grow: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <div>
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                                    <div style="flex: 1;">
                                         <!-- Nome -->
                                         <h1 id="nome-view"
                                             style="font-size: 2.2em; margin: 0; color: #fff; font-weight: 700;">-</h1>
@@ -698,6 +794,39 @@
                                         <input type="text" id="raca" class="info-item-input"
                                             style="display: none; font-size: 1.2em; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; margin-bottom: 15px;">
                                     </div>
+
+                                    <!-- Tabela de Pontos -->
+                                    <div class="pontos-tabela">
+                                        <!-- PB -->
+                                        <div class="ponto-celula" id="celula-ponto-bloqueio" onclick="ativarEdicaoPonto('ponto-bloqueio', 'ponto_bloqueio', this)" title="Clique para editar">
+                                            <div class="ponto-sigla">PB</div>
+                                            <div class="ponto-valor" id="ponto-bloqueio-view">0</div>
+                                            <div class="ponto-nome">Pontos de Bloqueio</div>
+                                            <div class="ponto-hint">✏️ clique para editar</div>
+                                        </div>
+                                        <!-- PR -->
+                                        <div class="ponto-celula" id="celula-ponto-reacao" onclick="ativarEdicaoPonto('ponto-reacao', 'ponto_reacao', this)" title="Clique para editar">
+                                            <div class="ponto-sigla">PR</div>
+                                            <div class="ponto-valor" id="ponto-reacao-view">0</div>
+                                            <div class="ponto-nome">Pontos de Reação</div>
+                                            <div class="ponto-hint">✏️ clique para editar</div>
+                                        </div>
+                                        <!-- PD -->
+                                        <div class="ponto-celula" id="celula-ponto-destino" onclick="ativarEdicaoPonto('ponto-destino', 'ponto_destino', this)" title="Clique para editar">
+                                            <div class="ponto-sigla">PD</div>
+                                            <div class="ponto-valor" id="ponto-destino-view">0</div>
+                                            <div class="ponto-nome">Pontos de Destino</div>
+                                            <div class="ponto-hint">✏️ clique para editar</div>
+                                        </div>
+                                        <!-- PT -->
+                                        <div class="ponto-celula" id="celula-ponto-treinamento" onclick="ativarEdicaoPonto('ponto-treinamento', 'ponto_treinamento', this)" title="Clique para editar">
+                                            <div class="ponto-sigla">PT</div>
+                                            <div class="ponto-valor" id="ponto-treinamento-view">0</div>
+                                            <div class="ponto-nome">Pontos de Treinamento</div>
+                                            <div class="ponto-hint">✏️ clique para editar</div>
+                                        </div>
+                                    </div>
+
                                     <button onclick="toggleEditarInfo()"
                                         style="background: none; border: none; color: #667eea; cursor: pointer; font-size: 24px; padding: 10px; transition: transform 0.2s;"
                                         onmouseover="this.style.transform='scale(1.2)'"

@@ -293,6 +293,12 @@ async function loadFicha() {
         // Peso
         setElement('peso-view', ficha.peso);
 
+        // Pontos especiais
+        setElement('ponto-bloqueio-view',    ficha.ponto_bloqueio    !== undefined ? ficha.ponto_bloqueio    : 0);
+        setElement('ponto-reacao-view',      ficha.ponto_reacao      !== undefined ? ficha.ponto_reacao      : 0);
+        setElement('ponto-destino-view',     ficha.ponto_destino     !== undefined ? ficha.ponto_destino     : 0);
+        setElement('ponto-treinamento-view', ficha.ponto_treinamento  !== undefined ? ficha.ponto_treinamento  : 0);
+
     } catch (err) {
         console.error('Erro ao processar dados da ficha:', err);
     }
@@ -312,12 +318,10 @@ function toggleEditarInfo() {
             const view = document.getElementById(f === 'raca' ? 'raca-container' : f + '-view');
             const input = document.getElementById(f);
             if (view) view.style.display = 'block';
-            // Para as colunas manter o design (ex node.innerHTML vs display)
             if (input) input.style.display = 'none';
         });
         if (saveBtn) saveBtn.style.display = 'none';
         
-        // Ajustar visualização do nome, já que display: 'block' quebra a flexbox e o estilo
         const nomeView = document.getElementById('nome-view');
         if (nomeView) nomeView.style.display = '';
         const racaView = document.getElementById('raca-container');
@@ -350,23 +354,92 @@ function cancelarEditarInfo() {
     toggleEditarInfo();
 }
 
+// ============================================
+// EDIÇÃO INLINE DE PONTOS (clique direto na célula)
+// ============================================
+function ativarEdicaoPonto(viewId, dbKey, celulaEl) {
+    // Evitar dupla activação se já estiver a editar
+    if (celulaEl.classList.contains('editando')) return;
+
+    const viewEl = document.getElementById(viewId + '-view');
+    if (!viewEl) return;
+
+    const valorAtual = parseInt(viewEl.textContent) || 0;
+
+    // Criar input inline
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.value = valorAtual;
+    input.min = '0';
+    input.className = 'ponto-input-inline';
+
+    // Substituir o elemento de valor pelo input
+    viewEl.style.display = 'none';
+    viewEl.parentNode.insertBefore(input, viewEl.nextSibling);
+
+    celulaEl.classList.add('editando');
+    // Remover o onclick enquanto edita para não re-activar
+    celulaEl.onclick = null;
+
+    input.focus();
+    input.select();
+
+    const finalizarEdicao = async () => {
+        const novoValor = parseInt(input.value) || 0;
+        input.remove();
+        viewEl.style.display = '';
+        viewEl.textContent = novoValor;
+        celulaEl.classList.remove('editando');
+        // Restaurar onclick
+        celulaEl.onclick = () => ativarEdicaoPonto(viewId, dbKey, celulaEl);
+
+        // Actualizar o cache local
+        if (window.dadosFicha) window.dadosFicha[dbKey] = novoValor;
+
+        // Guardar no Supabase
+        try {
+            const { error } = await supabase
+                .from('personagens')
+                .update({ [dbKey]: novoValor })
+                .eq('id', fichaId);
+            if (error) throw error;
+        } catch (err) {
+            console.error('Erro ao guardar ponto:', err);
+            alert('Erro ao guardar ponto.');
+        }
+    };
+
+    input.addEventListener('blur', finalizarEdicao);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') input.blur();
+        if (e.key === 'Escape') {
+            // Cancelar sem guardar
+            input.removeEventListener('blur', finalizarEdicao);
+            input.remove();
+            viewEl.style.display = '';
+            celulaEl.classList.remove('editando');
+            celulaEl.onclick = () => ativarEdicaoPonto(viewId, dbKey, celulaEl);
+        }
+    });
+}
+
 async function salvarInfo() {
-    const nome = document.getElementById('nome').value;
-    const raca = document.getElementById('raca').value;
-    const nivel = document.getElementById('nivel').value;
-    const idade = document.getElementById('idade').value;
+    const nome   = document.getElementById('nome').value;
+    const raca   = document.getElementById('raca').value;
+    const nivel  = document.getElementById('nivel').value;
+    const idade  = document.getElementById('idade').value;
     const altura = document.getElementById('altura') ? document.getElementById('altura').value : null;
-    const peso = document.getElementById('peso') ? document.getElementById('peso').value : null;
+    const peso   = document.getElementById('peso')   ? document.getElementById('peso').value   : null;
 
     try {
         const updateData = {
-            nome: nome,
-            raca: raca,
+            nome:  nome,
+            raca:  raca,
             nivel: parseInt(nivel) || 0,
             idade: parseInt(idade) || 0
         };
         if (altura !== null) updateData.altura = altura;
-        if (peso !== null) updateData.peso = peso;
+        if (peso   !== null) updateData.peso   = peso;
 
         const { error } = await supabase
             .from('personagens')
@@ -376,7 +449,6 @@ async function salvarInfo() {
         if (error) throw error;
         
         await loadFicha();
-        // Clicar novamente no toggleEditarInfo vai fechar a edição
         const saveBtn = document.getElementById('info-save-btn');
         if (saveBtn && saveBtn.style.display !== 'none') {
             toggleEditarInfo();
