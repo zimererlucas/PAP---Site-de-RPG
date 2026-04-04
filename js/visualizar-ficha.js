@@ -209,10 +209,12 @@ async function loadFicha() {
         const setElement = (id, value) => {
             const el = document.getElementById(id);
             if (el && !camposEditandoAtivo.has(id)) {
+                // Usar null/undefined check explícito para não tratar 0 como falsy
+                const displayValue = (value !== null && value !== undefined) ? value : '';
                 if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
-                    el.value = value || '';
+                    el.value = displayValue;
                 } else {
-                    el.textContent = value || '-';
+                    el.textContent = displayValue !== '' ? displayValue : '-';
                 }
             }
         };
@@ -238,13 +240,17 @@ async function loadFicha() {
             fotoImg.src = URLImagem;
         }
 
-        // Status
+        // Status — somar base + bónus para os máximos
+        const vidaMaximaTotal    = (ficha.vida_maxima    || 0) + (ficha.vida_maxima_bonus    || 0);
+        const manaMaximaTotal    = (ficha.mana_maxima    || 0) + (ficha.mana_maxima_bonus    || 0);
+        const estaminaMaximaTotal = (ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0);
+
         setElement('vidaAtual', ficha.vida_atual);
-        setElement('vidaMaxima-view', ficha.vida_maxima);
+        setElement('vidaMaxima-view', vidaMaximaTotal);
         setElement('manaAtual', ficha.mana_atual);
-        setElement('manaMaxima-view', ficha.mana_maxima);
+        setElement('manaMaxima-view', manaMaximaTotal);
         setElement('estaminaAtual', ficha.estamina_atual);
-        setElement('estaminaMaxima-view', ficha.estamina_maxima);
+        setElement('estaminaMaxima-view', estaminaMaximaTotal);
 
         atualizarBarraVida();
         atualizarBarraMana();
@@ -259,7 +265,14 @@ async function loadFicha() {
             
             setElement(attr + 'Base-view', base);
             setElement(attr + 'Bonus-view', bonus);
-            setElement(attr + 'Total-view', total);
+            // IDs dos totais no HTML não têm sufixo -view (ex: "forcaTotal")
+            const totalEl = document.getElementById(attr + 'Total');
+            if (totalEl && !camposEditandoAtivo.has(attr + 'Total')) {
+                totalEl.textContent = total;
+            }
+            // Atualizar também o total no modo edição
+            const totalEditEl = document.getElementById(attr + 'Total-edit');
+            if (totalEditEl) totalEditEl.textContent = total;
             
             // Povoar inputs de edição
             const input = document.getElementById(attr + 'Base');
@@ -267,6 +280,15 @@ async function loadFicha() {
                 input.value = base;
             }
         });
+
+        // Calcular Esquiva e Acerto a partir de Agilidade (regra: +1 acerto e +1 esquiva por ponto)
+        const agilidadeBase = ficha['agilidade_base'] || 0;
+        const agilidadeBonus = ficha['agilidade_bonus'] || 0;
+        const agilidadeTotal = agilidadeBase + agilidadeBonus;
+        const esquivaEl = document.getElementById('esquivaValor');
+        const acertoEl = document.getElementById('acertoValor');
+        if (esquivaEl) esquivaEl.textContent = agilidadeTotal;
+        if (acertoEl) acertoEl.textContent = agilidadeTotal;
 
         // Peso
         setElement('peso-view', ficha.peso);
@@ -372,6 +394,8 @@ function toggleEditarAtributos() {
     const viewCalcs = document.querySelectorAll('.atributo-calculo');
     const editCalcs = document.querySelectorAll('.atributo-calculo-edit');
     
+    const isOpening = viewCalcs.length > 0 && viewCalcs[0].style.display !== 'none';
+    
     viewCalcs.forEach(el => {
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
     });
@@ -382,6 +406,23 @@ function toggleEditarAtributos() {
 
     const saveBtn = document.getElementById('atributos-save-btn');
     if (saveBtn) saveBtn.style.display = saveBtn.style.display === 'none' ? 'block' : 'none';
+
+    // Ao abrir o modo de edição, adicionar listeners de input para atualizar totais em tempo real
+    if (isOpening) {
+        const atributos = ['forca', 'agilidade', 'sorte', 'inteligencia', 'foco', 'arcanismo'];
+        atributos.forEach(attr => {
+            const baseInput = document.getElementById(attr + 'Base');
+            const bonusInput = document.getElementById(attr + 'Bonus');
+            const totalSpan = document.getElementById(attr + 'Total-edit');
+            if (baseInput && totalSpan) {
+                baseInput.oninput = () => {
+                    const base = parseInt(baseInput.value) || 0;
+                    const bonus = bonusInput ? (parseInt(bonusInput.value) || 0) : 0;
+                    totalSpan.textContent = base + bonus;
+                };
+            }
+        });
+    }
 }
 
 async function salvarAtributos() {
@@ -427,15 +468,18 @@ function toggleEditarStatus() {
                 view.style.display = 'none';
                 edit.style.display = 'inline';
                 
-                // Povoar inputs
+                // Povoar inputs — usar valor base da BD (sem bónus) para o máximo
                 const atualVal = document.getElementById(comp + 'Atual').textContent;
-                const maximaVal = document.getElementById(comp + 'Maxima-view').textContent;
+                const dadosFicha = window.dadosFicha || {};
+                const baseKey = comp === 'estamina' ? 'estamina_maxima' : comp + '_maxima';
+                const baseMaxima = dadosFicha[baseKey] !== undefined ? dadosFicha[baseKey] : 
+                    parseInt(document.getElementById(comp + 'Maxima-view').textContent) || 0;
                 
                 const atualInput = document.getElementById(comp + 'Atual-edit');
                 const maximaInput = document.getElementById(comp + 'Maxima');
                 
                 if (atualInput) atualInput.value = atualVal;
-                if (maximaInput) maximaInput.value = maximaVal;
+                if (maximaInput) maximaInput.value = baseMaxima;
             }
         }
     });
@@ -446,12 +490,12 @@ function toggleEditarStatus() {
 
 async function salvarStatus() {
     const updateData = {
-        vida_atual: parseInt(document.getElementById('vidaAtual-edit').value) || 0,
-        vida_maxima: parseInt(document.getElementById('vidaMaxima').value) || 1,
-        mana_atual: parseInt(document.getElementById('manaAtual-edit').value) || 0,
-        mana_maxima: parseInt(document.getElementById('manaMaxima').value) || 1,
-        estamina_atual: parseInt(document.getElementById('estaminaAtual-edit').value) || 0,
-        estamina_maxima: parseInt(document.getElementById('estaminaMaxima').value) || 1
+        vida_atual:      parseInt(document.getElementById('vidaAtual-edit').value)    || 0,
+        vida_maxima:     parseInt(document.getElementById('vidaMaxima').value)         || 1,
+        mana_atual:      parseInt(document.getElementById('manaAtual-edit').value)    || 0,
+        mana_maxima:     parseInt(document.getElementById('manaMaxima').value)         || 1,
+        estamina_atual:  parseInt(document.getElementById('estaminaAtual-edit').value) || 0,
+        estamina_maxima: parseInt(document.getElementById('estaminaMaxima').value)     || 1
     };
 
     try {
