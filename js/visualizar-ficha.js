@@ -9,6 +9,37 @@ const HISTORICO_DADOS_MAX = 50;
 // FUNÇÕES PARA ALTERAR VIDA, MANA E ESTAMINA (ESCOPO GLOBAL)
 // ============================================
 
+let debounceTimerStatus = null;
+
+async function debounceSalvarStatusRapido() {
+    if (!fichaId || !window.supabase) return;
+    
+    if (debounceTimerStatus) clearTimeout(debounceTimerStatus);
+    debounceTimerStatus = setTimeout(async () => {
+        const vidaAtualEl = document.getElementById('vidaAtual');
+        const manaAtualEl = document.getElementById('manaAtual');
+        const estaminaAtualEl = document.getElementById('estaminaAtual');
+        
+        if (!vidaAtualEl || !manaAtualEl || !estaminaAtualEl) return;
+        
+        const vidaAtual = parseInt(vidaAtualEl.textContent) || 0;
+        const manaAtual = parseInt(manaAtualEl.textContent) || 0;
+        const estaminaAtual = parseInt(estaminaAtualEl.textContent) || 0;
+        
+        try {
+            const { error } = await supabase.from('personagens').update({
+                vida_atual: vidaAtual,
+                mana_atual: manaAtual,
+                estamina_atual: estaminaAtual
+            }).eq('id', fichaId);
+            
+            if (error) throw error;
+        } catch (err) {
+            console.error('Erro ao auto-salvar status:', err);
+        }
+    }, 500);
+}
+
 function alterarVida(valor) {
     const vidaAtualEl = document.getElementById('vidaAtual');
     const vidaMaximaEl = document.getElementById('vidaMaxima-view');
@@ -22,6 +53,7 @@ function alterarVida(valor) {
 
     vidaAtualEl.textContent = vidaAtual;
     atualizarBarraVida();
+    debounceSalvarStatusRapido();
 }
 
 function alterarMana(valor) {
@@ -37,6 +69,7 @@ function alterarMana(valor) {
 
     manaAtualEl.textContent = manaAtual;
     atualizarBarraMana();
+    debounceSalvarStatusRapido();
 }
 
 function alterarEstamina(valor) {
@@ -52,6 +85,7 @@ function alterarEstamina(valor) {
 
     estaminaAtualEl.textContent = estaminaAtual;
     atualizarBarraEstamina();
+    debounceSalvarStatusRapido();
 }
 
 function atualizarBarraVida() {
