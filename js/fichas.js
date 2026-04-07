@@ -51,6 +51,7 @@ async function loadFichas() {
 
         // Renderizar fichas iniciais
         renderFichas(fichas);
+        updateProgressFichas();
 
     } catch (error) {
         console.error('Erro ao carregar fichas:', error);
@@ -99,7 +100,46 @@ function renderFichas(lista) {
     `).join('');
 }
 
+function updateProgressFichas() {
+    const container = document.getElementById('fichas-progress-container');
+    const text = document.getElementById('fichas-progress-text');
+    const bar = document.getElementById('fichas-progress-bar');
+    if (!container || !text || !bar) return;
+
+    container.style.display = 'block';
+    
+    // Verifica cargo de administrador injetado por auth.js
+    const isAdmin = window.currentUserProfile && window.currentUserProfile.is_admin;
+    const maxFichas = 5;
+    const current = todasFichas.length;
+
+    if (isAdmin) {
+        text.textContent = `Fichas: ${current} / ∞ (Administrador)`;
+        bar.style.width = '100%';
+        bar.style.backgroundColor = '#10b981'; // Verde indicando privilégio admin
+    } else {
+        text.textContent = `Fichas: ${current} / ${maxFichas}`;
+        const pct = Math.min((current / maxFichas) * 100, 100);
+        bar.style.width = `${pct}%`;
+        
+        if (current >= maxFichas) {
+            bar.style.backgroundColor = '#ef4444'; // Vermelho lotado
+            text.style.color = '#ef4444';
+        } else {
+            bar.style.backgroundColor = '#667eea';
+            text.style.color = '#667eea';
+        }
+    }
+}
+
 async function createNewFicha() {
+    const isAdmin = window.currentUserProfile && window.currentUserProfile.is_admin;
+
+    if (!isAdmin && todasFichas && todasFichas.length >= 5) {
+        alert('Limite atingido: você só pode ter até 5 fichas (personagens). Como administrador os limites não se aplicam.');
+        return;
+    }
+
     const defaultFicha = {
         nome: 'Nova Ficha'
     };

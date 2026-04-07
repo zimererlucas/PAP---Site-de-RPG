@@ -239,11 +239,16 @@ async function carregarFeed(reset = false) {
             query = query.or(`titulo.ilike.${quoted},conteudo.ilike.${quoted}`);
         }
 
-        const scoreAsc = feedOrdem === 'score_asc';
-        query = query
-            .order('score', { ascending: scoreAsc })
-            .order('criado_em', { ascending: false })
-            .range(feedOffset, feedOffset + POSTS_PER_PAGE - 1);
+        if (feedOrdem === 'recentes') {
+            query = query.order('criado_em', { ascending: false });
+        } else {
+            const scoreAsc = feedOrdem === 'score_asc';
+            query = query
+                .order('score', { ascending: scoreAsc })
+                .order('criado_em', { ascending: false });
+        }
+        
+        query = query.range(feedOffset, feedOffset + POSTS_PER_PAGE - 1);
 
         const { data, error } = await query;
 
@@ -326,9 +331,9 @@ function criarCardPost(post) {
     // Referência (ficha ou campanha)
     let refHtml = '';
     if (post.personagens) {
-        refHtml = `<div class="post-referencia">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}</div>`;
+        refHtml = `<div class="post-referencia" onclick="window.open('visualizar-ficha.html?id=${post.personagem_id}&view=true', '_blank'); event.stopPropagation();" style="cursor:pointer; display:inline-block; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')} <span style="font-size:0.85em; opacity:0.8;">(🔎 Clica para ver)</span></div>`;
     } else if (post.campanhas) {
-        refHtml = `<div class="post-referencia">🎭 Campanha: ${escapeHtml(post.campanhas.nome)}</div>`;
+        refHtml = `<div class="post-referencia" onclick="window.open('visualizar-campanha-jogador.html?id=${post.campanha_id}&view=true', '_blank'); event.stopPropagation();" style="cursor:pointer; display:inline-block; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">🎭 Campanha: ${escapeHtml(post.campanhas.nome)} <span style="font-size:0.85em; opacity:0.8;">(🔎 Clica para ver)</span></div>`;
     }
 
     const scoreClass = post.score > 0 ? 'positive' : post.score < 0 ? 'negative' : '';
@@ -480,9 +485,9 @@ async function abrirDetalhe(postId) {
 
         let refHtml = '';
         if (post.personagens) {
-            refHtml = `<div class="post-referencia">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')}</div>`;
+            refHtml = `<div class="post-referencia" onclick="window.open('visualizar-ficha.html?id=${post.personagem_id}&view=true', '_blank')" style="cursor:pointer; display:inline-block; margin-bottom: 15px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'">🧙 ${escapeHtml(post.personagens.nome)} · Nível ${post.personagens.nivel || '?'} · ${escapeHtml(post.personagens.raca || '?')} <span style="font-size:0.85em; opacity:0.8;">(🔎 Visualizar Ficha)</span></div>`;
         } else if (post.campanhas) {
-            refHtml = `<div class="post-referencia">🎭 Campanha: ${escapeHtml(post.campanhas.nome)}</div>`;
+            refHtml = `<div class="post-referencia" onclick="window.open('visualizar-campanha-jogador.html?id=${post.campanha_id}&view=true', '_blank')" style="cursor:pointer; display:inline-block; margin-bottom: 15px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'">🎭 Campanha: ${escapeHtml(post.campanhas.nome)} <span style="font-size:0.85em; opacity:0.8;">(🔎 Visualizar Campanha)</span></div>`;
         }
 
         detalheDiv.innerHTML = `
@@ -858,7 +863,7 @@ function onPersonagemSelected() {
 // 10. ORDENAÇÃO DO FEED
 // ================================================================
 function mudarOrdem(ordem) {
-    if (ordem !== 'score_desc' && ordem !== 'score_asc') return;
+    if (ordem !== 'score_desc' && ordem !== 'score_asc' && ordem !== 'recentes') return;
     feedOrdem = ordem;
     document.querySelectorAll('.feed-sort-btns .sort-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.ordem === ordem);

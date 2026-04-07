@@ -85,6 +85,7 @@ async function loadCampanhasNarrador() {
 
         // Renderizar campanhas
         renderCampanhasNarrador(campanhas);
+        updateProgressCampanhas();
 
     } catch (error) {
         console.error('Erro ao carregar campanhas:', error);
@@ -232,6 +233,48 @@ function viewCampanha(id) {
 
 function viewCampanhaJogador(id) {
     window.location.href = `visualizar-campanha-jogador.html?id=${id}`;
+}
+
+function tentarCriarCampanha() {
+    const isAdmin = window.currentUserProfile && window.currentUserProfile.is_admin;
+
+    if (!isAdmin && campanhasNarradorTodas && campanhasNarradorTodas.length >= 3) {
+        alert('Limite atingido: você só pode criar até 3 campanhas como narrador. Como administrador os limites não se aplicam.');
+        return;
+    }
+    window.location.href = 'criar-campanha.html';
+}
+
+function updateProgressCampanhas() {
+    const container = document.getElementById('campanhas-progress-container');
+    const text = document.getElementById('campanhas-progress-text');
+    const bar = document.getElementById('campanhas-progress-bar');
+    if (!container || !text || !bar) return;
+
+    container.style.display = 'block';
+    
+    // Verifica cargo de administrador injetado por auth.js
+    const isAdmin = window.currentUserProfile && window.currentUserProfile.is_admin;
+    const maxCampanhas = 3;
+    const current = campanhasNarradorTodas.length;
+
+    if (isAdmin) {
+        text.textContent = `Campanhas: ${current} / ∞ (Administrador)`;
+        bar.style.width = '100%';
+        bar.style.backgroundColor = '#10b981'; // Verde indicando privilégio admin
+    } else {
+        text.textContent = `Campanhas: ${current} / ${maxCampanhas}`;
+        const pct = Math.min((current / maxCampanhas) * 100, 100);
+        bar.style.width = `${pct}%`;
+        
+        if (current >= maxCampanhas) {
+            bar.style.backgroundColor = '#ef4444'; // Vermelho lotado
+            text.style.color = '#ef4444';
+        } else {
+            bar.style.backgroundColor = '#667eea';
+            text.style.color = '#667eea';
+        }
+    }
 }
 
 function editCampanha(id) {

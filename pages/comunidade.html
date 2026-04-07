@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidade - Projeto Gênesis</title>
-    <meta name="description" content="Partilha personagens, mundos, homebrews e narrativas com a comunidade do Projeto Gênesis.">
+    <meta name="description"
+        content="Partilha personagens, mundos, homebrews e narrativas com a comunidade do Projeto Gênesis.">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -37,10 +38,10 @@
                 <span>Projeto Gênesis</span>
             </a>
             <ul class="nav-list">
-                <li><a href="fichas.html"     class="nav-link">Fichas</a></li>
-                <li><a href="campanhas.html"  class="nav-link">Campanhas</a></li>
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
                 <li><a href="comunidade.html" class="nav-link active">Comunidade</a></li>
-                <li><a href="Sistema.html"    class="nav-link">Sistema</a></li>
+                <li><a href="Sistema.html" class="nav-link">Sistema</a></li>
                 <li id="loginItem" class="nav-action" style="display:none;">
                     <button id="loginBtn" class="nav-btn">Login</button>
                 </li>
@@ -75,7 +76,8 @@
                             <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
                         </div>
                         <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
-                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;" maxlength="150"></textarea>
+                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;"
+                            maxlength="150"></textarea>
                     </div>
                 </div>
             </div>
@@ -101,80 +103,86 @@
 
             <!-- Separador Discussão -->
             <div class="comunidade-mode-tabs" role="tablist">
-                <button type="button" class="comunidade-tab active" data-tab="feed" role="tab" aria-selected="true">💬 Discussão</button>
+                <button type="button" class="comunidade-tab active" data-tab="feed" role="tab" aria-selected="true">💬
+                    Discussão</button>
             </div>
 
             <!-- ══ MODO: FEED ══ -->
             <div id="modeFeed">
 
-            <!-- ══ DESTAQUES ══ -->
-            <section class="destaques-section" id="destaquesSection" style="display:none;">
-                <div class="destaques-row">
-                    <!-- Painel Semana -->
-                    <div class="destaque-panel semana">
-                        <div class="destaque-panel-title">🔥 Mais Votados da Semana</div>
-                        <div class="destaque-list" id="destaqueSemanaList">
-                            <!-- JS renders here -->
+                <!-- ══ DESTAQUES ══ -->
+                <section class="destaques-section" id="destaquesSection" style="display:none;">
+                    <div class="destaques-row">
+                        <!-- Painel Semana -->
+                        <div class="destaque-panel semana">
+                            <div class="destaque-panel-title">🔥 Mais Votados da Semana</div>
+                            <div class="destaque-list" id="destaqueSemanaList">
+                                <!-- JS renders here -->
+                            </div>
+                        </div>
+                        <!-- Painel Mês -->
+                        <div class="destaque-panel mes">
+                            <div class="destaque-panel-title">🌟 Mais Votados do Mês</div>
+                            <div class="destaque-list" id="destaqueMesList">
+                                <!-- JS renders here -->
+                            </div>
                         </div>
                     </div>
-                    <!-- Painel Mês -->
-                    <div class="destaque-panel mes">
-                        <div class="destaque-panel-title">🌟 Mais Votados do Mês</div>
-                        <div class="destaque-list" id="destaqueMesList">
-                            <!-- JS renders here -->
+                </section>
+
+                <!-- ══ TOOLBAR — busca, filtros e ordenação por votos ══ -->
+                <div class="feed-toolbar">
+                    <div class="feed-toolbar-head">
+                        <div class="feed-toolbar-title">Explorar Comunidade</div>
+                        <div class="feed-sort-btns">
+                            <button type="button" class="sort-btn active" data-ordem="score_desc"
+                                onclick="mudarOrdem('score_desc')">▲ Mais votados</button>
+                            <button type="button" class="sort-btn" data-ordem="score_asc"
+                                onclick="mudarOrdem('score_asc')">▼ Menos votados</button>
+                            <button type="button" class="sort-btn" data-ordem="recentes"
+                                onclick="mudarOrdem('recentes')">⏱️ Mais recentes</button>
                         </div>
                     </div>
-                </div>
-            </section>
-
-            <!-- ══ TOOLBAR — busca, filtros e ordenação por votos ══ -->
-            <div class="feed-toolbar">
-                <div class="feed-toolbar-head">
-                    <div class="feed-toolbar-title">Explorar Comunidade</div>
-                    <div class="feed-sort-btns">
-                        <button type="button" class="sort-btn active" data-ordem="score_desc" onclick="mudarOrdem('score_desc')">▲ Mais votos</button>
-                        <button type="button" class="sort-btn" data-ordem="score_asc" onclick="mudarOrdem('score_asc')">▼ Menos votos</button>
+                    <div class="feed-toolbar-search">
+                        <label class="feed-search-label" for="feedSearch">Pesquisar</label>
+                        <div class="feed-search-wrap">
+                            <span class="feed-search-icon" aria-hidden="true">🔍</span>
+                            <input type="search" id="feedSearch" class="feed-search-input"
+                                placeholder="Título ou conteúdo do post…" autocomplete="off" maxlength="200">
+                        </div>
+                    </div>
+                    <div class="feed-toolbar-filters">
+                        <label class="feed-filter-label" for="feedTipoFiltro">Tipo</label>
+                        <select id="feedTipoFiltro" class="feed-select">
+                            <option value="">Todos os tipos</option>
+                            <option value="homebrew">⚗️ Homebrew</option>
+                            <option value="personagem">🧙 Personagem</option>
+                            <option value="mundo">🌍 Mundo</option>
+                            <option value="narrativa">📖 Narrativa</option>
+                            <option value="outro">💬 Outro</option>
+                        </select>
                     </div>
                 </div>
-                <div class="feed-toolbar-search">
-                    <label class="feed-search-label" for="feedSearch">Pesquisar</label>
-                    <div class="feed-search-wrap">
-                        <span class="feed-search-icon" aria-hidden="true">🔍</span>
-                        <input type="search" id="feedSearch" class="feed-search-input" placeholder="Título ou conteúdo do post…" autocomplete="off" maxlength="200">
-                    </div>
-                </div>
-                <div class="feed-toolbar-filters">
-                    <label class="feed-filter-label" for="feedTipoFiltro">Tipo</label>
-                    <select id="feedTipoFiltro" class="feed-select">
-                        <option value="">Todos os tipos</option>
-                        <option value="homebrew">⚗️ Homebrew</option>
-                        <option value="personagem">🧙 Personagem</option>
-                        <option value="mundo">🌍 Mundo</option>
-                        <option value="narrativa">📖 Narrativa</option>
-                        <option value="outro">💬 Outro</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- ══ FEED ══ -->
-            <div id="postsFeed">
-                <!-- Cards renderizados no JS -->
-            </div>
-            
-            <div class="feed-loading" id="feedLoading">
-                <div class="spinner"></div>
-                <p>A carregar posts…</p>
-            </div>
-            <div class="feed-empty" id="feedEmpty" style="display:none;">
-                <div class="feed-empty-icon">📜</div>
-                <h3>Nenhum post ainda</h3>
-                <p>Sê o primeiro a partilhar conteúdo com a comunidade!</p>
-            </div>
+                <!-- ══ FEED ══ -->
+                <div id="postsFeed">
+                    <!-- Cards renderizados no JS -->
+                </div>
 
-            <!-- Sentinel para infinite scroll -->
-            <div id="scrollSentinel" style="display:none;">
-                <div class="load-more-spinner"></div>
-            </div>
+                <div class="feed-loading" id="feedLoading">
+                    <div class="spinner"></div>
+                    <p>A carregar posts…</p>
+                </div>
+                <div class="feed-empty" id="feedEmpty" style="display:none;">
+                    <div class="feed-empty-icon">📜</div>
+                    <h3>Nenhum post ainda</h3>
+                    <p>Sê o primeiro a partilhar conteúdo com a comunidade!</p>
+                </div>
+
+                <!-- Sentinel para infinite scroll -->
+                <div id="scrollSentinel" style="display:none;">
+                    <div class="load-more-spinner"></div>
+                </div>
 
             </div><!-- /modeFeed -->
 
@@ -235,7 +243,8 @@
                     <select id="selectPersonagem">
                         <option value="">— Nenhuma —</option>
                     </select>
-                    <div id="fichaPreview" style="display:none; margin-top:10px; padding:10px; background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:8px; font-size:0.82rem; color:rgba(255,255,255,0.7);">
+                    <div id="fichaPreview"
+                        style="display:none; margin-top:10px; padding:10px; background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:8px; font-size:0.82rem; color:rgba(255,255,255,0.7);">
                     </div>
                 </div>
 
@@ -256,7 +265,8 @@
                 <!-- Conteúdo -->
                 <div class="form-group">
                     <label for="postConteudo">Conteúdo *</label>
-                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo…" maxlength="5000" required></textarea>
+                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo…" maxlength="5000"
+                        required></textarea>
                 </div>
 
                 <div class="modal-actions">
@@ -291,7 +301,8 @@
                     </div>
                 </div>
                 <p id="comentarioLoginAviso" style="font-size:0.82rem; color:rgba(255,255,255,0.35); display:none;">
-                    Faz <a href="#" onclick="loginWithGoogle(); return false;" style="color:#a78bfa;">login</a> para comentar.
+                    Faz <a href="#" onclick="loginWithGoogle(); return false;" style="color:#a78bfa;">login</a> para
+                    comentar.
                 </p>
             </div>
         </div>
@@ -314,4 +325,5 @@
     <script src="../js/comunidade.js"></script>
 
 </body>
+
 </html>

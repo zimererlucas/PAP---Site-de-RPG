@@ -165,6 +165,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     fichaId = params.get('id');
     window.fichaId = fichaId; // Tornar acessível globalmente
 
+    if (params.get('view') === 'true') {
+        aplicarModoLeitura();
+    }
+
     if (!fichaId) {
         console.error('Ficha não encontrada!');
         window.location.href = 'fichas.html';
@@ -182,6 +186,70 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Configurar upload de imagem
     setupImageUpload();
 });
+
+// ============================================
+// MODO VISUALIZAÇÃO (READ-ONLY)
+// ============================================
+function aplicarModoLeitura() {
+    // Adiciona classe ao body para esconder via CSS
+    document.body.classList.add('view-only-mode');
+
+    // Injeta estilo global para forçar read-only
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .view-only-mode button[onclick*="toggleEditar"],
+        .view-only-mode button[onclick*="abrirModal"],
+        .view-only-mode .edit-overlay,
+        .view-only-mode button.btn-danger,
+        .view-only-mode button.btn-warning,
+        .view-only-mode button[onclick*="excluir"],
+        .view-only-mode button[onclick*="deletar"],
+        .view-only-mode button[onclick*="remover"],
+        .view-only-mode button[onclick*="alterarVida"],
+        .view-only-mode button[onclick*="alterarMana"],
+        .view-only-mode button[onclick*="alterarEstamina"],
+        .view-only-mode .ponto-hint,
+        .view-only-mode #info-save-btn,
+        .view-only-mode #atributos-save-btn,
+        .view-only-mode #status-save-btn {
+            display: none !important;
+        }
+        .view-only-mode .ponto-celula {
+            cursor: default !important;
+            pointer-events: none !important;
+            background: rgba(102, 126, 234, 0.08) !important;
+            border-color: rgba(102, 126, 234, 0.25) !important;
+            transform: none !important;
+        }
+        .view-only-mode .stat-pill[onclick] {
+            cursor: default !important;
+            pointer-events: none !important;
+        }
+        .view-only-mode input[type="file"] {
+            display: none !important;
+        }
+        /* Oculta os botões "Ações" das tabelas e listas dinâmicas se houver classes gerais */
+        .view-only-mode .acao-container,
+        .view-only-mode .actions-cell {
+            display: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Evitar edições em campos de texto caso existam visíveis
+    setTimeout(() => {
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(el => el.disabled = true);
+        
+        // Específico para as tabelas dentro da ficha-items, caso tenham botões que ficaram:
+        const botoesRemover = document.querySelectorAll('button');
+        botoesRemover.forEach(btn => {
+            if (btn.textContent.includes('Remover') || btn.textContent.includes('Deletar') || btn.textContent.includes('Excluir') || btn.innerHTML.includes('🗑️')) {
+                btn.style.display = 'none';
+            }
+        });
+    }, 1000);
+}
 
 // ============================================
 // ATUALIZAÇÃO EM TEMPO REAL DA FICHA

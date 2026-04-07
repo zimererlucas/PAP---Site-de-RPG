@@ -153,12 +153,20 @@
 
         <!-- Main Content -->
         <div class="glass-wrapper">
-            <div class="row mb-4">
-                <div class="col">
-                    <h1>🎭 Campanhas</h1>
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-4">
+                    <h1 class="mb-0 pt-2">🎭 Campanhas</h1>
                 </div>
-                <div class="col text-end">
-                    <a href="criar-campanha.html" class="btn btn-primary">➕ Criar Nova Campanha</a>
+                <div class="col-md-4 mt-3 mt-md-0">
+                    <div id="campanhas-progress-container" style="display:none; text-align:center; padding: 0 15px;">
+                        <span id="campanhas-progress-text" style="color: #667eea; font-weight:600; font-size: 0.9em; display:block; margin-bottom:5px;">Campanhas: Criadas / Limite</span>
+                        <div class="progress" style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; border: 1px solid rgba(102,126,234,0.3);">
+                            <div id="campanhas-progress-bar" class="progress-bar" role="progressbar" style="width: 0%; background-color: #667eea; transition: width 0.4s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end mt-3 mt-md-0">
+                    <a href="#" onclick="tentarCriarCampanha(); return false;" class="btn btn-primary">➕ Criar Nova Campanha</a>
                 </div>
             </div>
 
@@ -200,7 +208,7 @@
                     <div id="emptyNarrador" style="display: none;" class="text-center py-5">
                         <h3>Nenhuma campanha criada ainda</h3>
                         <p class="text-center">Comece criando sua primeira campanha como narrador!</p>
-                        <a href="criar-campanha.html" class="btn btn-primary">➕ Criar Primeira Campanha</a>
+                        <a href="#" onclick="tentarCriarCampanha(); return false;" class="btn btn-primary">➕ Criar Primeira Campanha</a>
                     </div>
 
                     <!-- Campanhas Grid -->

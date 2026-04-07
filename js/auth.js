@@ -79,7 +79,7 @@ async function updateNavbar() {
         try {
             const { data: profile, error } = await supabase
                 .from('perfis')
-                .select('nivel_conta, bio, username, avatar_url')
+                .select('nivel_conta, bio, username, avatar_url, is_admin')
                 .eq('id', user.id)
                 .single();
 
@@ -88,6 +88,7 @@ async function updateNavbar() {
             }
 
             if (profile) {
+                window.currentUserProfile = profile; // Permite verificar is_admin em outras páginas
                 // PRIORIDADE: Se houver avatar_url no perfil, usamos essa!
                 if (profile.avatar_url) finalAvatar = profile.avatar_url;
                 
@@ -95,6 +96,7 @@ async function updateNavbar() {
                 if (sidebarBio) sidebarBio.textContent = profile.bio || 'Nenhuma bio definida.';
                 if (sidebarName && profile.username) sidebarName.textContent = profile.username;
             } else {
+                window.currentUserProfile = { is_admin: false };
                 // Se não existir perfil, cria um básico
                 await createOrUpdateProfile(user);
             }
