@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Projeto Gênesis</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/galaxy.css">
+    <link rel="stylesheet" href="../css/glassmorphism.css">
+
+    <style>
+        .admin-container {
+            margin-top: 100px;
+            padding-bottom: 50px;
+        }
+
+        .admin-card {
+            background: rgba(15, 15, 25, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            color: #fff;
+        }
+
+        .nav-pills .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            margin-right: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .admin-table {
+            color: #fff;
+            width: 100%;
+        }
+
+        .admin-table th {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #6366f1;
+        }
+
+        .admin-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .btn-action {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        /* Modal styling */
+        .modal-content {
+            background: #1a2a4e;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-control, .form-select {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: #6366f1;
+            color: white;
+            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
+            padding: 5px 10px;
+        }
+
+        #loadingOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fundo Nebulosa -->
+    <canvas id="nebula-canvas"></canvas>
+
+    <div id="loadingOverlay">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-3 text-white">Verificando permissões...</p>
+    </div>
+
+    <div id="foreground">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="../index.html" class="logo">
+                <img src="../assets/GenisisLogov6.png" alt="Logo" class="logo-img">
+                <span>Projeto Gênesis</span>
+            </a>
+            <ul class="nav-list">
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+                <li><a href="comunidade.html" class="nav-link">Comunidade</a></li>
+                <li><a href="Sistema.html" class="nav-link">Sistema</a></li>
+                <li id="userItem" class="nav-action">
+                    <div id="user-avatar-wrapper" class="avatar-wrapper">
+                        <img id="profile-picture" src="" alt="Perfil" class="avatar-img">
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Sidebar de Perfil -->
+        <div id="user-sidebar" class="user-sidebar">
+            <div class="sidebar-header">
+                <img id="sidebar-pic" src="" alt="Foto de Perfil" class="sidebar-avatar">
+                <div class="username-container">
+                    <h3 id="sidebar-name">Utilizador</h3>
+                </div>
+                <p id="sidebar-email">...</p>
+            </div>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="nav-btn logout-full">Sair</button>
+            </div>
+        </div>
+
+        <div class="container admin-container">
+            <div class="admin-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold"><i class="bi bi-shield-lock-fill me-2"></i> Painel Administrativo</h2>
+                    <div id="adminDataUpdate" class="text-white-50 small">Versão 1.0</div>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-pills mb-4" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="users-tab" data-bs-toggle="pill" data-bs-target="#users-content" type="button" role="tab">
+                            <i class="bi bi-people-fill me-2"></i> Utilizadores
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="chapters-tab" data-bs-toggle="pill" data-bs-target="#chapters-content" type="button" role="tab">
+                            <i class="bi bi-book-half me-2"></i> Capítulos do Sistema
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="adminTabsContent">
+                    <!-- Utilizadores -->
+                    <div class="tab-pane fade show active" id="users-content" role="tabpanel">
+                        <div class="mb-3">
+                            <input type="text" id="userSearch" class="form-control" placeholder="🔍 Pesquisar por nome ou email...">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                               <thead>
+                                   <tr>
+                                       <th>Utilizador</th>
+                                       <th>Email</th>
+                                       <th>Admin</th>
+                                       <th>Ações</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="userListBody">
+                                   <!-- Populado via JS -->
+                               </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Capítulos -->
+                    <div class="tab-pane fade" id="chapters-content" role="tabpanel">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="input-group w-50">
+                                <span class="input-group-text"><i class="bi bi-filter"></i></span>
+                                <select id="chapterFilterAba" class="form-select">
+                                    <option value="all">Todas as Abas</option>
+                                    <option value="rules">Rules (Livro de Regras)</option>
+                                    <option value="continents">Continents (Gaia)</option>
+                                </select>
+                            </div>
+                            <button id="addChapterBtn" class="btn btn-primary">
+                                <i class="bi bi-plus-lg me-2"></i> Novo Capítulo
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                               <thead>
+                                   <tr>
+                                       <th>Ordem</th>
+                                       <th>Título</th>
+                                       <th>Slug</th>
+                                       <th>Aba</th>
+                                       <th>Ações</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="chapterListBody">
+                                   <!-- Populado via JS -->
+                               </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Capítulo -->
+    <div class="modal fade" id="chapterModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Novo Capítulo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="chapterForm">
+                        <input type="hidden" id="editOriginalSlug">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Título</label>
+                                <input type="text" class="form-control" id="chapterTitle" required placeholder="Ex: Combate Avançado">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Slug (identificador URL)</label>
+                                <input type="text" class="form-control" id="chapterSlug" required placeholder="Ex: combate-avancado">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Aba</label>
+                                <select class="form-select" id="chapterAba">
+                                    <option value="rules">Rules (Livro de Regras)</option>
+                                    <option value="continents">Continents (Gaia)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ordem de Exibição</label>
+                                <input type="number" class="form-control" id="chapterOrder" required value="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Conteúdo (Suporta HTML)</label>
+                            <textarea class="form-control" id="chapterContent" rows="12" required placeholder="Escreve aqui o conteúdo do capítulo..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="saveChapterBtn" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="../js/galaxy.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+
+</body>
+
+</html>

@@ -89,6 +89,30 @@ async function updateNavbar() {
 
             if (profile) {
                 window.currentUserProfile = profile; // Permite verificar is_admin em outras páginas
+                
+                // --- Lógica de Admin ---
+                if (profile.is_admin) {
+                    const sidebarFooter = document.querySelector('.sidebar-footer');
+                    if (sidebarFooter && !document.getElementById('adminPanelBtn')) {
+                        const adminBtn = document.createElement('a');
+                        adminBtn.id = 'adminPanelBtn';
+                        adminBtn.href = window.location.pathname.includes('/pages/') ? 'admin.html' : 'pages/admin.html';
+                        adminBtn.className = 'nav-btn admin-btn';
+                        adminBtn.innerHTML = '⚙️ Painel Admin';
+                        adminBtn.style.width = '100%';
+                        adminBtn.style.marginBottom = '10px';
+                        adminBtn.style.display = 'block';
+                        adminBtn.style.textAlign = 'center';
+                        adminBtn.style.textDecoration = 'none';
+                        adminBtn.style.background = 'linear-gradient(45deg, #FF512F 0%, #DD2476 100%)';
+                        
+                        sidebarFooter.prepend(adminBtn);
+                    }
+                } else {
+                    const adminBtn = document.getElementById('adminPanelBtn');
+                    if (adminBtn) adminBtn.remove();
+                }
+
                 // PRIORIDADE: Se houver avatar_url no perfil, usamos essa!
                 if (profile.avatar_url) finalAvatar = profile.avatar_url;
                 
