@@ -74,26 +74,21 @@ function renderFichas(lista) {
 
     fichasContainer.innerHTML = lista.map(ficha => `
         <div class="col-md-6 col-lg-4">
-            <div class="card h-100 glass-card" 
-                style="background: rgba(245, 232, 255, 0.055);
-                    backdrop-filter: blur(6px);
-                    border-radius: 20px;
-                    box-shadow: 0 px 20px rgba(0, 0, 0, 0.15);">
-
-                <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
-                    <h5 class="card-title mb-0" style="color: #e0e0e0; font-weight: 600;">${ficha.nome}</h5>
+            <div class="card h-100 custom-glass-card">
+                <div class="card-header custom-card-header">
+                    <h5 class="card-title mb-0" style="color: #e0e0e0; font-weight: 700;">${ficha.nome}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text" style="color: #e0e0e0;">
+                    <p class="card-text text-standard-upsized">
                         <strong style="color: #e0e0e0;">Raça:</strong> ${ficha.raca || '-'}<br>
                         <strong style="color: #e0e0e0;">Nivel:</strong> ${ficha.nivel || 0}<br>
                         <strong style="color: #e0e0e0;">Vida:</strong> ${ficha.vida_atual || 0}/${ficha.vida_maxima || 0}<br>
                         <strong style="color: #e0e0e0;">Estamina:</strong> ${ficha.estamina_atual || 0}/${ficha.estamina_maxima || 0}
                     </p>
                 </div>
-                <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
-                    <button class="btn btn-sm" style="background-color: rgba(149, 129, 235, 0.53); border-color: rgba(149, 129, 235, 0.53); color: white;" onclick="viewFicha('${ficha.id}')">Visualizar</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteFicha('${ficha.id}')">Deletar</button>
+                <div class="card-footer custom-card-footer">
+                    <button class="btn btn-sm" style="background-color: rgba(149, 129, 235, 0.53); border-color: rgba(149, 129, 235, 0.53); color: white; padding: 6px 15px; font-weight: 600;" onclick="viewFicha('${ficha.id}')">Visualizar</button>
+                    <button class="btn btn-sm btn-danger" style="padding: 6px 15px; font-weight: 600;" onclick="deleteFicha('${ficha.id}')">Deletar</button>
                 </div>
             </div>
         </div>

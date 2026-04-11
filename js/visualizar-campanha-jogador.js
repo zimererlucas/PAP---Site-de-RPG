@@ -107,22 +107,22 @@ async function loadPersonagens() {
         if (seuPersonagem && seuPersonagemDiv) {
             meuPersonagemId = seuPersonagem.personagem.id;
             seuPersonagemDiv.innerHTML = `
-                <div class="card" style="background: rgba(26, 42, 78, 0.4); border: 2px solid #667eea; backdrop-filter: blur(8px);">
+                <div class="card custom-glass-card mb-4" style="border: 2px solid #667eea !important;">
                     <div class="card-body">
-                        <div style="display: flex; gap: 15px; align-items: flex-start;">
-                            <img src="${seuPersonagem.personagem.foto_url || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}" alt="" class="zoomable-image" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #667eea; ${!seuPersonagem.personagem.foto_url ? 'background: linear-gradient(135deg, #1a2a4e 0%, #667eea 100%);' : ''}" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.background='linear-gradient(135deg, #1a2a4e 0%, #667eea 100%)'">
+                        <div style="display: flex; gap: 20px; align-items: flex-start;">
+                            <img src="${seuPersonagem.personagem.foto_url || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}" alt="" class="zoomable-image photo-player-main" style="border-radius: 50%; object-fit: cover; ${!seuPersonagem.personagem.foto_url ? 'background: linear-gradient(135deg, #1a2a4e 0%, #667eea 100%);' : ''}" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.background='linear-gradient(135deg, #1a2a4e 0%, #667eea 100%)'">
                             <div style="flex-grow: 1;">
-                                <h6 style="color: #fff; font-weight: 700; margin-bottom: 10px;">🎮 ${seuPersonagem.personagem.nome}</h6>
-                                <div style="font-size: 0.9em; color: #e0e0e0; line-height: 1.4;">
-                                    <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Raça:</strong> ${seuPersonagem.personagem.raca || '-'}</div>
-                                    <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Idade:</strong> ${seuPersonagem.personagem.idade || '-'}</div>
-                                    <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Nível:</strong> ${seuPersonagem.personagem.nivel || 0}</div>
-                                    <div style="display: flex; gap: 10px;">
-                                        <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Altura:</strong> ${seuPersonagem.personagem.altura || '-'}</div>
-                                        <div><strong style="color: #667eea; font-size: 0.8em; text-transform: uppercase;">Peso:</strong> ${seuPersonagem.personagem.peso || '-'}</div>
+                                <h6 style="color: #fff; font-weight: 700; font-size: 1.3rem; margin-bottom: 15px;">🎮 ${seuPersonagem.personagem.nome}</h6>
+                                <div style="font-size: 1.05rem; color: #e0e0e0; line-height: 1.6;">
+                                    <div><strong style="color: #667eea; font-size: 0.9rem; text-transform: uppercase;">Raça:</strong> ${seuPersonagem.personagem.raca || '-'}</div>
+                                    <div><strong style="color: #667eea; font-size: 0.9rem; text-transform: uppercase;">Idade:</strong> ${seuPersonagem.personagem.idade || '-'}</div>
+                                    <div><strong style="color: #667eea; font-size: 0.9rem; text-transform: uppercase;">Nível:</strong> ${seuPersonagem.personagem.nivel || 0}</div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div><strong style="color: #667eea; font-size: 0.9rem; text-transform: uppercase;">Altura:</strong> ${seuPersonagem.personagem.altura || '-'}</div>
+                                        <div><strong style="color: #667eea; font-size: 0.9rem; text-transform: uppercase;">Peso:</strong> ${seuPersonagem.personagem.peso || '-'}</div>
                                     </div>
                                 </div>
-                                <button class="btn btn-sm btn-primary w-100 mt-3" onclick="viewPersonagem('${seuPersonagem.personagem.id}')" style="background: #667eea; border: none;">👁️ Ver Ficha Completa</button>
+                                <button class="btn btn-sm btn-primary w-100 mt-3" onclick="viewPersonagem('${seuPersonagem.personagem.id}')" style="background: #667eea; border: none; padding: 10px; font-weight: 600;">👁️ Ver Ficha Completa</button>
                             </div>
                         </div>
                     </div>
@@ -142,25 +142,25 @@ async function loadPersonagens() {
         } else {
             container.innerHTML = outrosPersonagens.map(p => `
                 <div class="col-md-6 col-lg-4">
-                    <div class="card" style="background: rgba(26, 42, 78, 0.4); border: 1px solid rgba(102, 126, 234, 0.3); backdrop-filter: blur(8px); margin-bottom: 20px;">
-                        <div class="card-header" style="background: rgba(102, 126, 234, 0.1); border-bottom: 1px solid rgba(102, 126, 234, 0.2);">
-                            <h6 class="card-title mb-0" style="color: #fff; font-weight: 600;">🎮 ${p.personagem.nome}</h6>
+                    <div class="card custom-glass-card mb-4">
+                        <div class="card-header custom-card-header">
+                            <h6 class="card-title mb-0" style="color: #fff; font-weight: 700; font-size: 1.05rem;">🎮 ${p.personagem.nome}</h6>
                         </div>
                         <div class="card-body">
-                            <div style="display: flex; gap: 12px; align-items: flex-start;">
-                                <img src="${p.personagem.foto_url || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}" alt="" class="zoomable-image" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 1px solid #667eea; ${!p.personagem.foto_url ? 'background: linear-gradient(135deg, #1a2a4e 0%, #667eea 100%);' : ''}" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.background='linear-gradient(135deg, #1a2a4e 0%, #667eea 100%)'">
-                                <div style="flex-grow: 1; font-size: 0.85em; color: #e0e0e0; line-height: 1.3;">
-                                    <div><strong style="color: #667eea; font-size: 0.75em; text-transform: uppercase;">Raça:</strong> ${p.personagem.raca || '-'}</div>
-                                    <div><strong style="color: #667eea; font-size: 0.75em; text-transform: uppercase;">Idade:</strong> ${p.personagem.idade || '-'}</div>
-                                    <div><strong style="color: #667eea; font-size: 0.75em; text-transform: uppercase;">Nível:</strong> ${p.personagem.nivel || 0}</div>
-                                    <div style="display: flex; gap: 8px;">
-                                        <div><strong style="color: #667eea; font-size: 0.75em; text-transform: uppercase;">Altura:</strong> ${p.personagem.altura || '-'}</div>
-                                        <div><strong style="color: #667eea; font-size: 0.75em; text-transform: uppercase;">Peso:</strong> ${p.personagem.peso || '-'}</div>
+                            <div style="display: flex; gap: 15px; align-items: flex-start;">
+                                <img src="${p.personagem.foto_url || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}" alt="" class="zoomable-image photo-player-others" style="border-radius: 50%; object-fit: cover; ${!p.personagem.foto_url ? 'background: linear-gradient(135deg, #1a2a4e 0%, #667eea 100%);' : ''}" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.background='linear-gradient(135deg, #1a2a4e 0%, #667eea 100%)'">
+                                <div style="flex-grow: 1; font-size: 0.95rem; color: #e0e0e0; line-height: 1.4;">
+                                    <div><strong style="color: #667eea; font-size: 0.8rem; text-transform: uppercase;">Raça:</strong> ${p.personagem.raca || '-'}</div>
+                                    <div><strong style="color: #667eea; font-size: 0.8rem; text-transform: uppercase;">Idade:</strong> ${p.personagem.idade || '-'}</div>
+                                    <div><strong style="color: #667eea; font-size: 0.8rem; text-transform: uppercase;">Nível:</strong> ${p.personagem.nivel || 0}</div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div><strong style="color: #667eea; font-size: 0.8rem; text-transform: uppercase;">Altura:</strong> ${p.personagem.altura || '-'}</div>
+                                        <div><strong style="color: #667eea; font-size: 0.8rem; text-transform: uppercase;">Peso:</strong> ${p.personagem.peso || '-'}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer bg-transparent border-0">
+                        <div class="card-footer custom-card-footer border-0">
                             <small class="text-muted small">Personagem de outro jogador</small>
                         </div>
                     </div>

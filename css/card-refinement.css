@@ -1,0 +1,70 @@
+/* ============================================================
+   CARD REFINEMENT & UI FIXES (CUSTOM)
+   Arquivo para melhorias sem alterar o design base do sistema
+   ============================================================ */
+
+/* 1. Correção do Botão Admin (Remove Glow) */
+.admin-btn:hover::after {
+    opacity: 0 !important;
+}
+
+/* 2. Classe Padronizada para Cards (Mantendo Blur do Sistema: 6px) */
+.custom-glass-card {
+    background: rgba(245, 232, 255, 0.055) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    color: #e0e0e0 !important;
+}
+
+.custom-glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 3. Headers e Footers de Cards */
+.custom-card-header {
+    background: transparent !important;
+    border-bottom: 2px solid rgba(149, 129, 235, 0.53) !important;
+    padding: 15px 20px !important;
+}
+
+.custom-card-footer {
+    background: transparent !important;
+    border-top: 2px solid rgba(149, 129, 235, 0.53) !important;
+    padding: 15px 20px !important;
+}
+
+/* 4. Tipografia e Cores Standard (#e0e0e0) */
+.text-e0e0e0 {
+    color: #e0e0e0 !important;
+}
+
+.text-standard-upsized {
+    font-size: 1.05rem !important;
+    line-height: 1.6 !important;
+    color: #e0e0e0 !important;
+}
+
+/* 5. Fotos de Personagem (Tamanhos Custom) */
+.photo-narrator-view {
+    width: 110px !important;
+    height: 110px !important;
+    border: 3px solid #667eea !important;
+}
+
+.photo-player-main {
+    width: 140px !important;
+    height: 140px !important;
+    border: 3px solid #667eea !important;
+}
+
+.photo-player-others {
+    width: 90px !important;
+    height: 90px !important;
+    border: 2px solid #667eea !important;
+}

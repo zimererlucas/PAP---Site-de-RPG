@@ -163,23 +163,23 @@ function renderCampanhasNarrador(lista) {
 
     container.innerHTML = lista.map(campanha => `
         <div class="col-md-6 col-lg-4">
-            <div class="card h-100" style="background:rgba(245, 232, 255, 0.055); color: #e0e0e0;">
-                <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
-                    <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">🎭 ${campanha.nome}</h5>
+            <div class="card h-100 custom-glass-card">
+                <div class="card-header custom-card-header">
+                    <h5 class="card-title mb-0" style="color: #667eea; font-weight: 700; font-size: 1.25rem;">🎭 ${campanha.nome}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text" style="color: #b0b0b0;">${campanha.descricao || 'Sem descricao'}</p>
-                    <p style="color: #888; font-size: 0.9em;">
-                        <strong style="color: #e0e0e0;">Codigo:</strong> <code style="color: #667eea;">${campanha.codigo}</code>
+                    <p class="card-text text-standard-upsized">${campanha.descricao || 'Sem descrição'}</p>
+                    <p style="font-size: 0.95rem; margin-bottom: 8px;">
+                        <strong style="color: #667eea;">Código:</strong> <code class="text-e0e0e0" style="background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px;">${campanha.codigo}</code>
                     </p>
-                    <p style="color: #888; font-size: 0.9em;">
-                        <strong style="color: #e0e0e0;">Status:</strong> ${campanha.ativa ? '✅ Ativa' : '❌ Inativa'}
+                    <p style="font-size: 0.95rem;">
+                        <strong style="color: #667eea;">Status:</strong> <span class="text-e0e0e0">${campanha.ativa ? '✅ Ativa' : '❌ Inativa'}</span>
                     </p>
                 </div>
-                <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
-                    <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewCampanha('${campanha.id}')">Visualizar</button>
-                    <button class="btn btn-sm btn-warning" onclick="editCampanha('${campanha.id}')">Editar</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteCampanhaUI('${campanha.id}')">Deletar</button>
+                <div class="card-footer custom-card-footer">
+                    <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white; padding: 6px 12px; font-weight: 600;" onclick="viewCampanha('${campanha.id}')">Visualizar</button>
+                    <button class="btn btn-sm btn-warning" style="padding: 6px 12px; font-weight: 600;" onclick="editCampanha('${campanha.id}')">Editar</button>
+                    <button class="btn btn-sm btn-danger" style="padding: 6px 12px; font-weight: 600;" onclick="deleteCampanhaUI('${campanha.id}')">Deletar</button>
                 </div>
             </div>
         </div>
@@ -201,22 +201,22 @@ function renderCampanhasJogador(lista) {
 
     container.innerHTML = lista.map(p => `
         <div class="col-md-6 col-lg-4">
-            <div class="card h-100" style="background: rgba(245, 232, 255, 0.055); color: #e0e0e0;">
-                <div class="card-header" style="background: transparent; border-bottom: 2px solid rgba(149, 129, 235, 0.53);">
-                    <h5 class="card-title mb-0" style="color: #667eea; font-weight: 600;">🎭 ${p.campanha.nome}</h5>
+            <div class="card h-100 custom-glass-card">
+                <div class="card-header custom-card-header">
+                    <h5 class="card-title mb-0" style="color: #667eea; font-weight: 700; font-size: 1.25rem;">🎭 ${p.campanha.nome}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text" style="color: #b0b0b0;">${p.campanha.descricao || 'Sem descricao'}</p>
-                    <p style="color: #888; font-size: 0.9em;">
-                        <strong style="color: #e0e0e0;">Seu Personagem:</strong> ${p.personagem.nome}
+                    <p class="card-text text-standard-upsized">${p.campanha.descricao || 'Sem descrição'}</p>
+                    <p style="font-size: 0.95rem; margin-bottom: 8px;">
+                        <strong style="color: #667eea;">Seu Personagem:</strong> <span class="text-e0e0e0">${p.personagem.nome}</span>
                     </p>
-                    <p style="color: #888; font-size: 0.9em;">
-                        <strong style="color: #e0e0e0;">Status:</strong> ${p.campanha.ativa ? '✅ Ativa' : '❌ Inativa'}
+                    <p style="font-size: 0.95rem;">
+                        <strong style="color: #667eea;">Status:</strong> <span class="text-e0e0e0">${p.campanha.ativa ? '✅ Ativa' : '❌ Inativa'}</span>
                     </p>
                 </div>
-                <div class="card-footer" style="background: transparent; border-top: 2px solid rgba(149, 129, 235, 0.53);">
-                    <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white;" onclick="viewCampanhaJogador('${p.campanha.id}')">Visualizar</button>
-                    <button class="btn btn-sm btn-danger" onclick="sairDaCampanha('${p.id}')">Sair</button>
+                <div class="card-footer custom-card-footer">
+                    <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white; padding: 6px 15px; font-weight: 600;" onclick="viewCampanhaJogador('${p.campanha.id}')">Visualizar</button>
+                    <button class="btn btn-sm btn-danger" style="padding: 6px 15px; font-weight: 600;" onclick="sairDaCampanha('${p.id}')">Sair</button>
                 </div>
             </div>
         </div>

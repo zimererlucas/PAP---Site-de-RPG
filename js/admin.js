@@ -109,6 +109,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveAbaBtn.addEventListener('click', saveAba);
     }
 
+    // --- GESTÃO DE CAPÍTULOS ---
+    const addChapterBtn = document.getElementById('addChapterBtn');
+    if (addChapterBtn) {
+        addChapterBtn.addEventListener('click', () => {
+            document.getElementById('modalTitle').textContent = 'Novo Capítulo';
+            document.getElementById('editOriginalSlug').value = '';
+            document.getElementById('chapterForm').reset();
+            const modal = new bootstrap.Modal(document.getElementById('chapterModal'));
+            modal.show();
+        });
+    }
+
+    const saveChapterBtn = document.getElementById('saveChapterBtn');
+    if (saveChapterBtn) {
+        saveChapterBtn.addEventListener('click', saveChapter);
+    }
+
     // Carregar dados iniciais e limpar lixeira
     cleanupTrash();
     loadUsers();
