@@ -241,7 +241,7 @@ async function executarPassarTurno() {
 
     if (resultado.success) {
         console.log('✅', resultado.mensagem);
-        
+
         // Recarregar habilidades e ficha
         if (typeof carregarHabilidades === 'function') {
             await carregarHabilidades();
@@ -261,7 +261,7 @@ async function executarPassarTurno() {
 async function monitorarDuracoes(fichaId) {
     try {
         const status = await obterStatusDuracoes(fichaId);
-        
+
         if (!status.success) return;
 
         for (const hab of status.data) {

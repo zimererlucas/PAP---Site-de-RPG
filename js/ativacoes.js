@@ -183,7 +183,7 @@ async function ativarHabilidade(fichaId, habilidadeId, duracaoTurnos = 0) {
 
         await registrarAtivacao(fichaId, 'habilidade', habilidadeId, habilidade.nome, true, habilidade.custo_mana || 0, habilidade.custo_estamina || 0);
 
-        const mensagem = habilidade.duracao_turnos 
+        const mensagem = habilidade.duracao_turnos
             ? `✅ ${habilidade.nome} ativada por ${habilidade.duracao_turnos} turnos! Mana: -${habilidade.custo_mana || 0} | Estamina: -${habilidade.custo_estamina || 0}`
             : `✅ ${habilidade.nome} ativada! Mana: -${habilidade.custo_mana || 0} | Estamina: -${habilidade.custo_estamina || 0}`;
 

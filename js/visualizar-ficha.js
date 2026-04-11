@@ -13,26 +13,26 @@ let debounceTimerStatus = null;
 
 async function debounceSalvarStatusRapido() {
     if (!fichaId || !window.supabase) return;
-    
+
     if (debounceTimerStatus) clearTimeout(debounceTimerStatus);
     debounceTimerStatus = setTimeout(async () => {
         const vidaAtualEl = document.getElementById('vidaAtual');
         const manaAtualEl = document.getElementById('manaAtual');
         const estaminaAtualEl = document.getElementById('estaminaAtual');
-        
+
         if (!vidaAtualEl || !manaAtualEl || !estaminaAtualEl) return;
-        
+
         const vidaAtual = parseInt(vidaAtualEl.textContent) || 0;
         const manaAtual = parseInt(manaAtualEl.textContent) || 0;
         const estaminaAtual = parseInt(estaminaAtualEl.textContent) || 0;
-        
+
         try {
             const { error } = await supabase.from('personagens').update({
                 vida_atual: vidaAtual,
                 mana_atual: manaAtual,
                 estamina_atual: estaminaAtual
             }).eq('id', fichaId);
-            
+
             if (error) throw error;
         } catch (err) {
             console.error('Erro ao auto-salvar status:', err);
@@ -235,12 +235,12 @@ function aplicarModoLeitura() {
         }
     `;
     document.head.appendChild(style);
-    
+
     // Evitar edições em campos de texto caso existam visíveis
     setTimeout(() => {
         const inputs = document.querySelectorAll('input, textarea, select');
         inputs.forEach(el => el.disabled = true);
-        
+
         // Específico para as tabelas dentro da ficha-items, caso tenham botões que ficaram:
         const botoesRemover = document.querySelectorAll('button');
         botoesRemover.forEach(btn => {
@@ -326,13 +326,13 @@ async function loadFicha() {
         setElement('raca-view', ficha.raca);
         setElement('nivel-view', ficha.nivel);
         setElement('idade-view', ficha.idade);
-        
+
         setElement('altura-view', ficha.altura);
         setElement('peso-view', ficha.peso);
         setElement('header-raca', ficha.raca);
-        
+
         const headerNome = document.getElementById('nomePersonagemHeader');
-        if(headerNome) headerNome.textContent = ficha.nome || 'Ficha';
+        if (headerNome) headerNome.textContent = ficha.nome || 'Ficha';
 
         // Imagem do Personagem
         const fotoImg = document.getElementById('fotoPersonagem');
@@ -343,8 +343,8 @@ async function loadFicha() {
         }
 
         // Status — somar base + bónus para os máximos
-        const vidaMaximaTotal    = (ficha.vida_maxima    || 0) + (ficha.vida_maxima_bonus    || 0);
-        const manaMaximaTotal    = (ficha.mana_maxima    || 0) + (ficha.mana_maxima_bonus    || 0);
+        const vidaMaximaTotal = (ficha.vida_maxima || 0) + (ficha.vida_maxima_bonus || 0);
+        const manaMaximaTotal = (ficha.mana_maxima || 0) + (ficha.mana_maxima_bonus || 0);
         const estaminaMaximaTotal = (ficha.estamina_maxima || 0) + (ficha.estamina_maxima_bonus || 0);
 
         setElement('vidaAtual', ficha.vida_atual);
@@ -364,7 +364,7 @@ async function loadFicha() {
             const base = ficha[attr + '_base'] || 0;
             const bonus = ficha[attr + '_bonus'] || 0;
             const total = base + bonus;
-            
+
             setElement(attr + 'Base-view', base);
             setElement(attr + 'Bonus-view', bonus);
             // IDs dos totais no HTML não têm sufixo -view (ex: "forcaTotal")
@@ -375,7 +375,7 @@ async function loadFicha() {
             // Atualizar também o total no modo edição
             const totalEditEl = document.getElementById(attr + 'Total-edit');
             if (totalEditEl) totalEditEl.textContent = total;
-            
+
             // Povoar inputs de edição
             const input = document.getElementById(attr + 'Base');
             if (input && !camposEditandoAtivo.has(attr + 'Base')) {
@@ -396,10 +396,10 @@ async function loadFicha() {
         setElement('peso-view', ficha.peso);
 
         // Pontos especiais
-        setElement('ponto-bloqueio-view',    ficha.ponto_bloqueio    !== undefined ? ficha.ponto_bloqueio    : 0);
-        setElement('ponto-reacao-view',      ficha.ponto_reacao      !== undefined ? ficha.ponto_reacao      : 0);
-        setElement('ponto-destino-view',     ficha.ponto_destino     !== undefined ? ficha.ponto_destino     : 0);
-        setElement('ponto-treinamento-view', ficha.ponto_treinamento  !== undefined ? ficha.ponto_treinamento  : 0);
+        setElement('ponto-bloqueio-view', ficha.ponto_bloqueio !== undefined ? ficha.ponto_bloqueio : 0);
+        setElement('ponto-reacao-view', ficha.ponto_reacao !== undefined ? ficha.ponto_reacao : 0);
+        setElement('ponto-destino-view', ficha.ponto_destino !== undefined ? ficha.ponto_destino : 0);
+        setElement('ponto-treinamento-view', ficha.ponto_treinamento !== undefined ? ficha.ponto_treinamento : 0);
 
     } catch (err) {
         console.error('Erro ao processar dados da ficha:', err);
@@ -412,9 +412,9 @@ async function loadFicha() {
 function toggleEditarInfo() {
     const fields = ['nome', 'raca', 'idade', 'nivel', 'altura', 'peso'];
     const saveBtn = document.getElementById('info-save-btn');
-    
+
     const isEditing = saveBtn && saveBtn.style.display !== 'none';
-    
+
     if (isEditing) {
         fields.forEach(f => {
             const view = document.getElementById(f === 'raca' ? 'raca-container' : f + '-view');
@@ -423,7 +423,7 @@ function toggleEditarInfo() {
             if (input) input.style.display = 'none';
         });
         if (saveBtn) saveBtn.style.display = 'none';
-        
+
         const nomeView = document.getElementById('nome-view');
         if (nomeView) nomeView.style.display = '';
         const racaView = document.getElementById('raca-container');
@@ -436,7 +436,7 @@ function toggleEditarInfo() {
         if (alturaView) alturaView.style.display = '';
         const pesoView = document.getElementById('peso-view');
         if (pesoView) pesoView.style.display = '';
-        
+
     } else {
         const fichaDados = window.dadosFicha || {};
         fields.forEach(f => {
@@ -526,22 +526,22 @@ function ativarEdicaoPonto(viewId, dbKey, celulaEl) {
 }
 
 async function salvarInfo() {
-    const nome   = document.getElementById('nome').value;
-    const raca   = document.getElementById('raca').value;
-    const nivel  = document.getElementById('nivel').value;
-    const idade  = document.getElementById('idade').value;
+    const nome = document.getElementById('nome').value;
+    const raca = document.getElementById('raca').value;
+    const nivel = document.getElementById('nivel').value;
+    const idade = document.getElementById('idade').value;
     const altura = document.getElementById('altura') ? document.getElementById('altura').value : null;
-    const peso   = document.getElementById('peso')   ? document.getElementById('peso').value   : null;
+    const peso = document.getElementById('peso') ? document.getElementById('peso').value : null;
 
     try {
         const updateData = {
-            nome:  nome,
-            raca:  raca,
+            nome: nome,
+            raca: raca,
             nivel: parseInt(nivel) || 0,
             idade: parseInt(idade) || 0
         };
         if (altura !== null) updateData.altura = altura;
-        if (peso   !== null) updateData.peso   = peso;
+        if (peso !== null) updateData.peso = peso;
 
         const { error } = await supabase
             .from('personagens')
@@ -549,7 +549,7 @@ async function salvarInfo() {
             .eq('id', fichaId);
 
         if (error) throw error;
-        
+
         await loadFicha();
         const saveBtn = document.getElementById('info-save-btn');
         if (saveBtn && saveBtn.style.display !== 'none') {
@@ -567,13 +567,13 @@ async function salvarInfo() {
 function toggleEditarAtributos() {
     const viewCalcs = document.querySelectorAll('.atributo-calculo');
     const editCalcs = document.querySelectorAll('.atributo-calculo-edit');
-    
+
     const isOpening = viewCalcs.length > 0 && viewCalcs[0].style.display !== 'none';
-    
+
     viewCalcs.forEach(el => {
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
     });
-    
+
     editCalcs.forEach(el => {
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
     });
@@ -630,7 +630,7 @@ function cancelarEditarAtributos() {
 // ============================================
 function toggleEditarStatus() {
     const components = ['vida', 'mana', 'estamina'];
-    
+
     components.forEach(comp => {
         const view = document.getElementById(comp + '-view');
         const edit = document.getElementById(comp + '-edit');
@@ -641,17 +641,17 @@ function toggleEditarStatus() {
             } else {
                 view.style.display = 'none';
                 edit.style.display = 'inline';
-                
+
                 // Povoar inputs — usar valor base da BD (sem bónus) para o máximo
                 const atualVal = document.getElementById(comp + 'Atual').textContent;
                 const dadosFicha = window.dadosFicha || {};
                 const baseKey = comp === 'estamina' ? 'estamina_maxima' : comp + '_maxima';
-                const baseMaxima = dadosFicha[baseKey] !== undefined ? dadosFicha[baseKey] : 
+                const baseMaxima = dadosFicha[baseKey] !== undefined ? dadosFicha[baseKey] :
                     parseInt(document.getElementById(comp + 'Maxima-view').textContent) || 0;
-                
+
                 const atualInput = document.getElementById(comp + 'Atual-edit');
                 const maximaInput = document.getElementById(comp + 'Maxima');
-                
+
                 if (atualInput) atualInput.value = atualVal;
                 if (maximaInput) maximaInput.value = baseMaxima;
             }
@@ -664,12 +664,12 @@ function toggleEditarStatus() {
 
 async function salvarStatus() {
     const updateData = {
-        vida_atual:      parseInt(document.getElementById('vidaAtual-edit').value)    || 0,
-        vida_maxima:     parseInt(document.getElementById('vidaMaxima').value)         || 1,
-        mana_atual:      parseInt(document.getElementById('manaAtual-edit').value)    || 0,
-        mana_maxima:     parseInt(document.getElementById('manaMaxima').value)         || 1,
-        estamina_atual:  parseInt(document.getElementById('estaminaAtual-edit').value) || 0,
-        estamina_maxima: parseInt(document.getElementById('estaminaMaxima').value)     || 1
+        vida_atual: parseInt(document.getElementById('vidaAtual-edit').value) || 0,
+        vida_maxima: parseInt(document.getElementById('vidaMaxima').value) || 1,
+        mana_atual: parseInt(document.getElementById('manaAtual-edit').value) || 0,
+        mana_maxima: parseInt(document.getElementById('manaMaxima').value) || 1,
+        estamina_atual: parseInt(document.getElementById('estaminaAtual-edit').value) || 0,
+        estamina_maxima: parseInt(document.getElementById('estaminaMaxima').value) || 1
     };
 
     try {

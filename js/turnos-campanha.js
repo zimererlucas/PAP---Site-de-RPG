@@ -86,7 +86,7 @@ async function passarTurnoCampanha(campanhaId) {
 async function processarDuracaoPersonagem(personagemId, turnoAtual) {
     try {
         console.log(`🎯 [DEBUG] Processando duração para personagem ${personagemId} no turno ${turnoAtual}`);
-        
+
         // Obter último turno processado
         const { data: personagem, error: erroPersonagem } = await supabase
             .from('personagens')
@@ -139,7 +139,7 @@ async function processarDuracaoPersonagem(personagemId, turnoAtual) {
 async function decrementarDuracoes(personagemId, tabela) {
     try {
         console.log(`🎯 [DEBUG] Decrementando durações em ${tabela} para personagem ${personagemId}`);
-        
+
         // Obter todos os itens ativos com duração
         const { data: itens, error: erroItens } = await supabase
             .from(tabela)
@@ -472,7 +472,7 @@ async function executarPassarTurnoCampanha(campanhaId) {
 
     if (resultado.success) {
         console.log('✅', resultado.mensagem);
-        
+
         // Recarregar dados
         if (typeof carregarPersonagensJogadores === 'function') {
             await carregarPersonagensJogadores();

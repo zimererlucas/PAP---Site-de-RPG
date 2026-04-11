@@ -33,7 +33,7 @@ async function updateNavbar() {
 
     const loginItem = document.getElementById('loginItem');
     const userItem = document.getElementById('userItem');
-    
+
     // Novos elementos da sidebar e perfil
     const profilePic = document.getElementById('profile-picture');
     const sidebarPic = document.getElementById('sidebar-pic');
@@ -89,7 +89,7 @@ async function updateNavbar() {
 
             if (profile) {
                 window.currentUserProfile = profile; // Permite verificar is_admin em outras páginas
-                
+
                 // --- Lógica de Admin ---
                 if (profile.is_admin) {
                     const sidebarFooter = document.querySelector('.sidebar-footer');
@@ -105,7 +105,7 @@ async function updateNavbar() {
                         adminBtn.style.textAlign = 'center';
                         adminBtn.style.textDecoration = 'none';
                         adminBtn.style.background = 'linear-gradient(45deg, #FF512F 0%, #DD2476 100%)';
-                        
+
                         sidebarFooter.prepend(adminBtn);
                     }
                 } else {
@@ -115,7 +115,7 @@ async function updateNavbar() {
 
                 // PRIORIDADE: Se houver avatar_url no perfil, usamos essa!
                 if (profile.avatar_url) finalAvatar = profile.avatar_url;
-                
+
                 if (sidebarLevel) sidebarLevel.textContent = profile.nivel_conta || 1;
                 if (sidebarBio) sidebarBio.textContent = profile.bio || 'Nenhuma bio definida.';
                 if (sidebarName && profile.username) sidebarName.textContent = profile.username;
@@ -172,9 +172,9 @@ async function loginWithGoogle() {
 // Faz o logout do utilizador
 async function signOutUser() {
     const { error } = await supabase.auth.signOut();
-    
+
     if (userSidebar) userSidebar.classList.remove('open');
-    window.location.reload(); 
+    window.location.reload();
     return { success: !error };
 }
 
@@ -218,8 +218,8 @@ if (userAvatarWrapper) {
 
 // Fechar Sidebar ao clicar fora
 document.addEventListener('click', (event) => {
-    if (userSidebar && userSidebar.classList.contains('open') && 
-        !userSidebar.contains(event.target) && 
+    if (userSidebar && userSidebar.classList.contains('open') &&
+        !userSidebar.contains(event.target) &&
         (userAvatarWrapper && !userAvatarWrapper.contains(event.target))) {
         userSidebar.classList.remove('open');
     }
@@ -273,12 +273,12 @@ document.head.appendChild(avatarStyle);
 function loadCropperJS() {
     return new Promise((resolve) => {
         if (window.Cropper) return resolve();
-        
+
         const css = document.createElement('link');
         css.rel = 'stylesheet';
         css.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css';
         document.head.appendChild(css);
-        
+
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js';
         script.onload = () => resolve();
@@ -317,15 +317,15 @@ avatarInput.addEventListener('change', async (e) => {
     const reader = new FileReader();
     reader.onload = async (ev) => {
         await loadCropperJS();
-        
+
         const imageElement = document.getElementById('authCropperImage');
         imageElement.src = ev.target.result;
         cropperModal.style.display = 'flex';
-        
+
         if (authCropperInstance) {
             authCropperInstance.destroy();
         }
-        
+
         authCropperInstance = new Cropper(imageElement, {
             aspectRatio: 1, // Para manter proporção quadrada
             viewMode: 1,
@@ -354,7 +354,7 @@ document.getElementById('authCropperCancel').addEventListener('click', () => {
 
 document.getElementById('authCropperSave').addEventListener('click', async () => {
     if (!authCropperInstance) return;
-    
+
     const user = await getCurrentUser();
     const btnSave = document.getElementById('authCropperSave');
     btnSave.textContent = "A salvar...";
@@ -371,13 +371,13 @@ document.getElementById('authCropperSave').addEventListener('click', async () =>
         const sidebarPic = document.getElementById('sidebar-pic');
         const profilePic = document.getElementById('profile-picture');
         const oldSrc = sidebarPic.src;
-        
+
         cropperModal.style.display = 'none';
         sidebarPic.src = 'https://ui-avatars.com/api/?name=Loading...&background=2a2a35&color=fff';
 
         try {
             const fileName = `${user.id}_${Date.now()}.jpg`;
-            const filePath = `${fileName}`; 
+            const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
@@ -404,7 +404,7 @@ document.getElementById('authCropperSave').addEventListener('click', async () =>
                 profilePic.src = newAvatarUrl;
                 profilePic.referrerPolicy = "no-referrer";
             }
-            
+
             console.log('Avatar cortado e atualizado com sucesso!');
 
         } catch (error) {
@@ -415,7 +415,7 @@ document.getElementById('authCropperSave').addEventListener('click', async () =>
             avatarInput.value = '';
             btnSave.textContent = "Cortar & Salvar";
             btnSave.disabled = false;
-            
+
             if (authCropperInstance) {
                 authCropperInstance.destroy();
                 authCropperInstance = null;
@@ -482,10 +482,10 @@ document.addEventListener('keydown', (e) => {
 // Listener de Estado
 supabase.auth.onAuthStateChange((event, session) => {
     console.log(`🔔 Evento Supabase: ${event}`);
-    
+
     if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
         updateNavbar();
-        
+
         if (window.location.hash && window.location.hash.includes('access_token')) {
             window.history.replaceState(null, '', window.location.pathname);
         }
@@ -548,7 +548,7 @@ async function requireLogin() {
 
     if (!user) {
         console.warn("❌ Acesso negado. Usuário não está logado.");
-        
+
         // Mostrar aviso customizado
         const confirmed = await showConfirmDialog(
             'Você precisa estar logado para acessar esta página!\n\nFaça login com sua conta Google para continuar.',
@@ -557,7 +557,7 @@ async function requireLogin() {
                 cancelText: 'Cancelar'
             }
         );
-        
+
         // Se confirmar, inicia login com Google
         if (confirmed) {
             await loginWithGoogle();
@@ -565,7 +565,7 @@ async function requireLogin() {
             // Se cancelar, volta para a home
             window.location.href = "../index.html";
         }
-        
+
         return false;
     }
 

@@ -593,7 +593,7 @@ async function obterPassivas(fichaId) {
             .single();
 
         if (error) throw error;
-        
+
         // Parse com segurança
         try {
             const passivas = JSON.parse(data.passiva || '[]');
@@ -618,7 +618,7 @@ async function obterPassiva(fichaId, passivaId) {
             .single();
 
         if (error) throw error;
-        
+
         // Parse com segurança
         let passivas = [];
         try {
@@ -627,7 +627,7 @@ async function obterPassiva(fichaId, passivaId) {
             console.warn('Passiva armazenada não é JSON válido');
             return { success: false, error: 'Dados de passiva corrompidos' };
         }
-        
+
         const passiva = passivas.find(p => p.id === passivaId);
         if (!passiva) throw new Error('Passiva não encontrada');
         return { success: true, data: passiva };
@@ -832,7 +832,7 @@ async function recalcularBonusGlobais(fichaId) {
             .single();
 
         if (error) throw error;
-        
+
         console.log('✅ Bônus recalculados (apenas ATIVOS, incluindo passivas):', bonusTotal);
         return { success: true, data, bonusTotal };
     } catch (error) {

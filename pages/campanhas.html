@@ -103,10 +103,10 @@
             </a>
 
             <ul class="nav-list">
-                <li><a href="fichas.html"     class="nav-link">Fichas</a></li>
-                <li><a href="campanhas.html"  class="nav-link active">Campanhas</a></li>
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link active">Campanhas</a></li>
                 <li><a href="comunidade.html" class="nav-link">Comunidade</a></li>
-                <li><a href="Sistema.html"    class="nav-link">Sistema</a></li>
+                <li><a href="Sistema.html" class="nav-link">Sistema</a></li>
 
                 <li id="loginItem" class="nav-action" style="display:none;">
                     <button id="loginBtn" class="nav-btn">Login</button>
@@ -142,7 +142,8 @@
                             <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
                         </div>
                         <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
-                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;" maxlength="150"></textarea>
+                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;"
+                            maxlength="150"></textarea>
                     </div>
                 </div>
             </div>
@@ -159,14 +160,19 @@
                 </div>
                 <div class="col-md-4 mt-3 mt-md-0">
                     <div id="campanhas-progress-container" style="display:none; text-align:center; padding: 0 15px;">
-                        <span id="campanhas-progress-text" style="color: #667eea; font-weight:600; font-size: 0.9em; display:block; margin-bottom:5px;">Campanhas: Criadas / Limite</span>
-                        <div class="progress" style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; border: 1px solid rgba(102,126,234,0.3);">
-                            <div id="campanhas-progress-bar" class="progress-bar" role="progressbar" style="width: 0%; background-color: #667eea; transition: width 0.4s ease;"></div>
+                        <span id="campanhas-progress-text"
+                            style="color: #667eea; font-weight:600; font-size: 0.9em; display:block; margin-bottom:5px;">Campanhas:
+                            Criadas / Limite</span>
+                        <div class="progress"
+                            style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; border: 1px solid rgba(102,126,234,0.3);">
+                            <div id="campanhas-progress-bar" class="progress-bar" role="progressbar"
+                                style="width: 0%; background-color: #667eea; transition: width 0.4s ease;"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 text-end mt-3 mt-md-0">
-                    <a href="#" onclick="tentarCriarCampanha(); return false;" class="btn btn-primary">➕ Criar Nova Campanha</a>
+                    <a href="#" onclick="tentarCriarCampanha(); return false;" class="btn btn-primary">➕ Criar Nova
+                        Campanha</a>
                 </div>
             </div>
 
@@ -190,9 +196,7 @@
                     <!-- Barra de pesquisa (Narrador) -->
                     <div class="row mb-3">
                         <div class="col-md-6 col-lg-4">
-                            <input type="text"
-                                id="campanhaNarradorSearchInput"
-                                class="form-control"
+                            <input type="text" id="campanhaNarradorSearchInput" class="form-control"
                                 placeholder="Pesquisar campanha pelo nome...">
                         </div>
                     </div>
@@ -208,7 +212,8 @@
                     <div id="emptyNarrador" style="display: none;" class="text-center py-5">
                         <h3>Nenhuma campanha criada ainda</h3>
                         <p class="text-center">Comece criando sua primeira campanha como narrador!</p>
-                        <a href="#" onclick="tentarCriarCampanha(); return false;" class="btn btn-primary">➕ Criar Primeira Campanha</a>
+                        <a href="#" onclick="tentarCriarCampanha(); return false;" class="btn btn-primary">➕ Criar
+                            Primeira Campanha</a>
                     </div>
 
                     <!-- Campanhas Grid -->
@@ -220,9 +225,7 @@
                     <!-- Barra de pesquisa (Jogador) -->
                     <div class="row mb-3">
                         <div class="col-md-6 col-lg-4">
-                            <input type="text"
-                                id="campanhaJogadorSearchInput"
-                                class="form-control"
+                            <input type="text" id="campanhaJogadorSearchInput" class="form-control"
                                 placeholder="Pesquisar campanha pelo nome...">
                         </div>
                     </div>

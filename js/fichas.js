@@ -85,7 +85,7 @@ function renderFichas(lista) {
                 </div>
                 <div class="card-body">
                     <p class="card-text" style="color: #e0e0e0;">
-                        <strong style="color: #e0e0e0;">Raca:</strong> ${ficha.raca || '-'}<br>
+                        <strong style="color: #e0e0e0;">Raça:</strong> ${ficha.raca || '-'}<br>
                         <strong style="color: #e0e0e0;">Nivel:</strong> ${ficha.nivel || 0}<br>
                         <strong style="color: #e0e0e0;">Vida:</strong> ${ficha.vida_atual || 0}/${ficha.vida_maxima || 0}<br>
                         <strong style="color: #e0e0e0;">Estamina:</strong> ${ficha.estamina_atual || 0}/${ficha.estamina_maxima || 0}
@@ -107,7 +107,7 @@ function updateProgressFichas() {
     if (!container || !text || !bar) return;
 
     container.style.display = 'block';
-    
+
     // Verifica cargo de administrador injetado por auth.js
     const isAdmin = window.currentUserProfile && window.currentUserProfile.is_admin;
     const maxFichas = 5;
@@ -121,7 +121,7 @@ function updateProgressFichas() {
         text.textContent = `Fichas: ${current} / ${maxFichas}`;
         const pct = Math.min((current / maxFichas) * 100, 100);
         bar.style.width = `${pct}%`;
-        
+
         if (current >= maxFichas) {
             bar.style.backgroundColor = '#ef4444'; // Vermelho lotado
             text.style.color = '#ef4444';
@@ -168,9 +168,9 @@ function editFicha(id) {
 async function deleteFicha(id) {
     const confirmed = await showConfirmDialog('Tem certeza que deseja deletar esta ficha?');
     if (!confirmed) return;
-    
+
     const result = await deletePersonagem(id);
-    
+
     if (result.success) {
         await loadFichas();
     } else {
@@ -180,7 +180,7 @@ async function deleteFicha(id) {
 
 async function handleLogout() {
     const result = await signOutUser();
-    
+
     if (result.success) {
         window.location.href = '../index.html';
     } else {

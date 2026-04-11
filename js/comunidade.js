@@ -4,27 +4,27 @@
 
 // ─── Estado Global ────────────────────────────────────────────
 const POSTS_PER_PAGE = 20;
-let   feedOrdem       = 'score_desc'; // score_desc | score_asc
-let   feedSearchDebounce = null;
-let   feedOffset      = 0;
-let   feedEsgotado    = false;
-let   feedCarregando  = false;
-let   postAtualId     = null;    // id do post aberto no detalhe
-let   currentUser     = null;    // utilizador supabase
-let   userVotes       = {};      // { post_id: tipo_voto }
-let   userCommentVotes = {};     // { comment_id: tipo_voto }
-let   isVoting        = {};      // { id: true/false } para evitar spam
+let feedOrdem = 'score_desc'; // score_desc | score_asc
+let feedSearchDebounce = null;
+let feedOffset = 0;
+let feedEsgotado = false;
+let feedCarregando = false;
+let postAtualId = null;    // id do post aberto no detalhe
+let currentUser = null;    // utilizador supabase
+let userVotes = {};      // { post_id: tipo_voto }
+let userCommentVotes = {};     // { comment_id: tipo_voto }
+let isVoting = {};      // { id: true/false } para evitar spam
 // Dados para o modal de criação
-let fichasDoUser    = [];
+let fichasDoUser = [];
 let campanhasDoUser = [];
 
 // ─── Tipos de post ─────────────────────────────────────────────
 const TIPOS = {
-    homebrew:   { label: 'Homebrew',   cor: '#f59e0b', emoji: '⚗️' },
+    homebrew: { label: 'Homebrew', cor: '#f59e0b', emoji: '⚗️' },
     personagem: { label: 'Personagem', cor: '#8b5cf6', emoji: '🧙' },
-    mundo:      { label: 'Mundo',      cor: '#10b981', emoji: '🌍' },
-    narrativa:  { label: 'Narrativa',  cor: '#3b82f6', emoji: '📖' },
-    outro:      { label: 'Outro',      cor: '#6b7280', emoji: '💬' }
+    mundo: { label: 'Mundo', cor: '#10b981', emoji: '🌍' },
+    narrativa: { label: 'Narrativa', cor: '#3b82f6', emoji: '📖' },
+    outro: { label: 'Outro', cor: '#6b7280', emoji: '💬' }
 };
 
 // ================================================================
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: { user } } = await supabase.auth.getUser();
         currentUser = user;
-    } catch {}
+    } catch { }
 
     // Mostrar botão "Publicar" e área de comentários só se logado
     if (currentUser) {
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedTipoSel?.addEventListener('change', () => carregarFeed(true));
 
     // Fechar modais ao clicar no overlay
-    document.getElementById('modalCriarPost')  ?.addEventListener('click', e => { if (e.target.id === 'modalCriarPost')  fecharModalCriar(); });
+    document.getElementById('modalCriarPost')?.addEventListener('click', e => { if (e.target.id === 'modalCriarPost') fecharModalCriar(); });
     document.getElementById('modalDetalhePost')?.addEventListener('click', e => { if (e.target.id === 'modalDetalhePost') fecharModalDetalhe(); });
 
     // Tecla Escape fecha modais
@@ -129,7 +129,7 @@ async function carregarDestaques() {
     try {
         const agora = new Date();
         const umaSemana = new Date(agora - 7 * 24 * 3600 * 1000);
-        const umMes     = new Date(agora - 30 * 24 * 3600 * 1000);
+        const umMes = new Date(agora - 30 * 24 * 3600 * 1000);
 
         // Busca posts com score >= 1 criados nos últimos 30 dias
         const { data, error } = await supabase
@@ -148,7 +148,7 @@ async function carregarDestaques() {
 
         // Classificar em semana / mês
         const listaSemana = data.filter(p => new Date(p.criado_em) >= umaSemana).slice(0, 5);
-        const listaMes    = data.slice(0, 5);
+        const listaMes = data.slice(0, 5);
 
         renderDestaquesDuplos(listaSemana, listaMes);
     } catch (err) {
@@ -171,16 +171,16 @@ function renderRowDestaque(post, index) {
 
 function renderDestaquesDuplos(semana, mes) {
     const section = document.getElementById('destaquesSection');
-    
-    if (semana.length === 0 && mes.length === 0) { 
-        section.style.display = 'none'; 
-        return; 
+
+    if (semana.length === 0 && mes.length === 0) {
+        section.style.display = 'none';
+        return;
     }
-    
+
     section.style.display = '';
 
     const rootSemana = document.getElementById('destaqueSemanaList');
-    const rootMes    = document.getElementById('destaqueMesList');
+    const rootMes = document.getElementById('destaqueMesList');
 
     if (semana.length === 0) {
         rootSemana.innerHTML = '<div class="destaque-empty">Nenhum post em destaque esta semana.</div>';
@@ -203,12 +203,12 @@ async function carregarFeed(reset = false) {
     if (document.getElementById('modeFeed')?.hidden) return;
 
     if (reset) {
-        feedOffset   = 0;
+        feedOffset = 0;
         feedEsgotado = false;
         // Limpar cards existentes (preservar loading e empty)
         document.querySelectorAll('#postsFeed .post-card').forEach(el => el.remove());
         document.getElementById('feedLoading').style.display = '';
-        document.getElementById('feedEmpty').style.display   = 'none';
+        document.getElementById('feedEmpty').style.display = 'none';
         document.getElementById('scrollSentinel').style.display = 'none';
     }
 
@@ -216,7 +216,7 @@ async function carregarFeed(reset = false) {
 
     try {
         const tipoFiltro = document.getElementById('feedTipoFiltro')?.value || '';
-        const searchRaw  = document.getElementById('feedSearch')?.value || '';
+        const searchRaw = document.getElementById('feedSearch')?.value || '';
 
         let query = supabase
             .from('posts')
@@ -247,7 +247,7 @@ async function carregarFeed(reset = false) {
                 .order('score', { ascending: scoreAsc })
                 .order('criado_em', { ascending: false });
         }
-        
+
         query = query.range(feedOffset, feedOffset + POSTS_PER_PAGE - 1);
 
         const { data, error } = await query;
@@ -322,11 +322,11 @@ function criarCardPost(post) {
     div.className = 'post-card';
     div.dataset.postId = post.id;
 
-    const tipo   = TIPOS[post.tipo] || TIPOS.outro;
+    const tipo = TIPOS[post.tipo] || TIPOS.outro;
     const nomeUser = escapeHtml(post.perfis?.username || 'Utilizador');
     const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
     const avatar = post.perfis?.avatar_url || defaultAvatar;
-    const data   = formatarData(post.criado_em);
+    const data = formatarData(post.criado_em);
 
     // Referência (ficha ou campanha)
     let refHtml = '';
@@ -385,7 +385,7 @@ async function votar(postId, tipoVoto, event) {
 
     if (isVoting[postId]) return;
     const votoAtual = userVotes[postId] || 0;
-    
+
     // Tentar encontrar o elemento de score (no card ou no modal)
     const scoreEl = document.querySelector(`.score-val-${postId}`);
     if (!scoreEl) return;
@@ -394,7 +394,7 @@ async function votar(postId, tipoVoto, event) {
     const scoreDiff = (tipoVoto === votoAtual) ? -votoAtual : (tipoVoto - votoAtual);
     const currentScore = parseInt(scoreEl.textContent.replace(/[^\d-]/g, '') || '0');
     const novoScoreTemp = currentScore + scoreDiff;
-    
+
     // Bloquear clique até terminar
     isVoting[postId] = true;
     actualizarVotoUI(postId, novoScoreTemp, tipoVoto === votoAtual ? 0 : tipoVoto);
@@ -431,7 +431,7 @@ function actualizarVotoUI(postId, novoScore, meuVoto) {
     displays.forEach(el => {
         const isCard = el.id && el.id.startsWith('score-') && !el.id.includes('detalhe');
         el.textContent = isCard ? `▲ ${novoScore}` : novoScore;
-        el.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-val-${postId}`;
+        el.className = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-val-${postId}`;
     });
 
     // Actualizar todos os grupos de botões ligados a este post (apenas no container do POST, não nos comentários)
@@ -439,7 +439,7 @@ function actualizarVotoUI(postId, novoScore, meuVoto) {
     postContainers.forEach(container => {
         // Garantir que não estamos a mexer nos votos de comentários
         if (container.classList.contains('small') || container.closest('.comment-item')) return;
-        
+
         container.querySelectorAll('.vote-btn.upvote').forEach(b => b.classList.toggle('active', meuVoto === 1));
         container.querySelectorAll('.vote-btn.downvote').forEach(b => b.classList.toggle('active', meuVoto === -1));
     });
@@ -521,10 +521,10 @@ async function abrirDetalhe(postId) {
         const inputArea = document.getElementById('comentarioInputArea');
         const loginAviso = document.getElementById('comentarioLoginAviso');
         if (currentUser) {
-            inputArea.style.display  = '';
+            inputArea.style.display = '';
             loginAviso.style.display = 'none';
         } else {
-            inputArea.style.display  = 'none';
+            inputArea.style.display = 'none';
             loginAviso.style.display = '';
         }
 
@@ -648,7 +648,7 @@ async function votarComentario(commentId, tipoVoto, event) {
     const scoreDiff = (tipoVoto === votoAtual) ? -votoAtual : (tipoVoto - votoAtual);
     const currentScore = parseInt(scoreEl.textContent.replace(/[^\d-]/g, '') || '0');
     const novoScoreTemp = currentScore + scoreDiff;
-    
+
     isVoting[commentId] = true;
     actualizarVotoComentarioUI(commentId, novoScoreTemp, tipoVoto === votoAtual ? 0 : tipoVoto);
 
@@ -679,8 +679,8 @@ function actualizarVotoComentarioUI(commentId, novoScore, meuVoto) {
     const displays = document.querySelectorAll(`.score-comm-val-${commentId}`);
     displays.forEach(el => {
         el.textContent = novoScore;
-        el.className   = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-comm-val-${commentId}`;
-        
+        el.className = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-comm-val-${commentId}`;
+
         // Encontrar o vote-group específico deste comentário para evitar conflitos
         const group = el.closest('.vote-group.small');
         if (group) {
@@ -743,10 +743,10 @@ async function submitPost(event) {
     btn.disabled = true;
     btn.textContent = 'A publicar…';
 
-    const tipo      = document.querySelector('input[name="tipo"]:checked')?.value || 'outro';
-    const titulo    = document.getElementById('postTitulo').value.trim();
-    const conteudo  = document.getElementById('postConteudo').value.trim();
-    const fichaId   = document.getElementById('selectPersonagem').value || null;
+    const tipo = document.querySelector('input[name="tipo"]:checked')?.value || 'outro';
+    const titulo = document.getElementById('postTitulo').value.trim();
+    const conteudo = document.getElementById('postConteudo').value.trim();
+    const fichaId = document.getElementById('selectPersonagem').value || null;
     const campanhaId = document.getElementById('selectCampanha').value || null;
 
     if (!titulo || !conteudo) {
@@ -758,12 +758,12 @@ async function submitPost(event) {
 
     try {
         const { error } = await supabase.from('posts').insert({
-            user_id:      currentUser.id,
+            user_id: currentUser.id,
             tipo,
             titulo,
             conteudo,
             personagem_id: tipo === 'personagem' ? fichaId : null,
-            campanha_id:   (tipo === 'mundo' || tipo === 'narrativa') ? campanhaId : null
+            campanha_id: (tipo === 'mundo' || tipo === 'narrativa') ? campanhaId : null
         });
 
         if (error) throw error;
@@ -888,14 +888,14 @@ function formatarData(isoStr) {
     if (!isoStr) return '';
     const d = new Date(isoStr);
     const agora = new Date();
-    const diff  = agora - d;
-    const mins  = Math.floor(diff / 60000);
-    if (mins < 1)   return 'agora mesmo';
-    if (mins < 60)  return `há ${mins} min`;
+    const diff = agora - d;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'agora mesmo';
+    if (mins < 60) return `há ${mins} min`;
     const horas = Math.floor(mins / 60);
     if (horas < 24) return `há ${horas}h`;
-    const dias  = Math.floor(horas / 24);
-    if (dias < 7)   return `há ${dias}d`;
+    const dias = Math.floor(horas / 24);
+    if (dias < 7) return `há ${dias}d`;
     return d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
@@ -903,7 +903,7 @@ let _toastTimer = null;
 function mostrarToast(msg, tipo = '') {
     const toast = document.getElementById('toastComunidade');
     toast.textContent = msg;
-    toast.className   = `toast-comunidade ${tipo} show`;
+    toast.className = `toast-comunidade ${tipo} show`;
     clearTimeout(_toastTimer);
     _toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
 }

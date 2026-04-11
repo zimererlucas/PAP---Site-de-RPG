@@ -273,7 +273,7 @@
             border-radius: 6px;
             height: 24px;
             overflow: hidden;
-            border: 1px solid #16213e;
+            border: 1px solid var(--glass-border);
             position: relative;
         }
 
@@ -321,7 +321,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            border-bottom: 2px solid #16213e;
+            border-bottom: 2px solid var(--glass-border);
         }
 
         .ficha-tab {
@@ -355,7 +355,7 @@
             background: rgba(0, 0, 0, 0.28);
             border-bottom: 2px solid var(--accent);
             border-radius: 8px;
-            border: 1px solid #16213e;
+            border: 1px solid var(--glass-border);
             flex-wrap: wrap;
             margin-bottom: 15px;
         }
@@ -427,7 +427,7 @@
             padding: 20px;
             background: rgba(0, 0, 0, 0.28);
             border-radius: 8px;
-            border: 1px solid #16213e;
+            border: 1px solid var(--glass-border);
             margin-top: 10px;
             min-height: 500px;
             overflow-y: auto;
@@ -438,7 +438,7 @@
             width: 100%;
             padding: 10px;
             background: rgba(0, 0, 0, 0.28);
-            border: 1px solid var(--accent);
+            border: 1px solid var(--glass-border);
             color: #e0e0e0;
             border-radius: 4px;
             margin-bottom: 15px;
@@ -458,7 +458,7 @@
             gap: 6px;
             padding: 8px 10px;
             background: rgba(0, 0, 0, 0.35);
-            border: 1px solid #667eea;
+            border: 1px solid var(--glass-border);
             border-radius: 6px;
             color: #e0e0e0;
             font-size: 0.9em;
@@ -533,8 +533,8 @@
             display: flex;
             flex-direction: row;
             gap: 10px;
-            background: rgba(0,0,0,0.35);
-            border: 1px solid rgba(102, 126, 234, 0.5);
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--glass-border);
             border-radius: 12px;
             padding: 12px;
             align-self: flex-start;
@@ -547,7 +547,7 @@
             align-items: center;
             justify-content: center;
             background: rgba(102, 126, 234, 0.08);
-            border: 1px solid rgba(102, 126, 234, 0.25);
+            border: 1px solid var(--glass-border);
             border-radius: 10px;
             padding: 10px 12px;
             text-align: center;
@@ -607,6 +607,7 @@
             appearance: textfield;
             -moz-appearance: textfield;
         }
+
         .ponto-input-inline::-webkit-outer-spin-button,
         .ponto-input-inline::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -620,6 +621,7 @@
             opacity: 0;
             transition: opacity 0.2s;
         }
+
         .ponto-celula:hover .ponto-hint {
             opacity: 1;
         }
@@ -745,7 +747,8 @@
                         <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
                     </div>
                     <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
-                    <textarea id="sidebar-bio-input" class="bio-input" style="display: none;" maxlength="150"></textarea>
+                    <textarea id="sidebar-bio-input" class="bio-input" style="display: none;"
+                        maxlength="150"></textarea>
                 </div>
             </div>
         </div>
@@ -778,7 +781,8 @@
 
                             <!-- Coluna de Informações -->
                             <div style="flex-grow: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
                                     <div style="flex: 1;">
                                         <!-- Nome -->
                                         <h1 id="nome-view"
@@ -787,7 +791,8 @@
                                             style="display: none; font-size: 2.5em; width: 100%; padding: 6px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; font-weight: 700; margin-bottom: 10px;">
 
                                         <!-- Raça -->
-                                        <div style="display: flex; flex-direction: column; margin: 5px 0 15px 0;" id="raca-container">
+                                        <div style="display: flex; flex-direction: column; margin: 5px 0 15px 0;"
+                                            id="raca-container">
                                             <div class="info-item-label">Raça</div>
                                             <div class="info-item-value" id="raca-view">-</div>
                                         </div>
@@ -798,28 +803,36 @@
                                     <!-- Tabela de Pontos -->
                                     <div class="pontos-tabela">
                                         <!-- PB -->
-                                        <div class="ponto-celula" id="celula-ponto-bloqueio" onclick="ativarEdicaoPonto('ponto-bloqueio', 'ponto_bloqueio', this)" title="Clique para editar">
+                                        <div class="ponto-celula" id="celula-ponto-bloqueio"
+                                            onclick="ativarEdicaoPonto('ponto-bloqueio', 'ponto_bloqueio', this)"
+                                            title="Clique para editar">
                                             <div class="ponto-sigla">PB</div>
                                             <div class="ponto-valor" id="ponto-bloqueio-view">0</div>
                                             <div class="ponto-nome">Pontos de Bloqueio</div>
                                             <div class="ponto-hint">✏️ clique para editar</div>
                                         </div>
                                         <!-- PR -->
-                                        <div class="ponto-celula" id="celula-ponto-reacao" onclick="ativarEdicaoPonto('ponto-reacao', 'ponto_reacao', this)" title="Clique para editar">
+                                        <div class="ponto-celula" id="celula-ponto-reacao"
+                                            onclick="ativarEdicaoPonto('ponto-reacao', 'ponto_reacao', this)"
+                                            title="Clique para editar">
                                             <div class="ponto-sigla">PR</div>
                                             <div class="ponto-valor" id="ponto-reacao-view">0</div>
                                             <div class="ponto-nome">Pontos de Reação</div>
                                             <div class="ponto-hint">✏️ clique para editar</div>
                                         </div>
                                         <!-- PD -->
-                                        <div class="ponto-celula" id="celula-ponto-destino" onclick="ativarEdicaoPonto('ponto-destino', 'ponto_destino', this)" title="Clique para editar">
+                                        <div class="ponto-celula" id="celula-ponto-destino"
+                                            onclick="ativarEdicaoPonto('ponto-destino', 'ponto_destino', this)"
+                                            title="Clique para editar">
                                             <div class="ponto-sigla">PD</div>
                                             <div class="ponto-valor" id="ponto-destino-view">0</div>
                                             <div class="ponto-nome">Pontos de Destino</div>
                                             <div class="ponto-hint">✏️ clique para editar</div>
                                         </div>
                                         <!-- PT -->
-                                        <div class="ponto-celula" id="celula-ponto-treinamento" onclick="ativarEdicaoPonto('ponto-treinamento', 'ponto_treinamento', this)" title="Clique para editar">
+                                        <div class="ponto-celula" id="celula-ponto-treinamento"
+                                            onclick="ativarEdicaoPonto('ponto-treinamento', 'ponto_treinamento', this)"
+                                            title="Clique para editar">
                                             <div class="ponto-sigla">PT</div>
                                             <div class="ponto-valor" id="ponto-treinamento-view">0</div>
                                             <div class="ponto-nome">Pontos de Treinamento</div>
@@ -1013,7 +1026,7 @@
 
                                 <!-- Histórico de Rolagens -->
                                 <div
-                                    style="margin-top: 20px; background: #0f1929; border: 1px solid #667eea; border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);">
+                                    style="margin-top: 20px; background: rgba(0, 0, 0, 0.28); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);">
                                     <div class="section-title"
                                         style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
                                         <span>📜 Histórico de Rolagens</span>
@@ -1021,18 +1034,18 @@
                                     <div style="overflow-x: auto; max-height: 260px; overflow-y: auto;">
                                         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                                             <thead>
-                                                <tr style="background: #111c2f;">
+                                                <tr style="background: rgba(0, 0, 0, 0.35);">
                                                     <th
-                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">
+                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                                                         Hora</th>
                                                     <th
-                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">
+                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                                                         Dado</th>
                                                     <th
-                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">
+                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                                                         Total</th>
                                                     <th
-                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid #23345d;">
+                                                        style="padding: 8px; text-align: left; color: #9fa6c3; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                                                         Detalhe</th>
                                                 </tr>
                                             </thead>
@@ -1547,7 +1560,7 @@
     <div id="modal-anotacao"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
         <div
-            style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #16213e;">
+            style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid var(--glass-border);">
             <h3 style="color: #667eea; margin-bottom: 20px;">📝 Adicionar Anotação</h3>
             <form id="form-anotacao">
                 <div style="margin-bottom: 15px;">
@@ -1575,7 +1588,7 @@
     <div id="modal-passiva"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
         <div
-            style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; border: 1px solid #16213e; max-height: 90vh; overflow-y: auto;">
+            style="background: #1a2a4e; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; border: 1px solid var(--glass-border); max-height: 90vh; overflow-y: auto;">
             <h3 style="color: #667eea; margin-bottom: 20px;">🌀 Adicionar Passiva</h3>
             <form id="form-passiva">
                 <div style="margin-bottom: 15px;">
@@ -1649,7 +1662,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="../js/viewer-imagem.js"></script>
     <script src="../js/navbar-scroll.js"></script>
-    
+
     <!-- Verificar se está logado -->
     <script>
         (async function () {

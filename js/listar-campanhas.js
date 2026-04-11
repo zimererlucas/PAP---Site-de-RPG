@@ -252,7 +252,7 @@ function updateProgressCampanhas() {
     if (!container || !text || !bar) return;
 
     container.style.display = 'block';
-    
+
     // Verifica cargo de administrador injetado por auth.js
     const isAdmin = window.currentUserProfile && window.currentUserProfile.is_admin;
     const maxCampanhas = 3;
@@ -266,7 +266,7 @@ function updateProgressCampanhas() {
         text.textContent = `Campanhas: ${current} / ${maxCampanhas}`;
         const pct = Math.min((current / maxCampanhas) * 100, 100);
         bar.style.width = `${pct}%`;
-        
+
         if (current >= maxCampanhas) {
             bar.style.backgroundColor = '#ef4444'; // Vermelho lotado
             text.style.color = '#ef4444';
@@ -284,9 +284,9 @@ function editCampanha(id) {
 async function deleteCampanhaConfirm(id) {
     const confirmed = await showConfirmDialog('Tem certeza que deseja deletar esta campanha?');
     if (!confirmed) return;
-    
+
     const result = await deleteCampanha(id);
-    
+
     if (result.success) {
         await loadCampanhasNarrador();
     } else {
@@ -297,9 +297,9 @@ async function deleteCampanhaConfirm(id) {
 async function sairDaCampanha(participacaoId) {
     const confirmed = await showConfirmDialog('Tem certeza que deseja sair desta campanha?');
     if (!confirmed) return;
-    
+
     const result = await removerJogadorDaCampanha(participacaoId);
-    
+
     if (result.success) {
         await loadCampanhasJogador();
     } else {
@@ -310,16 +310,16 @@ async function sairDaCampanha(participacaoId) {
 function showEntrarCampanhaModal() {
     // Carregar personagens do usuário
     loadPersonagensParaModal();
-    
+
     const modal = new bootstrap.Modal(document.getElementById('entrarCampanhaModal'));
     modal.show();
 }
 
 async function loadPersonagensParaModal() {
     const select = document.getElementById('personagemParticipacao');
-    
+
     const result = await getPersonagensDoUsuario();
-    
+
     if (result.success && result.data.length > 0) {
         select.innerHTML = result.data.map(personagem => `
             <option value="${personagem.id}">${personagem.nome}</option>
@@ -331,28 +331,28 @@ async function loadPersonagensParaModal() {
 
 async function handleEntrarCampanha(e) {
     e.preventDefault();
-    
+
     const codigo = document.getElementById('codigoCampanha').value.trim();
     const personagemId = document.getElementById('personagemParticipacao').value;
-    
+
     if (!codigo || !personagemId) {
         console.warn('Por favor, preencha todos os campos!');
         return;
     }
-    
+
     // Obter campanha pelo código
     const campanhaResult = await getCampanhaByCodigo(codigo);
-    
+
     if (!campanhaResult.success) {
         console.warn('Campanha não encontrada! Verifique o código.');
         return;
     }
-    
+
     const campanha = campanhaResult.data;
-    
+
     // Adicionar jogador à campanha
     const result = await adicionarJogadorACampanha(campanha.id, personagemId);
-    
+
     if (result.success) {
         document.getElementById('entrarCampanhaForm').reset();
         bootstrap.Modal.getInstance(document.getElementById('entrarCampanhaModal')).hide();
@@ -364,7 +364,7 @@ async function handleEntrarCampanha(e) {
 
 async function handleLogout() {
     const result = await signOutUser();
-    
+
     if (result.success) {
         window.location.href = '../index.html';
     } else {

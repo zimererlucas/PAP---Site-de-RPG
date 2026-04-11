@@ -1,14 +1,87 @@
 // Sistema.js - Carregamento dinâmico de capítulos do sistema
 
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Sistema Rulebook: Carregando conteúdos...');
-    
-    await loadChapters('rules', 'rules-sidebar-nav', 'rules-main-content');
-    await loadChapters('continents', 'continents-sidebar-nav', 'continents-main-content');
-
-    // Inicializa a lógica de navegação após carregar o conteúdo
-    setupNavigation();
+    console.log('🚀 Sistema Rulebook: Carregando conteúdos dinâmicos...');
+    await initDynamicTabs();
 });
+
+/**
+ * Identifica todas as abas existentes na BD (tabela abas_sistema) e cria a estrutura da UI
+ */
+async function initDynamicTabs() {
+    try {
+        const { data: abas, error } = await supabase
+            .from('abas_sistema')
+            .select('*')
+            .is('deleted_at', null)
+            .order('ordem');
+
+        if (error) throw error;
+
+        const tabsNav = document.getElementById('systemTabs');
+        const tabsContent = document.getElementById('systemTabsContent');
+
+        if (!tabsNav || !tabsContent) return;
+
+        tabsNav.innerHTML = '';
+        tabsContent.innerHTML = '';
+
+        if (!abas || abas.length === 0) {
+            tabsContent.innerHTML = '<div class="text-center py-5 text-white-50">Nenhuma secção disponível no momento.</div>';
+            return;
+        }
+
+        for (let i = 0; i < abas.length; i++) {
+            const aba = abas[i];
+            const isFirst = i === 0;
+            const tabId = `${aba.slug}-tab`;
+            const contentId = `${aba.slug}-content`;
+            const navId = `${aba.slug}-sidebar-nav`;
+            const mainContentId = `${aba.slug}-main-content`;
+
+            // 1. Criar Botão da Aba
+            const navItem = document.createElement('li');
+            navItem.className = 'nav-item';
+            navItem.setAttribute('role', 'presentation');
+            navItem.innerHTML = `
+                <button class="nav-link ${isFirst ? 'active' : ''}" id="${tabId}" data-bs-toggle="pill" data-bs-target="#${contentId}"
+                    type="button" role="tab">
+                    <i class="bi ${aba.icone} me-1"></i> ${aba.titulo}
+                </button>
+            `;
+            tabsNav.appendChild(navItem);
+
+            // 2. Criar Pane de Conteúdo
+            const tabPane = document.createElement('div');
+            tabPane.className = `tab-pane fade ${isFirst ? 'show active' : ''}`;
+            tabPane.id = contentId;
+            tabPane.setAttribute('role', 'tabpanel');
+            tabPane.innerHTML = `
+                <div class="reader-layout">
+                    <aside class="reader-sidebar glass-card">
+                        <div class="sidebar-title"><i class="bi ${aba.icone} me-2"></i> ${aba.titulo}</div>
+                        <ul class="sidebar-nav" id="${navId}">
+                            <div class="text-center py-4 text-white-50 spinner-border text-primary" role="status"></div>
+                        </ul>
+                    </aside>
+                    <main class="reader-content glass-card" id="${mainContentId}">
+                        <div class="text-center py-5 text-white-50">Carregando conteúdo...</div>
+                    </main>
+                </div>
+            `;
+            tabsContent.appendChild(tabPane);
+
+            // 3. Carregar Capítulos para esta aba
+            await loadChapters(aba.slug, navId, mainContentId);
+        }
+
+        // Inicializa a navegação após criar todas as abas
+        setupNavigation();
+
+    } catch (err) {
+        console.error('Erro ao inicializar abas dinâmicas:', err);
+    }
+}
 
 /**
  * Procura capítulos na BD filtrando por aba e renderiza na UI

@@ -42,7 +42,7 @@ function toggleAccordion(button) {
     const content = button.nextElementSibling;
     const isOpen = content.style.display === 'block';
     content.style.display = isOpen ? 'none' : 'block';
-    
+
     // Rotacionar seta
     const arrow = button.querySelector('span:last-child');
     if (arrow) {
@@ -58,7 +58,7 @@ function toggleAccordion(button) {
 async function carregarMagias() {
     const resultado = await obterMagias(fichaIdGlobal);
     const container = document.getElementById('lista-magias');
-    
+
     if (!container) return;
 
     // Guardar quais estavam abertos antes de re-renderizar
@@ -71,20 +71,20 @@ async function carregarMagias() {
 
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(magia => {
-            const bonusText = magia.bonus && Array.isArray(magia.bonus) && magia.bonus.length > 0 
+            const bonusText = magia.bonus && Array.isArray(magia.bonus) && magia.bonus.length > 0
                 ? magia.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
-            
-            const dadosDisplay = magia.dados && Array.isArray(magia.dados) && magia.dados.length > 0 
+
+            const dadosDisplay = magia.dados && Array.isArray(magia.dados) && magia.dados.length > 0
                 ? formatarDados(magia.dados)
                 : '-';
 
-            const botoesDados = magia.dados && Array.isArray(magia.dados) && magia.dados.length > 0 
+            const botoesDados = magia.dados && Array.isArray(magia.dados) && magia.dados.length > 0
                 ? renderBotoesDados(magia.dados, 'magia', magia.nome)
                 : '';
-            
+
             return `
-            <div class="accordion-item" data-id="${magia.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" data-id="${magia.id}" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${magia.nome} (Nível ${magia.nivel}) ${magia.ativa ? '🟢' : '🔴'}${magia.ativa && magia.turnos_restantes !== null && magia.turnos_restantes !== undefined ? ` ⏳ ${magia.turnos_restantes}` : ''}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
@@ -138,7 +138,7 @@ async function deletarMagiaUI(magiaId) {
 async function carregarHabilidades() {
     const resultado = await obterHabilidades(fichaIdGlobal);
     const container = document.getElementById('lista-habilidades');
-    
+
     if (!container) return;
 
     const abertos = Array.from(container.querySelectorAll('.accordion-item'))
@@ -150,7 +150,7 @@ async function carregarHabilidades() {
 
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(hab => {
-            const bonusText = hab.bonus && Array.isArray(hab.bonus) && hab.bonus.length > 0 
+            const bonusText = hab.bonus && Array.isArray(hab.bonus) && hab.bonus.length > 0
                 ? hab.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
 
@@ -161,9 +161,9 @@ async function carregarHabilidades() {
             const botoesDados = hab.dados && Array.isArray(hab.dados) && hab.dados.length > 0
                 ? renderBotoesDados(hab.dados, 'habilidade', hab.nome)
                 : '';
-            
+
             return `
-            <div class="accordion-item" data-id="${hab.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" data-id="${hab.id}" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${hab.nome} (Nível ${hab.nivel}) ${hab.ativa ? '🟢' : '🔴'}${hab.ativa && hab.turnos_restantes !== null && hab.turnos_restantes !== undefined ? ` ⏳ ${hab.turnos_restantes}` : ''}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
@@ -217,17 +217,17 @@ async function deletarHabilidadeUI(habilidadeId) {
 async function carregarConhecimentos() {
     const resultado = await obterConhecimentos(fichaIdGlobal);
     const container = document.getElementById('lista-conhecimentos');
-    
+
     if (!container) return;
 
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(conhec => {
-            const bonusText = conhec.bonus && Array.isArray(conhec.bonus) && conhec.bonus.length > 0 
+            const bonusText = conhec.bonus && Array.isArray(conhec.bonus) && conhec.bonus.length > 0
                 ? conhec.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
-            
+
             return `
-            <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${conhec.nome} (Nível ${conhec.nivel}) ${conhec.ativa ? '🟢' : '🔴'}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
@@ -272,7 +272,7 @@ async function deletarConhecimentoUI(conhecimentoId) {
 async function carregarItens() {
     const resultado = await obterItens(fichaIdGlobal);
     const container = document.getElementById('lista-itens');
-    
+
     if (!container) return;
 
     const abertos = Array.from(container.querySelectorAll('.accordion-item'))
@@ -284,7 +284,7 @@ async function carregarItens() {
 
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(item => {
-            const bonusText = item.bonus && Array.isArray(item.bonus) && item.bonus.length > 0 
+            const bonusText = item.bonus && Array.isArray(item.bonus) && item.bonus.length > 0
                 ? item.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
 
@@ -295,9 +295,9 @@ async function carregarItens() {
             const botoesDados = item.dados && Array.isArray(item.dados) && item.dados.length > 0
                 ? renderBotoesDados(item.dados, 'item', item.nome)
                 : '';
-            
+
             return `
-            <div class="accordion-item" data-id="${item.id}" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" data-id="${item.id}" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${item.nome} (x${item.quantidade}) ${item.ativa ? '🟢' : '🔴'}${item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined ? ` ⏳ ${item.turnos_restantes}` : ''}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
@@ -350,12 +350,12 @@ async function deletarItemUI(itemId) {
 async function carregarAnotacoes() {
     const resultado = await obterAnotacoes(fichaIdGlobal);
     const container = document.getElementById('lista-anotacoes');
-    
+
     if (!container) return;
 
     if (resultado.success && resultado.data.length > 0) {
         container.innerHTML = resultado.data.map(anotacao => `
-            <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${anotacao.titulo}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
@@ -403,22 +403,22 @@ async function carregarPassivas() {
             .select('passivas_ativas')
             .eq('id', fichaIdGlobal)
             .single();
-        
+
         const passivasAtivas = personagem?.passivas_ativas || [];
-        
+
         container.innerHTML = resultado.data.map(passiva => {
-            const bonusText = passiva.bonus && Array.isArray(passiva.bonus) && passiva.bonus.length > 0 
+            const bonusText = passiva.bonus && Array.isArray(passiva.bonus) && passiva.bonus.length > 0
                 ? passiva.bonus.map(b => `${b.valor > 0 ? '+' : ''}${b.valor} ${b.atributo}`).join(', ')
                 : '-';
-            
+
             const estaAtiva = passivasAtivas.includes(passiva.nome);
             const statusClass = estaAtiva ? 'active' : 'inactive';
             const statusTexto = estaAtiva ? '✅ Ativo' : '❌ Inativo';
             const botaoTexto = estaAtiva ? '🔴 Desativar' : '🟢 Ativar';
             const botaoCor = estaAtiva ? '#ff6b6b' : '#51cf66';
-            
+
             return `
-            <div class="accordion-item" style="border: 1px solid #667eea; border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
+            <div class="accordion-item" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; margin-bottom: 10px; background: #1a2a4e;">
                 <button class="accordion-header" onclick="toggleAccordion(this)" style="width: 100%; padding: 15px; background: #16213e; border: none; color: #e0e0e0; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 8px;">
                     <span style="font-weight: bold;">${passiva.nome}</span>
                     <span style="font-size: 12px; color: #667eea; transition: transform 0.3s ease;">▼</span>
@@ -506,7 +506,7 @@ function adicionarBonus(tipo, bonus = { atributo: '', valor: 0 }) {
 
     const select = document.createElement('select');
     select.className = 'bonus-atributo';
-    select.style = "flex: 2; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;";
+    select.style = "flex: 2; padding: 8px; background: #1a2a4e; border: 1px solid rgba(255, 255, 255, 0.1); color: #e0e0e0; border-radius: 4px;";
     atributosDisponiveis.forEach(attr => {
         const option = document.createElement('option');
         option.value = attr.value;
@@ -521,7 +521,7 @@ function adicionarBonus(tipo, bonus = { atributo: '', valor: 0 }) {
     input.type = 'number';
     input.className = 'bonus-valor';
     input.value = bonus.valor;
-    input.style = "flex: 1; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;";
+    input.style = "flex: 1; padding: 8px; background: #1a2a4e; border: 1px solid rgba(255, 255, 255, 0.1); color: #e0e0e0; border-radius: 4px;";
 
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
@@ -565,7 +565,7 @@ function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20, bonus: 0 }) {
     inputQtd.value = dado.quantidade || 1;
     inputQtd.min = 1;
     inputQtd.max = 100;
-    inputQtd.style = "flex: 0.5; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; text-align: center;";
+    inputQtd.style = "flex: 0.5; padding: 8px; background: #1a2a4e; border: 1px solid rgba(255, 255, 255, 0.1); color: #e0e0e0; border-radius: 4px; text-align: center;";
     inputQtd.placeholder = "Qtd";
 
     // Label "d"
@@ -580,7 +580,7 @@ function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20, bonus: 0 }) {
     inputLados.value = dado.lados || 20;
     inputLados.min = 1;
     inputLados.max = 1000;
-    inputLados.style = "flex: 1; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px;";
+    inputLados.style = "flex: 1; padding: 8px; background: #1a2a4e; border: 1px solid rgba(255, 255, 255, 0.1); color: #e0e0e0; border-radius: 4px;";
     inputLados.placeholder = "Lados";
 
     // Input de bônus (positivo ou negativo)
@@ -589,7 +589,7 @@ function adicionarDadoUI(tipo, dado = { quantidade: 1, lados: 20, bonus: 0 }) {
     inputBonus.className = 'dado-bonus';
     inputBonus.value = dado.bonus !== undefined && dado.bonus !== null ? dado.bonus : 0;
     inputBonus.step = '1';
-    inputBonus.style = "flex: 0.8; padding: 8px; background: #1a2a4e; border: 1px solid #667eea; color: #e0e0e0; border-radius: 4px; text-align: center;";
+    inputBonus.style = "flex: 0.8; padding: 8px; background: #1a2a4e; border: 1px solid rgba(255, 255, 255, 0.1); color: #e0e0e0; border-radius: 4px; text-align: center;";
     inputBonus.placeholder = "+/-";
 
     // Botão remover
@@ -1221,7 +1221,7 @@ function filtrarMagias() {
     const container = document.getElementById('lista-magias');
     const items = container.querySelectorAll('.accordion-item');
     let temResultados = false;
-    
+
     items.forEach(item => {
         const nome = item.querySelector('.accordion-header span:first-child')?.textContent.toLowerCase() || '';
         if (busca === '' || nome.includes(busca)) {
@@ -1231,7 +1231,7 @@ function filtrarMagias() {
             item.style.display = 'none';
         }
     });
-    
+
     if (!temResultados && busca !== '') {
         if (!container.querySelector('.sem-resultados')) {
             const msg = document.createElement('p');
@@ -1251,7 +1251,7 @@ function filtrarHabilidades() {
     const container = document.getElementById('lista-habilidades');
     const items = container.querySelectorAll('.accordion-item');
     let temResultados = false;
-    
+
     items.forEach(item => {
         const nome = item.querySelector('.accordion-header span:first-child')?.textContent.toLowerCase() || '';
         if (busca === '' || nome.includes(busca)) {
@@ -1261,7 +1261,7 @@ function filtrarHabilidades() {
             item.style.display = 'none';
         }
     });
-    
+
     if (!temResultados && busca !== '') {
         if (!container.querySelector('.sem-resultados')) {
             const msg = document.createElement('p');
@@ -1281,7 +1281,7 @@ function filtrarConhecimentos() {
     const container = document.getElementById('lista-conhecimentos');
     const items = container.querySelectorAll('.accordion-item');
     let temResultados = false;
-    
+
     items.forEach(item => {
         const nome = item.querySelector('.accordion-header span:first-child')?.textContent.toLowerCase() || '';
         if (busca === '' || nome.includes(busca)) {
@@ -1291,7 +1291,7 @@ function filtrarConhecimentos() {
             item.style.display = 'none';
         }
     });
-    
+
     if (!temResultados && busca !== '') {
         if (!container.querySelector('.sem-resultados')) {
             const msg = document.createElement('p');
@@ -1311,7 +1311,7 @@ function filtrarItens() {
     const container = document.getElementById('lista-itens');
     const items = container.querySelectorAll('.accordion-item');
     let temResultados = false;
-    
+
     items.forEach(item => {
         const nome = item.querySelector('.accordion-header span:first-child')?.textContent.toLowerCase() || '';
         if (busca === '' || nome.includes(busca)) {
@@ -1321,7 +1321,7 @@ function filtrarItens() {
             item.style.display = 'none';
         }
     });
-    
+
     if (!temResultados && busca !== '') {
         if (!container.querySelector('.sem-resultados')) {
             const msg = document.createElement('p');
@@ -1341,7 +1341,7 @@ function filtrarAnotacoes() {
     const container = document.getElementById('lista-anotacoes');
     const items = container.querySelectorAll('.accordion-item');
     let temResultados = false;
-    
+
     items.forEach(item => {
         const nome = item.querySelector('.accordion-header span:first-child')?.textContent.toLowerCase() || '';
         if (busca === '' || nome.includes(busca)) {
@@ -1351,7 +1351,7 @@ function filtrarAnotacoes() {
             item.style.display = 'none';
         }
     });
-    
+
     if (!temResultados && busca !== '') {
         if (!container.querySelector('.sem-resultados')) {
             const msg = document.createElement('p');
@@ -1403,7 +1403,7 @@ async function editarMagia(magiaId) {
     if (magia.bonus && Array.isArray(magia.bonus)) {
         magia.bonus.forEach(b => adicionarBonus('magia', b));
     }
-    
+
     abrirModalMagia();
 }
 
@@ -1424,21 +1424,21 @@ async function editarHabilidade(habilidadeId) {
     if (habInputNivel) habInputNivel.value = hab.nivel || 1;
     const habDuracaoTurnos = document.getElementById('habilidade-duracao-turnos');
     if (habDuracaoTurnos) habDuracaoTurnos.value = hab.duracao_turnos || '';
-    
+
     // Restaurar dados
     if (hab.dados && Array.isArray(hab.dados)) {
         restaurarDados('habilidade', hab.dados);
     } else {
         document.getElementById('habilidade-dados-container').innerHTML = '';
     }
-    
+
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('habilidade-bonus-container');
     bonusContainer.innerHTML = '';
     if (hab.bonus && Array.isArray(hab.bonus)) {
         hab.bonus.forEach(b => adicionarBonus('habilidade', b));
     }
-    
+
     abrirModalHabilidade();
 }
 
@@ -1454,14 +1454,14 @@ async function editarConhecimento(conhecimentoId) {
     document.getElementById('conhecimento-descricao').value = conhec.descricao || '';
     const conhecInputNivel = document.getElementById('conhecimento-nivel');
     if (conhecInputNivel) conhecInputNivel.value = conhec.nivel || 1;
-    
+
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('conhecimento-bonus-container');
     bonusContainer.innerHTML = '';
     if (conhec.bonus && Array.isArray(conhec.bonus)) {
         conhec.bonus.forEach(b => adicionarBonus('conhecimento', b));
     }
-    
+
     abrirModalConhecimento();
 }
 
@@ -1479,14 +1479,14 @@ async function editarItem(itemId) {
     document.getElementById('item-peso').value = item.peso || 0;
     const itemDuracaoTurnos = document.getElementById('item-duracao-turnos');
     if (itemDuracaoTurnos) itemDuracaoTurnos.value = item.duracao_turnos || '';
-    
+
     // Limpar e popular bônus
     const bonusContainer = document.getElementById('item-bonus-container');
     bonusContainer.innerHTML = '';
     if (item.bonus && Array.isArray(item.bonus)) {
         item.bonus.forEach(b => adicionarBonus('item', b));
     }
-    
+
     abrirModalItem();
 }
 
@@ -1543,9 +1543,9 @@ function renderizarBotaoAtivacao(item, tipo) {
     const restantesTexto = item.ativa && item.turnos_restantes !== null && item.turnos_restantes !== undefined
         ? ` | ⏳ ${item.turnos_restantes}`
         : '';
-    
+
     // Se tem custo de mana/estamina, mostrar aviso
-    const custoBadge = (item.custo_mana || item.custo_estamina) 
+    const custoBadge = (item.custo_mana || item.custo_estamina)
         ? `<span style="font-size: 10px; color: #ffd700; margin-left: 5px;">⚡ Gasta ${item.custo_mana || 0} Mana / ${item.custo_estamina || 0} Estamina</span>`
         : '';
 
@@ -1565,7 +1565,7 @@ function renderizarBotaoAtivacao(item, tipo) {
 async function alternarAtivacao(tipo, itemId) {
     try {
         let resultado;
-        
+
         if (tipo === 'magia') {
             const { data: magia } = await supabase.from('magias').select('ativa').eq('id', itemId).single();
             resultado = magia.ativa ? await desativarMagia(fichaIdGlobal, itemId) : await ativarMagia(fichaIdGlobal, itemId);
@@ -1586,22 +1586,22 @@ async function alternarAtivacao(tipo, itemId) {
 
         if (resultado.success) {
             console.log('✅', resultado.mensagem);
-            
+
             // Recarregar a lista correspondente
             if (tipo === 'magia') carregarMagias();
             else if (tipo === 'habilidade') carregarHabilidades();
             else if (tipo === 'conhecimento') carregarConhecimentos();
             else if (tipo === 'item') carregarItens();
             else if (tipo === 'passiva') carregarPassivas();
-            
+
             // IMPORTANTE: Recalcular bônus globais após ativação/desativação
             await recalcularBonusGlobais(fichaIdGlobal);
-            
+
             // Recarregar a ficha para refletir os bônus atualizados
             if (typeof loadFicha === 'function') {
                 await loadFicha();
             }
-            
+
             // Se tem gasto de recursos, atualizar estatísticas
             if (resultado.novaMana !== undefined) {
                 console.log(`📊 Mana: ${resultado.novaMana} | Estamina: ${resultado.novaEstamina}`);

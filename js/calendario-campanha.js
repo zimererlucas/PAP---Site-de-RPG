@@ -12,7 +12,7 @@ let currentCampanhaData = null;
 async function inicializarCalendario(campanha) {
     if (!campanha) return;
     currentCampanhaData = campanha;
-    
+
     // Garantir que os campos existam (fallback)
     if (currentCampanhaData.dia_atual === undefined) currentCampanhaData.dia_atual = 1;
     if (currentCampanhaData.calendario_obs === undefined) currentCampanhaData.calendario_obs = {};
@@ -88,7 +88,7 @@ async function salvarObservacaoDia() {
 
     // Criar cópia profunda do objeto de observações
     const novasObs = { ...currentCampanhaData.calendario_obs };
-    
+
     if (novaObs) {
         novasObs[diaAtual] = novaObs;
     } else {
@@ -120,9 +120,9 @@ function assinarAtualizacoesCalendario() {
 
     supabase
         .channel(`public:campanhas:id=eq.${campanhaId}`)
-        .on('postgres_changes', { 
-            event: 'UPDATE', 
-            schema: 'public', 
+        .on('postgres_changes', {
+            event: 'UPDATE',
+            schema: 'public',
             table: 'campanhas',
             filter: `id=eq.${campanhaId}`
         }, payload => {
