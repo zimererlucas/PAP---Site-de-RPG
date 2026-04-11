@@ -38,10 +38,56 @@ async function loadChapters(aba, navId, contentId) {
         navElement.innerHTML = '';
         contentElement.innerHTML = '';
 
-        chapters.forEach((chap, index) => {
-            const isActive = index === 0;
+        // Agrupar capítulos por categoria
+        const grouped = {};
+        chapters.forEach(chap => {
+            const cat = chap.categoria || 'Geral';
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(chap);
+        });
 
-            // 1. Criar link na sidebar
+        let isFirst = true;
+
+        Object.keys(grouped).forEach((catName, groupIndex) => {
+            const groupId = `${aba}-group-${groupIndex}`;
+            
+            // 1. Adicionar Cabeçalho de Categoria (se não for a única 'Geral')
+            if (catName !== 'Geral' || Object.keys(grouped).length > 1) {
+                const header = document.createElement('li');
+                header.className = 'sidebar-category';
+                header.setAttribute('data-bs-toggle', 'collapse');
+                header.setAttribute('data-bs-target', `#${groupId}`);
+                header.setAttribute('aria-expanded', 'true');
+                header.innerHTML = `
+                    <i class="bi bi-globe"></i> 
+                    <span>${catName}</span>
+                    <i class="bi bi-chevron-down chevron"></i>
+                `;
+                navElement.appendChild(header);
+
+                // Criar container para os itens colapsáveis
+                const container = document.createElement('div');
+                container.id = groupId;
+                container.className = 'collapse show category-container';
+                navElement.appendChild(container);
+
+                // Adicionar capítulos dentro do container
+                grouped[catName].forEach(chap => {
+                    renderChapter(chap, container);
+                });
+            } else {
+                // Se for apenas 'Geral', renderizar diretamente no navElement
+                grouped[catName].forEach(chap => {
+                    renderChapter(chap, navElement);
+                });
+            }
+        });
+
+        function renderChapter(chap, parent) {
+            const isActive = isFirst;
+            if (isFirst) isFirst = false;
+
+            // Link na sidebar
             const li = document.createElement('li');
             li.className = 'sidebar-item';
             li.innerHTML = `
@@ -49,9 +95,9 @@ async function loadChapters(aba, navId, contentId) {
                     ${chap.titulo}
                 </a>
             `;
-            navElement.appendChild(li);
+            parent.appendChild(li);
 
-            // 2. Criar secção de conteúdo
+            // Secção de conteúdo
             const section = document.createElement('div');
             section.id = chap.slug;
             section.className = `rule-section ${isActive ? 'active' : ''}`;
@@ -62,7 +108,7 @@ async function loadChapters(aba, navId, contentId) {
                 </div>
             `;
             contentElement.appendChild(section);
-        });
+        }
 
     } catch (err) {
         console.error(`Erro ao carregar capítulos (${aba}):`, err.message);

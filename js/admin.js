@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('modalTitle').textContent = 'Novo Capítulo';
             document.getElementById('editOriginalSlug').value = '';
             document.getElementById('chapterForm').reset();
+            document.getElementById('chapterCategory').value = ''; // Garantir que limpa
             const modal = new bootstrap.Modal(document.getElementById('chapterModal'));
             modal.show();
         });
@@ -178,6 +179,7 @@ async function loadChapters() {
         row.innerHTML = `
             <td class="fw-bold">${chap.ordem}</td>
             <td>${chap.titulo}</td>
+            <td><span class="badge bg-secondary">${chap.categoria || '-'}</span></td>
             <td><code>${chap.slug}</code></td>
             <td><span class="badge bg-dark">${chap.aba}</span></td>
             <td>
@@ -210,6 +212,7 @@ async function editChapter(slug) {
     document.getElementById('chapterTitle').value = chap.titulo;
     document.getElementById('chapterSlug').value = chap.slug;
     document.getElementById('chapterAba').value = chap.aba;
+    document.getElementById('chapterCategory').value = chap.categoria || '';
     document.getElementById('chapterOrder').value = chap.ordem;
     document.getElementById('chapterContent').value = chap.conteudo;
 
@@ -223,6 +226,7 @@ async function saveChapter() {
         titulo: document.getElementById('chapterTitle').value,
         slug: document.getElementById('chapterSlug').value,
         aba: document.getElementById('chapterAba').value,
+        categoria: document.getElementById('chapterCategory').value || null,
         ordem: parseInt(document.getElementById('chapterOrder').value),
         conteudo: document.getElementById('chapterContent').value
     };
