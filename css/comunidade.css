@@ -1253,3 +1253,226 @@
         }
     }
 }
+
+/* -------------------------------------------------------
+   11. MENU DE ACÇÕES (Três Pontos)
+   ------------------------------------------------------- */
+.post-actions-wrapper, .comment-actions-wrapper {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 10;
+}
+
+.comment-actions-wrapper {
+    top: 5px;
+    right: 5px;
+}
+
+.btn-actions-toggle {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.2rem;
+    line-height: 1;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.btn-actions-toggle:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.actions-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #1a1f35;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    min-width: 130px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.actions-menu.show {
+    display: flex;
+}
+
+.action-item {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+}
+
+.action-item:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+.action-item.delete {
+    color: #ef4444;
+}
+
+.action-item.delete:hover {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+/* -------------------------------------------------------
+   12. COMENTÁRIOS ESTILO INSTAGRAM
+   ------------------------------------------------------- */
+.comment-item {
+    margin-bottom: 24px !important;
+    padding: 0 !important;
+    position: relative;
+    border-bottom: none !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-main-content {
+    display: flex;
+    gap: 12px;
+    position: relative;
+}
+
+.comment-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.comment-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-text-wrapper {
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.comment-username {
+    font-weight: 700;
+    color: white;
+    margin-right: 6px;
+    cursor: pointer;
+}
+
+.comment-username:hover {
+    text-decoration: underline;
+}
+
+.comment-texto {
+    display: inline;
+    word-break: break-word;
+}
+
+.comment-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 6px;
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+}
+
+.btn-reply, .btn-action-link {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    font-size: 0.74rem;
+    transition: color 0.15s;
+}
+
+.btn-reply:hover, .btn-action-link:hover {
+    color: white;
+}
+
+/* Votos estilo IG */
+.comment-votes-ig {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.vote-link {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s;
+    user-select: none;
+    font-size: 0.82rem;
+}
+
+.vote-link:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.vote-link.active.up { color: #10b981; opacity: 1; }
+.vote-link.active.down { color: #ef4444; opacity: 1; }
+
+.comment-score-val {
+    font-weight: 700;
+    min-width: 14px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Respostas */
+.comment-replies {
+    margin-left: 46px;
+    margin-top: 12px;
+    border-left: none;
+}
+
+.reply-input-wrapper {
+    margin: 12px 0 12px 46px;
+    border-left: 2px solid rgba(139, 92, 246, 0.3);
+    padding-left: 14px;
+}
+
+.reply-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    padding: 12px;
+    font-size: 0.88rem;
+    resize: none;
+    outline: none;
+    font-family: inherit;
+}
+
+.btn-reply-send {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+}

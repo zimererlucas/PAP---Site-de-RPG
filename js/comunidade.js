@@ -14,6 +14,9 @@ let currentUser = null;    // utilizador supabase
 let userVotes = {};      // { post_id: tipo_voto }
 let userCommentVotes = {};     // { comment_id: tipo_voto }
 let isVoting = {};      // { id: true/false } para evitar spam
+let isAdmin = false;    // se o user logado é admin
+let isEditingPost = false; // flag para modo edição
+let postEmEdicaoId = null;
 // Dados para o modal de criação
 let fichasDoUser = [];
 let campanhasDoUser = [];
@@ -42,6 +45,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btn = document.getElementById('btnPublicar');
         if (btn) btn.style.display = 'inline-flex';
         await carregarFichasECampanhasDoUser();
+
+        // Verificar se é admin
+        const { data: profile } = await supabase
+            .from('perfis')
+            .select('is_admin')
+            .eq('id', currentUser.id)
+            .single();
+        isAdmin = profile?.is_admin || false;
     }
 
     // Eventos do formulário de criação
@@ -339,7 +350,29 @@ function criarCardPost(post) {
     const scoreClass = post.score > 0 ? 'positive' : post.score < 0 ? 'negative' : '';
     const totalComentarios = post.comentarios_posts?.[0]?.count || 0;
 
+    const isOwner = currentUser && post.user_id === currentUser.id;
+    const canDelete = isOwner || isAdmin;
+    const canEdit = isOwner;
+
+    let actionsHtml = '';
+    if (canDelete || canEdit) {
+        actionsHtml = `
+        <div class="post-actions-wrapper">
+            <button class="btn-actions-toggle" onclick="toggleActionsMenu(event, 'post-${post.id}')">⋮</button>
+            <div id="actions-post-${post.id}" class="actions-menu">
+                ${canEdit ? `<button class="action-item" onclick="editPost('${post.id}', event)">
+                    <span>✏️</span> Editar
+                </button>` : ''}
+                ${canDelete ? `<button class="action-item delete" onclick="deletePost('${post.id}', event)">
+                    <span>🗑️</span> Apagar
+                </button>` : ''}
+            </div>
+        </div>
+        `;
+    }
+
     div.innerHTML = `
+        ${actionsHtml}
         <div class="post-header-total" onclick="abrirDetalhe('${post.id}')">
             <div class="post-header">
                 <img class="post-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
@@ -443,6 +476,93 @@ function actualizarVotoUI(postId, novoScore, meuVoto) {
         container.querySelectorAll('.vote-btn.upvote').forEach(b => b.classList.toggle('active', meuVoto === 1));
         container.querySelectorAll('.vote-btn.downvote').forEach(b => b.classList.toggle('active', meuVoto === -1));
     });
+}
+
+function toggleActionsMenu(event, id) {
+    event.stopPropagation();
+    const menu = document.getElementById(`actions-${id}`);
+    const alreadyOpen = menu.classList.contains('show');
+
+    // Fechar todos
+    document.querySelectorAll('.actions-menu').forEach(m => m.classList.remove('show'));
+
+    if (!alreadyOpen && menu) {
+        menu.classList.add('show');
+    }
+
+    // Fechar ao clicar fora
+    const closeMenu = () => {
+        if (menu) menu.classList.remove('show');
+        document.removeEventListener('click', closeMenu);
+    };
+    document.addEventListener('click', closeMenu);
+}
+
+async function deletePost(postId, event) {
+    event.stopPropagation();
+
+    // Verificação de permissão frontal extra
+    try {
+        const { data: post } = await supabase.from('posts').select('user_id').eq('id', postId).single();
+        if (!isAdmin && post?.user_id !== currentUser?.id) {
+            mostrarToast('Não tens permissão para apagar este post.', 'error');
+            return;
+        }
+    } catch (e) { }
+
+    const confirm = await showConfirmDialog('Tens a certeza que queres apagar este post permanentemente?', {
+        confirmText: 'Apagar',
+        cancelText: 'Cancelar'
+    });
+    if (!confirm) return;
+
+    try {
+        const { error } = await supabase.from('posts').delete().eq('id', postId);
+        if (error) throw error;
+        mostrarToast('Post apagado com sucesso.', 'success');
+        carregarFeed(true);
+        fecharModalDetalhe();
+    } catch (err) {
+        console.error('Erro ao apagar post:', err);
+        mostrarToast('Erro ao apagar post.', 'error');
+    }
+}
+
+async function editPost(postId, event) {
+    event?.stopPropagation();
+    try {
+        const { data: post, error } = await supabase.from('posts').select('*').eq('id', postId).single();
+        if (error) throw error;
+
+        if (post?.user_id !== currentUser?.id) {
+            mostrarToast('Não tens permissão para editar este post.', 'error');
+            return;
+        }
+
+        isEditingPost = true;
+        postEmEdicaoId = postId;
+
+
+        document.getElementById('modalCriarPost').querySelector('h2').textContent = '✏️ Editar Post';
+        document.getElementById('btnSubmitPost').textContent = 'Guardar Alterações';
+
+        // Preencher form
+        const radio = document.getElementById(`tipo-${post.tipo}`);
+        if (radio) {
+            radio.checked = true;
+            onTipoChange({ target: radio });
+        }
+        document.getElementById('postTitulo').value = post.titulo;
+        document.getElementById('postConteudo').value = post.conteudo;
+
+        if (post.personagem_id) document.getElementById('selectPersonagem').value = post.personagem_id;
+        if (post.campanha_id) document.getElementById('selectCampanha').value = post.campanha_id;
+
+        abrirModalCriar();
+    } catch (err) {
+        console.error('Erro ao editar post:', err);
+        mostrarToast('Erro ao carregar dados para edição.', 'error');
+    }
 }
 
 // ================================================================
@@ -550,7 +670,7 @@ async function carregarComentarios(postId) {
         const { data, error } = await supabase
             .from('comentarios_posts')
             .select(`
-                id, texto, criado_em, user_id, score,
+                id, texto, criado_em, user_id, score, parent_id,
                 perfis:user_id ( username, avatar_url )
             `)
             .eq('post_id', postId)
@@ -563,43 +683,88 @@ async function carregarComentarios(postId) {
 
         count.textContent = (data || []).length;
 
-        if (!data || data.length === 0) {
-            lista.innerHTML = '';
-            return;
-        }
-
-        lista.innerHTML = data.map(c => {
-            const nomeUser = escapeHtml(c.perfis?.username || 'Utilizador');
-            const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
-            const avatar = c.perfis?.avatar_url || defaultAvatar;
-            const meuVoto = userCommentVotes[c.id] || 0;
-            const scoreClass = c.score > 0 ? 'positive' : c.score < 0 ? 'negative' : '';
-            return `
-            <div class="comment-item">
-                <img class="comment-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
-                <div class="comment-body">
-                    <div class="comment-autor">
-                        ${nomeUser}
-                        <span class="comment-data">${formatarData(c.criado_em)}</span>
-                    </div>
-                    <div class="comment-texto">${escapeHtml(c.texto)}</div>
-                    <div class="comment-footer-votes">
-                        <div class="vote-group small">
-                            <button class="vote-btn upvote ${meuVoto === 1 ? 'active' : ''}"
-                                onclick="votarComentario('${c.id}', 1, event)" title="Gosto">▲</button>
-                            <span class="vote-score ${scoreClass} score-comm-val-${c.id}" id="score-comment-${c.id}">${c.score || 0}</span>
-                            <button class="vote-btn downvote ${meuVoto === -1 ? 'active' : ''}"
-                                onclick="votarComentario('${c.id}', -1, event)" title="Não gosto">▼</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `}).join('');
+        lista.innerHTML = '';
+        renderizarThreadComentarios(data, lista);
 
     } catch (err) {
         console.error('Erro ao carregar comentários:', err);
     }
 }
+
+/**
+ * Renderiza comentários recursivamente (Reddit-style)
+ */
+function renderizarThreadComentarios(allComments, container, parentId = null) {
+    const thread = allComments.filter(c => c.parent_id === parentId);
+    if (thread.length === 0) return;
+
+    thread.forEach(c => {
+        const nomeUser = escapeHtml(c.perfis?.username || 'Utilizador');
+        const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
+        const avatar = c.perfis?.avatar_url || defaultAvatar;
+        const meuVoto = userCommentVotes[c.id] || 0;
+        const score = c.score || 0;
+        const scoreClass = score > 0 ? 'positive' : score < 0 ? 'negative' : '';
+        const isOwner = currentUser && c.user_id === currentUser.id;
+        const canDelete = isOwner || isAdmin;
+        const canEdit = isOwner;
+
+        let actionsHtml = '';
+        if (canDelete || canEdit) {
+            actionsHtml = `
+            <div class="comment-actions-wrapper">
+                <button class="btn-actions-toggle" onclick="toggleActionsMenu(event, 'comm-${c.id}')">⋮</button>
+                <div id="actions-comm-${c.id}" class="actions-menu">
+                    ${canEdit ? `<button class="action-item" onclick="editComment('${c.id}', event)">
+                        <span>✏️</span> Editar
+                    </button>` : ''}
+                    ${canDelete ? `<button class="action-item delete" onclick="deleteComment('${c.id}', event)">
+                        <span>🗑️</span> Apagar
+                    </button>` : ''}
+                </div>
+            </div>
+            `;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'comment-item';
+        div.id = `comment-${c.id}`;
+        div.innerHTML = `
+            <div class="comment-main-content">
+                <img class="comment-avatar" src="${avatar}" alt="${nomeUser}" onerror="this.src='${defaultAvatar}'" referrerpolicy="no-referrer">
+                <div class="comment-body">
+                    <div class="comment-text-wrapper">
+                        <span class="comment-username">${nomeUser}</span>
+                        <span class="comment-texto" id="comment-text-${c.id}">${escapeHtml(c.texto)}</span>
+                    </div>
+                    <div class="comment-footer-actions">
+                        <span class="comment-data">${formatarData(c.criado_em)}</span>
+                        
+                        <div class="comment-votes-ig">
+                            <span class="vote-link up ${meuVoto === 1 ? 'active' : ''}" 
+                                  onclick="votarComentario('${c.id}', 1, event)">▲</span>
+                            <span class="comment-score-val ${scoreClass} score-comm-val-${c.id}">${score}</span>
+                            <span class="vote-link down ${meuVoto === -1 ? 'active' : ''}" 
+                                  onclick="votarComentario('${c.id}', -1, event)">▼</span>
+                        </div>
+
+                        ${currentUser ? `<button class="btn-reply" onclick="abrirReply('${c.id}')">Responder</button>` : ''}
+                    </div>
+                </div>
+                ${actionsHtml}
+            </div>
+            <div id="reply-area-${c.id}"></div>
+            <div class="comment-replies" id="replies-${c.id}"></div>
+        `;
+
+        container.appendChild(div);
+
+        // Renderizar filhos (recursão)
+        const repliesContainer = div.querySelector(`#replies-${c.id}`);
+        renderizarThreadComentarios(allComments, repliesContainer, c.id);
+    });
+}
+
 
 async function enviarComentario() {
     if (!currentUser) { mostrarToast('Faz login para comentar.', 'error'); return; }
@@ -630,6 +795,110 @@ async function enviarComentario() {
         mostrarToast('Erro ao publicar comentário.', 'error');
     } finally {
         btn.disabled = false;
+    }
+}
+
+async function deleteComment(commentId, event) {
+    event.stopPropagation();
+
+    // Proteção extra
+    try {
+        const { data: comm } = await supabase.from('comentarios_posts').select('user_id').eq('id', commentId).single();
+        if (!isAdmin && comm?.user_id !== currentUser?.id) {
+            mostrarToast('Não tens permissão para apagar este comentário.', 'error');
+            return;
+        }
+    } catch (e) { }
+
+    const confirm = await showConfirmDialog('Queres apagar este comentário?', {
+        confirmText: 'Apagar',
+        cancelText: 'Cancelar'
+    });
+    if (!confirm) return;
+
+    try {
+        const { error } = await supabase.from('comentarios_posts').delete().eq('id', commentId);
+        if (error) throw error;
+        mostrarToast('Comentário removido.', 'success');
+        await carregarComentarios(postAtualId);
+    } catch (err) {
+        console.error('Erro ao apagar comentário:', err);
+        mostrarToast('Erro ao apagar comentário.', 'error');
+    }
+}
+
+async function editComment(commentId, event) {
+    event.stopPropagation();
+
+    const { data: comm } = await supabase.from('comentarios_posts').select('user_id').eq('id', commentId).single();
+    if (comm?.user_id !== currentUser?.id) {
+        mostrarToast('Não tens permissão para editar este comentário.', 'error');
+        return;
+    }
+
+    const textEl = document.getElementById(`comment-text-${commentId}`);
+    const originalText = textEl.textContent;
+
+
+    const novoTexto = prompt('Edita o teu comentário:', originalText);
+    if (novoTexto === null || novoTexto.trim() === '' || novoTexto === originalText) return;
+
+    try {
+        const { error } = await supabase.from('comentarios_posts').update({ texto: novoTexto.trim() }).eq('id', commentId);
+        if (error) throw error;
+        mostrarToast('Comentário atualizado.', 'success');
+        await carregarComentarios(postAtualId);
+    } catch (err) {
+        console.error('Erro ao editar comentário:', err);
+        mostrarToast('Erro ao atualizar comentário.', 'error');
+    }
+}
+
+function abrirReply(commentId) {
+    const area = document.getElementById(`reply-area-${commentId}`);
+    if (area.innerHTML !== '') {
+        area.innerHTML = '';
+        return;
+    }
+
+    // Fechar outras áreas de reply abertas
+    document.querySelectorAll('[id^="reply-area-"]').forEach(el => el.innerHTML = '');
+
+    area.innerHTML = `
+        <div class="reply-input-wrapper">
+            <textarea class="reply-textarea" id="input-reply-${commentId}" placeholder="Escreve a tua resposta..." rows="2"></textarea>
+            <div class="reply-actions">
+                <button class="btn-small btn-reply-cancel" onclick="cancelarReply('${commentId}')">Cancelar</button>
+                <button class="btn-small btn-reply-send" onclick="enviarResposta('${commentId}')">Responder</button>
+            </div>
+        </div>
+    `;
+    area.querySelector('textarea').focus();
+}
+
+function cancelarReply(commentId) {
+    document.getElementById(`reply-area-${commentId}`).innerHTML = '';
+}
+
+async function enviarResposta(parentId) {
+    const textarea = document.getElementById(`input-reply-${parentId}`);
+    const texto = textarea.value.trim();
+    if (!texto) return;
+
+    try {
+        const { error } = await supabase.from('comentarios_posts').insert({
+            post_id: postAtualId,
+            user_id: currentUser.id,
+            parent_id: parentId,
+            texto
+        });
+
+        if (error) throw error;
+        mostrarToast('Resposta enviada! ⤴️', 'success');
+        await carregarComentarios(postAtualId);
+    } catch (err) {
+        console.error('Erro ao enviar resposta:', err);
+        mostrarToast('Erro ao enviar resposta.', 'error');
     }
 }
 
@@ -679,13 +948,13 @@ function actualizarVotoComentarioUI(commentId, novoScore, meuVoto) {
     const displays = document.querySelectorAll(`.score-comm-val-${commentId}`);
     displays.forEach(el => {
         el.textContent = novoScore;
-        el.className = `vote-score ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-comm-val-${commentId}`;
+        el.className = `comment-score-val ${novoScore > 0 ? 'positive' : novoScore < 0 ? 'negative' : ''} score-comm-val-${commentId}`;
 
-        // Encontrar o vote-group específico deste comentário para evitar conflitos
-        const group = el.closest('.vote-group.small');
+        // Encontrar o container IG específico
+        const group = el.closest('.comment-votes-ig');
         if (group) {
-            group.querySelector('.vote-btn.upvote')?.classList.toggle('active', meuVoto === 1);
-            group.querySelector('.vote-btn.downvote')?.classList.toggle('active', meuVoto === -1);
+            group.querySelector('.vote-link.up')?.classList.toggle('active', meuVoto === 1);
+            group.querySelector('.vote-link.down')?.classList.toggle('active', meuVoto === -1);
         }
     });
 }
@@ -730,6 +999,13 @@ function fecharModalCriar() {
     const modal = document.getElementById('modalCriarPost');
     modal.classList.remove('open');
     document.body.style.overflow = '';
+
+    // Reset state
+    isEditingPost = false;
+    postEmEdicaoId = null;
+    document.getElementById('modalCriarPost').querySelector('h2').textContent = '✨ Publicar Post';
+    document.getElementById('btnSubmitPost').textContent = 'Publicar';
+    document.getElementById('formCriarPost').reset();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -757,24 +1033,30 @@ async function submitPost(event) {
     }
 
     try {
-        const { error } = await supabase.from('posts').insert({
+        let result;
+        const postData = {
             user_id: currentUser.id,
             tipo,
             titulo,
             conteudo,
             personagem_id: tipo === 'personagem' ? fichaId : null,
             campanha_id: (tipo === 'mundo' || tipo === 'narrativa') ? campanhaId : null
-        });
+        };
 
-        if (error) throw error;
+        if (isEditingPost && postEmEdicaoId) {
+            result = await supabase.from('posts').update(postData).eq('id', postEmEdicaoId);
+        } else {
+            result = await supabase.from('posts').insert(postData);
+        }
+
+        if (result.error) throw result.error;
 
         fecharModalCriar();
-        document.getElementById('formCriarPost').reset();
-        document.getElementById('fichaPreview').style.display = 'none';
-        document.getElementById('refPersonagemSection').classList.remove('visible');
-        document.getElementById('refCampanhaSection').classList.remove('visible');
-        mostrarToast('Post publicado com sucesso! 🎉', 'success');
+        mostrarToast(isEditingPost ? 'Post atualizado! ✅' : 'Post publicado com sucesso! 🎉', 'success');
         carregarFeed(true);
+        if (isEditingPost && postAtualId === postEmEdicaoId) {
+            abrirDetalhe(postAtualId); // Refresh modal se estiver aberto
+        }
 
     } catch (err) {
         console.error('Erro ao publicar:', err);
@@ -909,3 +1191,23 @@ function mostrarToast(msg, tipo = '') {
 }
 
 window.feedComunidadeRecarregar = () => carregarFeed(true);
+
+// Expor funções para onclick global
+window.votar = votar;
+window.abrirDetalhe = abrirDetalhe;
+window.fecharModalDetalhe = fecharModalDetalhe;
+window.votarComentario = votarComentario;
+window.enviarComentario = enviarComentario;
+window.abrirModalCriar = abrirModalCriar;
+window.fecharModalCriar = fecharModalCriar;
+window.submitPost = submitPost;
+window.mudarOrdem = mudarOrdem;
+window.toggleActionsMenu = toggleActionsMenu;
+window.editPost = editPost;
+window.deletePost = deletePost;
+window.editComment = editComment;
+window.deleteComment = deleteComment;
+window.abrirReply = abrirReply;
+window.cancelarReply = cancelarReply;
+window.enviarResposta = enviarResposta;
+window.loginWithGoogle = () => window.auth?.loginWithGoogle(); // Fallback para auth.js
