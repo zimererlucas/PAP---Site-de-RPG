@@ -401,6 +401,11 @@ async function loadFicha() {
         setElement('ponto-destino-view', ficha.ponto_destino !== undefined ? ficha.ponto_destino : 0);
         setElement('ponto-treinamento-view', ficha.ponto_treinamento !== undefined ? ficha.ponto_treinamento : 0);
 
+        // Atualizar Espaços de Habilidade
+        if (typeof calcularEspacosHabilidade === 'function') {
+            await calcularEspacosHabilidade(fichaId);
+        }
+
     } catch (err) {
         console.error('Erro ao processar dados da ficha:', err);
     }
@@ -840,4 +845,66 @@ function renderHistoricoDados(historico) {
         `;
         tbody.appendChild(row);
     });
+}
+
+// ============================================
+// EDIÇÃO DE BÔNUS DE ESPAÇOS DE HABILIDADE
+// ============================================
+
+function toggleEditarEspacos() {
+    const viewContainer = document.getElementById('espacos-total-view-container');
+    const editContainer = document.getElementById('espacos-total-edit-container');
+    const saveBtn = document.getElementById('espacos-save-btn');
+    const input = document.getElementById('espacos-total-input');
+
+    if (!viewContainer || !editContainer || !saveBtn || !input) return;
+
+    const isEditing = saveBtn.style.display !== 'none';
+
+    if (isEditing) {
+        viewContainer.style.display = 'inline-flex';
+        editContainer.style.display = 'none';
+        saveBtn.style.display = 'none';
+    } else {
+        viewContainer.style.display = 'none';
+        editContainer.style.display = 'inline-flex';
+        saveBtn.style.display = 'block';
+        
+        // Povoar com o bônus atual
+        const bonusSalva = window.dadosFicha ? (window.dadosFicha.espacos_bonus || 0) : 0;
+        input.value = bonusSalva;
+        input.focus();
+    }
+}
+
+async function salvarEspacosBonus() {
+    if (!fichaId || !window.supabase) return;
+    
+    const input = document.getElementById('espacos-total-input');
+    if (!input) return;
+
+    const novoBonus = parseInt(input.value) || 0;
+
+    try {
+        const { error } = await supabase
+            .from('personagens')
+            .update({ espacos_bonus: novoBonus })
+            .eq('id', fichaId);
+
+        if (error) throw error;
+
+        // Atualizar nos dados instanciados e recalcular 
+        if (window.dadosFicha) {
+            window.dadosFicha.espacos_bonus = novoBonus;
+        }
+
+        if (typeof calcularEspacosHabilidade === 'function') {
+            await calcularEspacosHabilidade(fichaId);
+        }
+
+        toggleEditarEspacos();
+    } catch (err) {
+        console.error('Erro ao salvar bônus de espaços:', err);
+        alert('Ocorreu um erro ao salvar (já executou o script SQL? Verifique a coluna espacos_bonus)');
+    }
 }

@@ -562,6 +562,7 @@ async function adicionarPassiva(fichaId, passiva) {
             id: Date.now().toString(), // Simple ID generation
             nome: passiva.nome,
             categoria: passiva.categoria || '',
+            nivel: passiva.nivel || 1,
             efeito: passiva.efeito || '',
             bonus: passiva.bonus || [],
             descricao: passiva.descricao || '',
@@ -671,6 +672,7 @@ async function atualizarPassiva(fichaId, passivaId, passiva) {
             ...currentPassivas[index],
             nome: passiva.nome,
             categoria: passiva.categoria || '',
+            nivel: passiva.nivel || 1,
             efeito: passiva.efeito || '',
             bonus: passiva.bonus || [],
             descricao: passiva.descricao || ''
@@ -742,6 +744,76 @@ async function deletarPassiva(fichaId, passivaId) {
 // ============================================
 
 /**
+ * Calcula os espaços de habilidade em uso versus o total disponível
+ */
+async function calcularEspacosHabilidade(fichaId) {
+    try {
+        const [magias, habilidades, conhecimentos, personagemT] = await Promise.all([
+            supabase.from('magias').select('nivel').eq('personagem_id', fichaId),
+            supabase.from('habilidades').select('nivel').eq('personagem_id', fichaId),
+            supabase.from('conhecimentos').select('nivel').eq('personagem_id', fichaId),
+            supabase.from('personagens').select('passiva, nivel, espacos_bonus').eq('id', fichaId).single()
+        ]);
+
+        let espacosUsados = 0;
+
+        const somarNiveis = (items) => {
+            if (!items.data) return;
+            items.data.forEach(item => {
+                const niv = parseInt(item.nivel);
+                espacosUsados += isNaN(niv) ? 1 : niv;
+            });
+        };
+
+        somarNiveis(magias);
+        somarNiveis(habilidades);
+        somarNiveis(conhecimentos);
+
+        // Somar Tiers/niveis de TODAS as passivas
+        let passivas = [];
+        if (personagemT.data?.passiva) {
+            try {
+                passivas = JSON.parse(personagemT.data.passiva);
+                if (!Array.isArray(passivas)) passivas = [];
+            } catch (e) {
+                passivas = [];
+            }
+        }
+
+        passivas.forEach(passiva => {
+            const niv = parseInt(passiva.nivel);
+            espacosUsados += isNaN(niv) ? 1 : niv;
+        });
+
+        const nivelPersonagem = parseInt(personagemT.data?.nivel) || 0;
+        const espacosBonus = parseInt(personagemT.data?.espacos_bonus) || 0;
+        const espacosTotais = 5 + nivelPersonagem + espacosBonus;
+
+        // Atualizar interface se possível
+        const elUsados = document.getElementById('espacos-usados-view');
+        const elTotal = document.getElementById('espacos-total-view');
+        const elCelula = document.getElementById('celula-espacos-habilidade');
+
+        if (elUsados && elTotal) {
+            elUsados.textContent = espacosUsados;
+            elTotal.textContent = espacosTotais;
+            if (espacosUsados > espacosTotais) {
+                elUsados.style.color = '#ff4444'; // Red se excedido (na prática não permitiremos exceder, mas serve de debug)
+                if (elCelula) elCelula.style.borderBottom = '2px solid #ff4444';
+            } else {
+                elUsados.style.color = '#e0e0e0';
+                if (elCelula) elCelula.style.borderBottom = 'none';
+            }
+        }
+
+        return { espacosUsados, espacosTotais, error: null };
+    } catch(error) {
+        console.error('Erro ao calcular espaços de habilidade:', error);
+        return { espacosUsados: 0, espacosTotais: 0, error };
+    }
+}
+
+/**
  * Calcula todos os bônus das magias, habilidades, conhecimentos, itens e passivas
  * e atualiza os atributos do personagem
  */
@@ -749,6 +821,9 @@ async function recalcularBonusGlobais(fichaId) {
     try {
         const user = await getCurrentUser();
         if (!user) throw new Error('Usuário não autenticado');
+
+        // Atualizar visualização dos Espaços de Habilidade
+        await calcularEspacosHabilidade(fichaId);
 
         // Obter todos os items ATIVOS com bônus
         const [magias, habilidades, conhecimentos, itens, personagem] = await Promise.all([

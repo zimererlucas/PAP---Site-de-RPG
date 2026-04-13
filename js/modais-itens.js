@@ -816,6 +816,20 @@ async function salvarMagia() {
         bonus // Adiciona o array de bônus
     };
 
+    const fichaId = obterFichaId() || window.fichaId || fichaIdGlobal;
+    const espacos = typeof calcularEspacosHabilidade === 'function' ? await calcularEspacosHabilidade(fichaId) : { espacosUsados: 0, espacosTotais: 99 };
+    
+    let nivelAtual = 0;
+    if (editandoMagiaId) {
+        const { data: m } = await supabase.from('magias').select('nivel').eq('id', editandoMagiaId).single();
+        if (m) nivelAtual = m.nivel || 1;
+    }
+    
+    if (espacos.espacosUsados - nivelAtual + dadosMagia.nivel > espacos.espacosTotais) {
+        alert(`Sem espaços de habilidade suficientes! A técnica necessita de ${dadosMagia.nivel} espaço(s) e você possui ${espacos.espacosTotais - (espacos.espacosUsados - nivelAtual)} livre(s).`);
+        return;
+    }
+
     let resultado;
     if (editandoMagiaId) {
         resultado = await atualizarMagia(editandoMagiaId, dadosMagia);
