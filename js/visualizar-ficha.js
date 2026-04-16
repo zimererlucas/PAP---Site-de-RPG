@@ -870,11 +870,32 @@ function toggleEditarEspacos() {
         editContainer.style.display = 'inline-flex';
         saveBtn.style.display = 'block';
         
-        // Povoar com o bônus atual
-        const bonusSalva = window.dadosFicha ? (window.dadosFicha.espacos_bonus || 0) : 0;
-        input.value = bonusSalva;
+        // Preencher com o bônus atual
+        const bonusSalvo = window.dadosFicha ? (window.dadosFicha.espacos_bonus || 0) : 0;
+        input.value = bonusSalvo;
+
+        // Calcular e mostrar o máximo atual (5 + nível + bônus)
+        const nivelAtual = parseInt(window.dadosFicha?.nivel) || 0;
+        const maxAtual = 5 + nivelAtual + bonusSalvo;
+        const labelMaxAtual = document.getElementById('espacos-max-atual-label');
+        if (labelMaxAtual) labelMaxAtual.textContent = maxAtual;
+
+        // Inicializar preview com o valor atual
+        atualizarPreviewEspacos();
+
         input.focus();
     }
+}
+
+function atualizarPreviewEspacos() {
+    const input = document.getElementById('espacos-total-input');
+    const previewValor = document.getElementById('espacos-preview-valor');
+    if (!input || !previewValor) return;
+
+    const novoBonus = parseInt(input.value) || 0;
+    const nivelAtual = parseInt(window.dadosFicha?.nivel) || 0;
+    const novoMax = 5 + nivelAtual + novoBonus;
+    previewValor.textContent = novoMax;
 }
 
 async function salvarEspacosBonus() {
