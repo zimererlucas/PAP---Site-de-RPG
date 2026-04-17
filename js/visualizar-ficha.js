@@ -299,10 +299,43 @@ function iniciarRealtimeFicha() {
         .subscribe();
 }
 
+function mostrarErroFicha(mensagem) {
+    const container = document.querySelector('.ficha-container');
+    if (!container) return;
+    // Evitar duplicar a mensagem
+    if (document.getElementById('ficha-erro-msg')) return;
+    const erroDiv = document.createElement('div');
+    erroDiv.id = 'ficha-erro-msg';
+    erroDiv.style.cssText = `
+        background: rgba(255, 68, 68, 0.15);
+        border: 1px solid rgba(255, 68, 68, 0.5);
+        border-radius: 10px;
+        padding: 20px 25px;
+        margin: 20px 0;
+        color: #ff8080;
+        font-size: 1em;
+        text-align: center;
+    `;
+    erroDiv.innerHTML = `
+        <div style="font-size: 1.8em; margin-bottom: 10px;">⚠️</div>
+        <strong>Erro ao carregar a ficha</strong>
+        <p style="margin: 8px 0 0 0; font-size: 0.9em; opacity: 0.85;">${mensagem}</p>
+        <button onclick="location.reload()" style="margin-top: 15px; padding: 8px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Tentar novamente</button>
+    `;
+    container.prepend(erroDiv);
+}
+
 async function loadFicha() {
     try {
-        const result = await getPersonagemById(fichaId);
-        if (!result.success) return;
+        // Timeout de 15 segundos para evitar loading infinito em rede lenta
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Tempo limite esgotado. Verifica a tua ligação à internet.')), 15000)
+        );
+        const result = await Promise.race([getPersonagemById(fichaId), timeoutPromise]);
+        if (!result.success) {
+            mostrarErroFicha('Não foi possível obter os dados da ficha. ' + (result.error || ''));
+            return;
+        }
 
         const ficha = result.data;
         window.dadosFicha = ficha; // Salva para uso na edição
@@ -408,6 +441,7 @@ async function loadFicha() {
 
     } catch (err) {
         console.error('Erro ao processar dados da ficha:', err);
+        mostrarErroFicha(err.message || 'Ocorreu um erro inesperado. Tenta recarregar a página.');
     }
 }
 

@@ -64,16 +64,25 @@ async function loadCampanhasNarrador() {
     const container = document.getElementById('campanhasNarradorContainer');
 
     try {
-        const result = await getCampanhasDoUsuario();
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Tempo limite esgotado. Verifica a tua ligação à internet.')), 15000)
+        );
+        const result = await Promise.race([getCampanhasDoUsuario(), timeoutPromise]);
 
         if (!result.success) {
             console.error('Erro ao carregar campanhas:', result.error);
-            loadingState.style.display = 'none';
+            if (loadingState) loadingState.innerHTML = `
+                <div style="color:#ff8080; padding:20px; text-align:center;">
+                    <div style="font-size:2em;">⚠️</div>
+                    <strong>Erro ao carregar campanhas</strong>
+                    <p style="font-size:0.9em; margin:8px 0;">${result.error || 'Erro desconhecido'}</p>
+                    <button onclick="loadCampanhasNarrador()" style="padding:8px 20px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">🔄 Tentar novamente</button>
+                </div>`;
             return;
         }
 
         const campanhas = result.data || [];
-        loadingState.style.display = 'none';
+        if (loadingState) loadingState.style.display = 'none';
 
         if (campanhas.length === 0) {
             emptyState.style.display = 'block';
@@ -89,7 +98,13 @@ async function loadCampanhasNarrador() {
 
     } catch (error) {
         console.error('Erro ao carregar campanhas:', error);
-        loadingState.style.display = 'none';
+        if (loadingState) loadingState.innerHTML = `
+            <div style="color:#ff8080; padding:20px; text-align:center;">
+                <div style="font-size:2em;">⚠️</div>
+                <strong>Erro ao carregar campanhas</strong>
+                <p style="font-size:0.9em; margin:8px 0;">${error.message || 'Erro inesperado'}</p>
+                <button onclick="loadCampanhasNarrador()" style="padding:8px 20px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">🔄 Tentar novamente</button>
+            </div>`;
     }
 }
 
@@ -103,7 +118,11 @@ async function loadCampanhasJogador() {
         const user = await getCurrentUser();
         if (!user) return;
 
-        const { data, error } = await supabase
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Tempo limite esgotado. Verifica a tua ligação à internet.')), 15000)
+        );
+
+        const queryPromise = supabase
             .from('campanha_personagens')
             .select(`
                 *,
@@ -112,24 +131,26 @@ async function loadCampanhasJogador() {
             `)
             .eq('jogador_id', user.id);
 
-        // 🔥 SEMPRE remover o loading primeiro
-        loadingState.style.display = 'none';
+        const { data, error } = await Promise.race([queryPromise, timeoutPromise.then(() => { throw new Error('Tempo limite esgotado.'); })]);
+
+        // Sempre remover o loading primeiro
+        if (loadingState) loadingState.style.display = 'none';
 
         if (error) {
             console.error(error);
-            emptyState.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'block';
             return;
         }
 
         const participacoes = data || [];
 
         // limpar UI base
-        container.innerHTML = '';
-        emptyState.style.display = 'none';
+        if (container) container.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'none';
 
-        // 🔥 CASO NÃO TENHA CAMPANHAS
+        // Caso não tenha campanhas
         if (participacoes.length === 0) {
-            emptyState.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'block';
             return;
         }
 
@@ -138,13 +159,18 @@ async function loadCampanhasJogador() {
         // Renderizar campanhas
         renderCampanhasJogador(participacoes);
 
-        // mostrar botão inferior (somente quando há campanhas reais)
-        btnBottom.style.display = 'block';
+        // mostrar botão inferior
+        if (btnBottom) btnBottom.style.display = 'block';
 
     } catch (e) {
         console.error(e);
-        loadingState.style.display = 'none';
-        emptyState.style.display = 'block';
+        if (loadingState) loadingState.innerHTML = `
+            <div style="color:#ff8080; padding:20px; text-align:center;">
+                <div style="font-size:2em;">⚠️</div>
+                <strong>Erro ao carregar campanhas</strong>
+                <p style="font-size:0.9em; margin:8px 0;">${e.message || 'Erro inesperado'}</p>
+                <button onclick="loadCampanhasJogador()" style="padding:8px 20px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">🔄 Tentar novamente</button>
+            </div>`;
     }
 }
 

@@ -32,17 +32,26 @@ async function loadFichas() {
     const emptyState = document.getElementById('emptyState');
 
     try {
-        const result = await getPersonagensDoUsuario();
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Tempo limite esgotado. Verifica a tua ligação à internet.')), 15000)
+        );
+        const result = await Promise.race([getPersonagensDoUsuario(), timeoutPromise]);
 
         if (!result.success) {
             console.error('Erro ao carregar fichas:', result.error);
-            loadingState.style.display = 'none';
+            if (loadingState) loadingState.innerHTML = `
+                <div style="color:#ff8080; padding:20px; text-align:center;">
+                    <div style="font-size:2em;">⚠️</div>
+                    <strong>Erro ao carregar fichas</strong>
+                    <p style="font-size:0.9em; margin:8px 0;">${result.error || 'Erro desconhecido'}</p>
+                    <button onclick="loadFichas()" style="padding:8px 20px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">🔄 Tentar novamente</button>
+                </div>`;
             return;
         }
 
         const fichas = result.data || [];
         todasFichas = fichas;
-        loadingState.style.display = 'none';
+        if (loadingState) loadingState.style.display = 'none';
 
         if (fichas.length === 0) {
             emptyState.style.display = 'block';
@@ -55,7 +64,13 @@ async function loadFichas() {
 
     } catch (error) {
         console.error('Erro ao carregar fichas:', error);
-        loadingState.style.display = 'none';
+        if (loadingState) loadingState.innerHTML = `
+            <div style="color:#ff8080; padding:20px; text-align:center;">
+                <div style="font-size:2em;">⚠️</div>
+                <strong>Erro ao carregar fichas</strong>
+                <p style="font-size:0.9em; margin:8px 0;">${error.message || 'Erro inesperado'}</p>
+                <button onclick="loadFichas()" style="padding:8px 20px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">🔄 Tentar novamente</button>
+            </div>`;
     }
 }
 
