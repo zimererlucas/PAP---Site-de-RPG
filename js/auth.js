@@ -39,7 +39,6 @@ async function updateNavbar() {
     const sidebarPic = document.getElementById('sidebar-pic');
     const sidebarName = document.getElementById('sidebar-name');
     const sidebarEmail = document.getElementById('sidebar-email');
-    const sidebarLevel = document.getElementById('sidebar-level');
     const sidebarBio = document.getElementById('sidebar-bio');
 
     console.log('👤 Estado do Usuário:', user ? 'Logado como ' + user.email : 'Deslogado');
@@ -79,7 +78,7 @@ async function updateNavbar() {
         try {
             const { data: profile, error } = await supabase
                 .from('perfis')
-                .select('nivel_conta, bio, username, avatar_url, is_admin')
+                .select('bio, username, avatar_url, is_admin')
                 .eq('id', user.id)
                 .single();
 
@@ -116,7 +115,6 @@ async function updateNavbar() {
                 // PRIORIDADE: Se houver avatar_url no perfil, usamos essa!
                 if (profile.avatar_url) finalAvatar = profile.avatar_url;
 
-                if (sidebarLevel) sidebarLevel.textContent = profile.nivel_conta || 1;
                 if (sidebarBio) sidebarBio.textContent = profile.bio || 'Nenhuma bio definida.';
                 if (sidebarName && profile.username) sidebarName.textContent = profile.username;
             } else {

@@ -161,7 +161,6 @@ CREATE TABLE public.perfis (
   username text NOT NULL UNIQUE,
   bio text,
   avatar_url text,
-  nivel_conta integer DEFAULT 1,
   experiencia integer DEFAULT 0,
   idioma_preferido text DEFAULT 'pt'::text,
   criado_em timestamp without time zone DEFAULT now(),
