@@ -198,6 +198,10 @@ function aplicarModoLeitura() {
     const style = document.createElement('style');
     style.innerHTML = `
         .view-only-mode button[onclick*="toggleEditar"],
+        .view-only-mode button[onclick*="editar"],
+        .view-only-mode button[onclick*="Editar"],
+        .view-only-mode button[onclick*="alternarAtivacao"],
+        .view-only-mode button[onclick*="rolarDadosUI"],
         .view-only-mode button[onclick*="abrirModal"],
         .view-only-mode .edit-overlay,
         .view-only-mode button.btn-danger,
