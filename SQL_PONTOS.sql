@@ -3,4 +3,6 @@ ALTER TABLE public.personagens
 ADD COLUMN IF NOT EXISTS ponto_bloqueio   integer NOT NULL DEFAULT 0,
 ADD COLUMN IF NOT EXISTS ponto_reacao     integer NOT NULL DEFAULT 0,
 ADD COLUMN IF NOT EXISTS ponto_destino    integer NOT NULL DEFAULT 0,
-ADD COLUMN IF NOT EXISTS ponto_treinamento integer NOT NULL DEFAULT 0;
+ADD COLUMN IF NOT EXISTS ponto_treinamento integer NOT NULL DEFAULT 0,
+ADD COLUMN IF NOT EXISTS ponto_estabilidade integer NOT NULL DEFAULT 0,
+ADD COLUMN IF NOT EXISTS ponto_estrategia   integer NOT NULL DEFAULT 0;

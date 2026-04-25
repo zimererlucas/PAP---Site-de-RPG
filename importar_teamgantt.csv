@@ -1,0 +1,32 @@
+Task Name,Group Name,Start Date,End Date,Assigned To
+Pesquisar mecânicas de RPG e definir regras base,Fase 1: Planeamento,2025-09-01,2025-09-15,Ambos
+Projetar wireframes e fluxos de navegação (Figma),Fase 1: Planeamento,2025-09-16,2025-09-30,Membro B
+Modelar diagrama ER e arquitetura do banco de dados,Fase 1: Planeamento,2025-09-16,2025-09-30,Membro A
+Configurar Supabase e implementar sistema de autenticação,Fase 2: Base,2025-10-01,2025-10-15,Membro A
+Codificar estrutura base HTML/CSS e variáveis globais,Fase 2: Base,2025-10-01,2025-10-15,Membro B
+Criar tabelas SQL iniciais para utilizadores e perfis,Fase 2: Base,2025-10-16,2025-10-31,Membro A
+Implementar a interface (UI) das telas de Login e Registo,Fase 2: Base,2025-10-16,2025-10-31,Membro B
+Desenvolver lógica JS para cálculo de atributos na ficha,Fase 3: Fichas,2025-11-01,2025-11-15,Membro A
+Codificar o layout HTML/CSS da ficha de personagem,Fase 3: Fichas,2025-11-01,2025-11-15,Membro B
+Implementar CRUD e gestão de inventário no backend,Fase 3: Fichas,2025-11-16,2025-11-30,Membro A
+Criar modais de interface para adicionar itens e técnicas,Fase 3: Fichas,2025-11-16,2025-11-30,Membro B
+Desenvolver funções SQL e JS para criação de campanhas,Fase 4: Campanhas,2025-12-01,2025-12-20,Membro A
+Codificar layout do painel do mestre e lista de campanhas,Fase 4: Campanhas,2025-12-01,2025-12-20,Membro B
+Realizar revisão técnica do código (Pausa de Férias),Fase 4: Campanhas,2025-12-21,2026-01-03,Ambos
+Implementar lógica de combate e gestão de turnos em tempo real,Fase 4: Campanhas,2026-01-04,2026-01-30,Membro A
+Construir painel visual de combate com animações de dados,Fase 4: Campanhas,2026-01-04,2026-01-30,Membro B
+Desenvolver APIs e SQL para criação de posts e feed,Fase 5: Comunidade,2026-02-01,2026-02-14,Membro A
+Codificar interface da comunidade e sistema de comentários,Fase 5: Comunidade,2026-02-01,2026-02-14,Membro B
+Implementar mecânica de Upvote/Downvote e algoritmos de filtro,Fase 5: Comunidade,2026-02-15,2026-02-27,Membro A
+Aplicar feedback visual e microinterações no sistema de votos,Fase 5: Comunidade,2026-02-15,2026-02-27,Membro B
+Implementar querys SQL para extrair capítulos da enciclopédia,Fase 6: Sistema & Admin,2026-03-01,2026-03-15,Membro A
+Codificar layout responsivo do guia de regras do sistema,Fase 6: Sistema & Admin,2026-03-01,2026-03-15,Membro B
+Configurar políticas RLS e proteção de rotas para admin,Fase 6: Sistema & Admin,2026-03-16,2026-03-31,Membro A
+Construir interface de edição de regras no painel admin,Fase 6: Sistema & Admin,2026-03-16,2026-03-31,Membro B
+Depurar lógica pesada e corrigir bugs no backend/Supabase,Fase 7: Ajustes,2026-04-01,2026-04-15,Membro A
+Corrigir quebras de layout e alinhar elementos visuais,Fase 7: Ajustes,2026-04-01,2026-04-15,Membro B
+Otimizar performance de consultas e rever segurança SQL,Fase 7: Ajustes,2026-04-16,2026-04-30,Membro A
+Testar responsividade e corrigir bugs no mobile,Fase 7: Ajustes,2026-04-16,2026-04-30,Membro B
+Executar testes E2E cobrindo jornadas do utilizador,Fase 8: Entrega,2026-05-01,2026-05-10,Ambos
+Redigir capítulos técnicos e elaborar manuais do relatório,Fase 8: Entrega,2026-05-11,2026-05-20,Ambos
+Compilar versão final e preparar a apresentação do projeto,Fase 8: Entrega,2026-05-22,2026-05-22,Ambos

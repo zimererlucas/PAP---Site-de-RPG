@@ -437,6 +437,8 @@ async function loadFicha() {
         setElement('ponto-reacao-view', ficha.ponto_reacao !== undefined ? ficha.ponto_reacao : 0);
         setElement('ponto-destino-view', ficha.ponto_destino !== undefined ? ficha.ponto_destino : 0);
         setElement('ponto-treinamento-view', ficha.ponto_treinamento !== undefined ? ficha.ponto_treinamento : 0);
+        setElement('ponto-estabilidade-view', ficha.ponto_estabilidade !== undefined ? ficha.ponto_estabilidade : 0);
+        setElement('ponto-estrategia-view', ficha.ponto_estrategia !== undefined ? ficha.ponto_estrategia : 0);
 
         // Atualizar Espaços de Habilidade
         if (typeof calcularEspacosHabilidade === 'function') {
