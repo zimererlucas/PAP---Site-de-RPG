@@ -1,32 +1,37 @@
 Task Name,Group Name,Start Date,End Date,Assigned To
-Pesquisar mecânicas de RPG e definir regras base,Fase 1: Planeamento,2025-09-01,2025-09-15,Ambos
-Projetar wireframes e fluxos de navegação (Figma),Fase 1: Planeamento,2025-09-16,2025-09-30,Membro B
-Modelar diagrama ER e arquitetura do banco de dados,Fase 1: Planeamento,2025-09-16,2025-09-30,Membro A
-Configurar Supabase e implementar sistema de autenticação,Fase 2: Base,2025-10-01,2025-10-15,Membro A
-Codificar estrutura base HTML/CSS e variáveis globais,Fase 2: Base,2025-10-01,2025-10-15,Membro B
-Criar tabelas SQL iniciais para utilizadores e perfis,Fase 2: Base,2025-10-16,2025-10-31,Membro A
-Implementar a interface (UI) das telas de Login e Registo,Fase 2: Base,2025-10-16,2025-10-31,Membro B
-Desenvolver lógica JS para cálculo de atributos na ficha,Fase 3: Fichas,2025-11-01,2025-11-15,Membro A
-Codificar o layout HTML/CSS da ficha de personagem,Fase 3: Fichas,2025-11-01,2025-11-15,Membro B
-Implementar CRUD e gestão de inventário no backend,Fase 3: Fichas,2025-11-16,2025-11-30,Membro A
-Criar modais de interface para adicionar itens e técnicas,Fase 3: Fichas,2025-11-16,2025-11-30,Membro B
-Desenvolver funções SQL e JS para criação de campanhas,Fase 4: Campanhas,2025-12-01,2025-12-20,Membro A
-Codificar layout do painel do mestre e lista de campanhas,Fase 4: Campanhas,2025-12-01,2025-12-20,Membro B
-Realizar revisão técnica do código (Pausa de Férias),Fase 4: Campanhas,2025-12-21,2026-01-03,Ambos
-Implementar lógica de combate e gestão de turnos em tempo real,Fase 4: Campanhas,2026-01-04,2026-01-30,Membro A
-Construir painel visual de combate com animações de dados,Fase 4: Campanhas,2026-01-04,2026-01-30,Membro B
-Desenvolver APIs e SQL para criação de posts e feed,Fase 5: Comunidade,2026-02-01,2026-02-14,Membro A
-Codificar interface da comunidade e sistema de comentários,Fase 5: Comunidade,2026-02-01,2026-02-14,Membro B
-Implementar mecânica de Upvote/Downvote e algoritmos de filtro,Fase 5: Comunidade,2026-02-15,2026-02-27,Membro A
-Aplicar feedback visual e microinterações no sistema de votos,Fase 5: Comunidade,2026-02-15,2026-02-27,Membro B
-Implementar querys SQL para extrair capítulos da enciclopédia,Fase 6: Sistema & Admin,2026-03-01,2026-03-15,Membro A
-Codificar layout responsivo do guia de regras do sistema,Fase 6: Sistema & Admin,2026-03-01,2026-03-15,Membro B
-Configurar políticas RLS e proteção de rotas para admin,Fase 6: Sistema & Admin,2026-03-16,2026-03-31,Membro A
-Construir interface de edição de regras no painel admin,Fase 6: Sistema & Admin,2026-03-16,2026-03-31,Membro B
-Depurar lógica pesada e corrigir bugs no backend/Supabase,Fase 7: Ajustes,2026-04-01,2026-04-15,Membro A
-Corrigir quebras de layout e alinhar elementos visuais,Fase 7: Ajustes,2026-04-01,2026-04-15,Membro B
-Otimizar performance de consultas e rever segurança SQL,Fase 7: Ajustes,2026-04-16,2026-04-30,Membro A
-Testar responsividade e corrigir bugs no mobile,Fase 7: Ajustes,2026-04-16,2026-04-30,Membro B
-Executar testes E2E cobrindo jornadas do utilizador,Fase 8: Entrega,2026-05-01,2026-05-10,Ambos
-Redigir capítulos técnicos e elaborar manuais do relatório,Fase 8: Entrega,2026-05-11,2026-05-20,Ambos
-Compilar versão final e preparar a apresentação do projeto,Fase 8: Entrega,2026-05-22,2026-05-22,Ambos
+Estado da arte,Planeamento,2025-09-15,2025-09-19,João
+Projetar mapa de navegação,Planeamento,2025-09-15,2025-09-26,Marcos
+Pesquisa e escolha de ferramentas,Planeamento,2025-09-22,2025-09-26,João
+Modelar base de dados,Base de dados,2025-09-29,2025-10-03,João
+Pesquisa e escolha da BaaS para utilizar,Base de dados,2025-09-29,2025-10-03,Marcos
+Desenvolver a base de dados,Base de dados,2025-10-06,2025-10-17,João
+Configurar base de dados e autenticação de perfis,Base de dados,2025-10-06,2025-10-17,Marcos
+Implementar as permissões principais de utilizadores para a base de dados,Base de dados,2025-10-20,2025-10-31,João
+Desenvolver layout/estrutura das fichas,Fichas de personagem,2025-10-20,2025-10-31,Marcos
+Desenvolver lógica de cálculo de atributos,Fichas de personagem,2025-11-03,2025-11-14,João
+"Desenvolver lógica de habilidades, magias, passivas",Fichas de personagem,2025-11-03,2025-11-14,Marcos
+Criar sistema de inventário e itens,Fichas de personagem,2025-11-17,2025-11-28,João
+Desenvolver mudanças da ficha em tempo real,Fichas de personagem,2025-11-17,2025-11-28,Marcos
+Desenvolver layout/estrutura de campanhas,Campanhas,2025-12-01,2025-12-12,João
+Criar sistema de códigos de convite,Campanhas,2025-12-01,2025-12-12,Marcos
+Implementar ligação com fichas,Campanhas,2025-12-15,2025-12-19,João
+"Implementar histórico de rolagens (dados), observações, calendário",Campanhas,2025-12-15,2025-12-19,Marcos
+Construir painel visual de turnos,Campanhas,2026-01-05,2026-01-23,João
+Desenvolver lógica de turnos em tempo real ligado com as fichas,Campanhas,2026-01-05,2026-01-23,Marcos
+Desenvolver layout/estrutura da comunidade,Comunidade,2026-01-26,2026-02-06,João
+Desenvolver sistema de posts e feed,Comunidade,2026-01-26,2026-02-06,Marcos
+Implementar comentários e interação,Comunidade,2026-02-09,2026-02-20,João
+"Criar sistema de votação (upvote, downvote)",Comunidade,2026-02-09,2026-02-13,Marcos
+"Aplicar feedback visual, filtros e ordenação de conteúdos",Comunidade,2026-02-16,2026-02-20,Marcos
+Criar aba de navegação "sistema" para regras do jogo,Sistema e Administração,2026-02-23,2026-03-06,João
+Desenvolver sistema de capítulos e regras,Sistema e Administração,2026-02-23,2026-03-06,Marcos
+Implementar painel administrativo,Sistema e Administração,2026-03-09,2026-03-20,João
+"Criar um painel de controle membros, capítulos e regras (disponível somente para admins)",Sistema e Administração,2026-03-09,2026-03-20,Marcos
+Desenvolver gestão de utilizadores e permissões,Sistema e Administração,2026-03-23,2026-04-03,João
+Verificar "saúde" da base de dados e correção de bugs,Ajustes,2026-03-23,2026-04-03,Marcos
+Verificar e corrigir eventuais quebras de layout e alinhar elementos visuais,Ajustes,2026-04-06,2026-04-17,João
+Otimizar performance do site e rever segurança,Ajustes,2026-04-06,2026-04-17,Marcos
+Testar responsividade e corrigir bugs,Ajustes,2026-04-20,2026-05-01,João
+Executar testes finais do sistema,Entrega,2026-04-20,2026-05-01,Marcos
+Preparar documentação do projeto,Entrega,2026-05-04,2026-05-22,João
+Finalizar versão para apresentação,Entrega,2026-05-04,2026-05-22,Marcos

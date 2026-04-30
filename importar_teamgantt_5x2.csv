@@ -1,0 +1,41 @@
+WBS #,Name / Title,Type,Start Date,End Date,Duration (days),Due in (days),Estimated Hours,Actual Hours,Progress (%),Points,Assigned,Predecessors,Notes,Comments,Task Color
+1,importar_teamgantt,project,2025-09-01,2026-05-22,190,,0,0,0,,,,,,
+1.1,Fase 1: Planeamento,group,2025-09-01,2025-09-30,22,,0,0,0,,,,,,
+1.1.1,Pesquisar mecânicas de RPG e definir regras base,task,2025-09-01,2025-09-15,11,-219,0,0,0,,,,,,blue2
+1.1.2,Projetar wireframes e fluxos de navegação,task,2025-09-16,2025-09-30,11,-204,0,0,0,,,,,,blue2
+1.1.3,Modelar diagrama entidade relacionamento (ER) e arquitetura do banco de dados,task,2025-09-16,2025-09-30,11,-204,0,0,0,,,,,,blue2
+1.2,Fase 2: Base,group,2025-10-01,2025-10-31,23,,0,0,0,,,,,,
+1.2.1,Configurar Supabase e implementar sistema de autenticação com google,task,2025-10-01,2025-10-15,11,-189,0,0,0,,,,,,blue2
+1.2.2,Codificar estrutura base HTML/CSS e variáveis globais,task,2025-10-01,2025-10-15,11,-189,0,0,0,,,,,,blue2
+1.2.3,Criar tabelas SQL iniciais para utilizadores e perfis,task,2025-10-16,2025-10-31,12,-173,0,0,0,,,,,,blue2
+1.2.4,Implementar a interface (UI) das telas de Login e Registo,task,2025-10-16,2025-10-31,12,-173,0,0,0,,,,,,blue2
+1.3,Fase 3: Fichas,group,2025-11-03,2025-11-28,20,,0,0,0,,,,,,
+1.3.1,Desenvolver lógica JS para cálculo de atributos na ficha,task,2025-11-03,2025-11-14,10,-158,0,0,0,,,,,,blue2
+1.3.2,Codificar o layout HTML/CSS da ficha de personagem,task,2025-11-03,2025-11-14,10,-158,0,0,0,,,,,,blue2
+1.3.3,Implementar CRUD e gestão de inventário no backend,task,2025-11-17,2025-11-28,10,-143,0,0,0,,,,,,blue2
+1.3.4,Criar modais de interface para adicionar itens e técnicas,task,2025-11-17,2025-11-28,10,-143,0,0,0,,,,,,blue2
+1.4,Fase 4: Campanhas,group,2025-12-01,2026-01-30,45,,0,0,0,,,,,,
+1.4.1,Desenvolver SQL e JS para campanhas,task,2025-12-01,2025-12-19,15,-123,0,0,0,,,,,,blue2
+1.4.2,Codificar layout do painel do mestre e lista de campanhas,task,2025-12-01,2025-12-19,15,-123,0,0,0,,,,,,blue2
+1.4.3,Realizar revisão técnica do código,task,2025-12-22,2026-01-02,10,-109,0,0,0,,,,,,blue2
+1.4.4,Implementar lógica de combate e gestão de turnos em tempo real,task,2026-01-05,2026-01-30,20,-82,0,0,0,,,,,,blue2
+1.4.5,Construir painel visual de combate com animações de dados,task,2026-01-05,2026-01-30,20,-82,0,0,0,,,,,,blue2
+1.5,Fase 5: Comunidade,group,2026-02-02,2026-02-27,20,,0,0,0,,,,,,
+1.5.1,Desenvolver APIs e SQL para criação de posts e feed,task,2026-02-02,2026-02-13,10,-67,0,0,0,,,,,,blue2
+1.5.2,Codificar interface da comunidade e sistema de comentários,task,2026-02-02,2026-02-13,10,-67,0,0,0,,,,,,blue2
+1.5.3,Implementar mecânica de Upvote/Downvote e algoritmos de filtro,task,2026-02-16,2026-02-27,10,-54,0,0,0,,,,,,blue2
+1.5.4,Aplicar feedback visual e microinterações no sistema de votos,task,2026-02-16,2026-02-27,10,-54,0,0,0,,,,,,blue2
+1.6,Fase 6: Sistema & Admin,group,2026-03-02,2026-03-31,22,,0,0,0,,,,,,
+1.6.1,Implementar querys SQL para extrair capítulos do sistema,task,2026-03-02,2026-03-13,10,-38,0,0,0,,,,,,blue2
+1.6.2,Codificar layout responsivo do guia de regras do sistema,task,2026-03-02,2026-03-13,10,-38,0,0,0,,,,,,blue2
+1.6.3,Configurar políticas RLS para proteção do site,task,2026-03-16,2026-03-31,12,-22,0,0,0,,,,,,blue2
+1.6.4,Construir interface de edição das regras do sistema no painel admin,task,2026-03-16,2026-03-31,12,-22,0,0,0,,,,,,blue2
+1.7,Fase 7: Ajustes,group,2026-04-01,2026-04-30,22,,0,0,0,,,,,,
+1.7.1,"Verificar ""saúde"" da base de dados e correção de bugs",task,2026-04-01,2026-04-15,11,-7,0,0,0,,,,,,blue2
+1.7.2,Corrigir quebras de layout e alinhar elementos visuais,task,2026-04-01,2026-04-15,11,-7,0,0,0,,,,,,blue2
+1.7.3,Otimizar performance do site e rever segurança,task,2026-04-16,2026-04-30,11,8,0,0,0,,,,,,blue2
+1.7.4,Testar responsividade e corrigir bugs,task,2026-04-16,2026-04-30,11,8,0,0,0,,,,,,blue2
+1.8,Fase 8: Entrega,group,2026-05-01,2026-05-22,16,,0,0,0,,,,,,
+1.8.1,Executar testes da jornada do utilizador,task,2026-05-01,2026-05-08,6,18,0,0,0,,,,,,blue2
+1.8.2,Implementar documentação do projeto,task,2026-05-11,2026-05-20,8,28,0,0,0,,,,,,blue2
+1.8.3,Compilar versão final e preparar a apresentação do projeto,task,2026-05-22,2026-05-22,1,30,0,0,0,,,,,,blue2
