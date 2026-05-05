@@ -204,7 +204,7 @@ function renderCampanhasNarrador(lista) {
                 </div>
                 <div class="card-footer custom-card-footer">
                     <button class="btn btn-sm" style="background-color: #667eea; border-color: #667eea; color: white; padding: 6px 12px; font-weight: 600;" onclick="viewCampanha('${campanha.id}')">Visualizar</button>
-                    <button class="btn btn-sm btn-warning" style="padding: 6px 12px; font-weight: 600;" onclick="editCampanha('${campanha.id}')">Editar</button>
+                    <button class="btn btn-sm btn-warning" style="color: white; padding: 6px 12px; font-weight: 600;" onclick="editCampanha('${campanha.id}')">Editar</button>
                     <button class="btn btn-sm btn-danger" style="padding: 6px 12px; font-weight: 600;" onclick="deleteCampanhaUI('${campanha.id}')">Deletar</button>
                 </div>
             </div>

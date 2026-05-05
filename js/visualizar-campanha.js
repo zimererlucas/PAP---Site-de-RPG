@@ -299,17 +299,17 @@ function renderIniciativa(lista) {
 
         // Destacar turno atual
         if (state.turnoAtual === index + 1) {
-            row.style.backgroundColor = 'rgba(25, 135, 84, 0.2)';
+            row.classList.add('turno-ativo');
         }
 
         const numero = document.createElement('td');
         numero.textContent = item.ordem != null ? item.ordem : (index + 1);
-        numero.style.fontWeight = state.turnoAtual === index + 1 ? 'bold' : 'normal';
+        numero.style.fontWeight = 'normal';
         row.appendChild(numero);
 
         const nome = document.createElement('td');
         nome.textContent = item.nome || '-';
-        nome.style.fontWeight = state.turnoAtual === index + 1 ? 'bold' : 'normal';
+        nome.style.fontWeight = 'normal';
         row.appendChild(nome);
 
         const obs = document.createElement('td');

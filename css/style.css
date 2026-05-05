@@ -359,3 +359,8 @@ body.confirm-open {
 .zoomable-image:hover {
     transform: scale(1.05);
 }
+
+/* Destaque do Turno Atual na Iniciativa */
+.turno-ativo > td {
+    background-color: rgba(99, 102, 241, 0.35) !important;
+}
