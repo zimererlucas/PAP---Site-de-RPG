@@ -165,6 +165,22 @@ document.addEventListener('DOMContentLoaded', async function () {
     fichaId = params.get('id');
     window.fichaId = fichaId; // Tornar acessível globalmente
 
+    // Tentar obter a campanha desta ficha automaticamente para o broadcast de rolagens
+    if (fichaId && window.supabase) {
+        try {
+            const { data } = await supabase
+                .from('campanha_personagens')
+                .select('campanha_id')
+                .eq('personagem_id', fichaId)
+                .limit(1);
+            if (data && data.length > 0) {
+                localStorage.setItem('campanha-atual', data[0].campanha_id);
+            }
+        } catch(e) { 
+            console.error('Erro a obter campanha da ficha:', e); 
+        }
+    }
+
     if (params.get('view') === 'true') {
         aplicarModoLeitura();
     }

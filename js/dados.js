@@ -7,8 +7,19 @@ async function getCampanhaDiceChannel(campanhaId) {
 
     const channel = supabase.channel(`campanha-dados-${campanhaId}`);
     campanhaDiceChannels[campanhaId] = channel;
-    await channel.subscribe();
-    return channel;
+    return new Promise((resolve) => {
+        channel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                resolve(channel);
+            } else if (status === 'CHANNEL_ERROR') {
+                console.error('Erro no canal de rolagens');
+                resolve(null);
+            }
+        });
+        
+        // Fallback de timeout (2 seg) caso o subscribe não responda
+        setTimeout(() => resolve(channel), 2000);
+    });
 }
 
 // ============================================
@@ -190,7 +201,30 @@ async function rolarDadosUI(tipo, nome, dados) {
             if (channel) {
                 const user = JSON.parse(localStorage.getItem('user') || 'null');
                 const jogador = user?.username || user?.email || 'Jogador';
-                const personagem = (window.fichaData && window.fichaData.nome) ? window.fichaData.nome : 'Personagem';
+                // Correção do nome da variável global da ficha
+                const personagem = (window.dadosFicha && window.dadosFicha.nome) ? window.dadosFicha.nome : 'Personagem';
+                
+                const timestampRolagem = Date.now();
+                // Grava localmente também para o caso do jogador voltar à aba da campanha e querer ver as suas rolagens
+                try {
+                    const historyKey = `campanha-dice-history-${campanhaAtiva}`;
+                    let historico = JSON.parse(localStorage.getItem(historyKey) || '[]');
+                    // Prevenir duplicados (caso a aba da campanha esteja aberta e também grave)
+                    const isDuplicate = historico.some(h => h.timestamp === timestampRolagem);
+                    if (!isDuplicate) {
+                        historico.unshift({
+                            timestamp: timestampRolagem,
+                            personagem: personagem,
+                            nome: nome || '-',
+                            tipo: tipo || '-',
+                            total: resultado.total,
+                            detalhes: resultado.resultado_formatado || '-'
+                        });
+                        if (historico.length > 100) historico.length = 100;
+                        localStorage.setItem(historyKey, JSON.stringify(historico));
+                    }
+                } catch (e) { console.warn('Falha a gravar historico local:', e); }
+
                 channel.send({
                     type: 'broadcast',
                     event: 'dice-roll',
@@ -203,7 +237,7 @@ async function rolarDadosUI(tipo, nome, dados) {
                         detalhes: resultado.resultado_formatado,
                         jogador,
                         personagem,
-                        timestamp: Date.now()
+                        timestamp: timestampRolagem
                     }
                 });
             }

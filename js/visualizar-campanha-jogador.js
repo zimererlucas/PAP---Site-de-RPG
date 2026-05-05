@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     const params = new URLSearchParams(window.location.search);
     campanhaId = params.get('id');
 
+    // Sinaliza campanha ativa para broadcast das fichas
+    if (campanhaId) localStorage.setItem('campanha-atual', campanhaId);
+
     if (!campanhaId) {
         console.error('Campanha não encontrada!');
         window.location.href = 'campanhas.html';

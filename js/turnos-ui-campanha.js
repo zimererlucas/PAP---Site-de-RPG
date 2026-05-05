@@ -352,6 +352,13 @@ function registrarHistoricoCampanha(entry) {
         historico = [];
     }
 
+    // Prevenir duplicados (timestamp exato) mas atualizar o DOM (útil se outra aba salvou)
+    const isDuplicate = historico.some(h => h.timestamp === entry.timestamp);
+    if (isDuplicate) {
+        renderHistoricoCampanha(historico);
+        return;
+    }
+
     historico.unshift(entry);
     if (historico.length > CAMPANHA_DICE_HISTORY_MAX) {
         historico.length = CAMPANHA_DICE_HISTORY_MAX;
