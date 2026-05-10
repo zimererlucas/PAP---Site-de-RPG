@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tópico - Projeto Gênesis</title>
+    <meta name="description" content="Discussão de tópico da comunidade do Projeto Gênesis.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/card-refinement.css">
+    <link rel="stylesheet" href="../css/galaxy.css">
+    <link rel="stylesheet" href="../css/glassmorphism.css">
+    <link rel="stylesheet" href="../css/comunidade.css">
+    <link rel="stylesheet" href="../css/topico.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- Fundo nebulosa -->
+    <canvas id="nebula-canvas"></canvas>
+
+    <div id="foreground">
+
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <a href="../index.html" class="logo">
+                <img src="../assets/GenisisLogov6.png" alt="Logo" class="logo-img">
+                <span>Projeto Gênesis</span>
+            </a>
+            <ul class="nav-list">
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+                <li><a href="comunidade.html" class="nav-link active">Comunidade</a></li>
+                <li><a href="Sistema.html" class="nav-link">Sistema</a></li>
+                <li id="loginItem" class="nav-action" style="display:none;">
+                    <button id="loginBtn" class="nav-btn">Login</button>
+                </li>
+                <li id="userItem" class="nav-action" style="display:none;">
+                    <div id="user-avatar-wrapper" class="avatar-wrapper">
+                        <img id="profile-picture" src="" alt="Perfil" class="avatar-img">
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Sidebar de Perfil -->
+        <div id="user-sidebar" class="user-sidebar">
+            <div class="sidebar-header">
+                <img id="sidebar-pic" src="" alt="Foto de Perfil" class="sidebar-avatar">
+                <div class="username-container">
+                    <h3 id="sidebar-name">Nome do Utilizador</h3>
+                    <button id="edit-username-btn" class="edit-username-btn">✏️</button>
+                    <input id="sidebar-name-input" class="username-input" style="display: none;" maxlength="20">
+                </div>
+                <p id="sidebar-email">email@exemplo.com</p>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-info">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <span>Bio</span>
+                            <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
+                        </div>
+                        <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
+                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;" maxlength="150"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="nav-btn logout-full">Sair</button>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="topico-page">
+
+            <!-- Breadcrumb -->
+            <nav class="topico-breadcrumb" aria-label="breadcrumb">
+                <a href="comunidade.html" class="breadcrumb-link">🌐 Fórum</a>
+                <span class="breadcrumb-sep">›</span>
+                <span class="breadcrumb-current" id="breadcrumbCategoria">Discussão</span>
+                <span class="breadcrumb-sep">›</span>
+                <span class="breadcrumb-current" id="breadcrumbTitulo">Tópico</span>
+            </nav>
+
+            <!-- Loading state -->
+            <div class="topico-loading" id="topicoLoading">
+                <div class="spinner"></div>
+                <p>A carregar tópico…</p>
+            </div>
+
+            <!-- Conteúdo do tópico -->
+            <div class="topico-wrapper" id="topicoWrapper" style="display:none;">
+
+                <!-- Post principal (OP) -->
+                <article class="topico-post-principal" id="postPrincipal">
+                    <!-- preenchido por JS -->
+                </article>
+
+                <!-- Separador de comentários -->
+                <div class="topico-replies-header" id="repliesHeader">
+                    <div class="topico-replies-title">
+                        💬 <span id="repliesCount">0</span> Respostas
+                    </div>
+                    <div class="topico-replies-sort">
+                        <button class="reply-sort-btn active" onclick="mudarOrdemComentarios('recentes', this)">Mais recentes</button>
+                        <button class="reply-sort-btn" onclick="mudarOrdemComentarios('votados', this)">Mais votados</button>
+                    </div>
+                </div>
+
+                <!-- Lista de comentários/respostas -->
+                <div class="topico-replies-list" id="repliesList">
+                    <!-- preenchido por JS -->
+                </div>
+
+                <!-- Área de nova resposta -->
+                <div class="topico-reply-box" id="replyBox">
+                    <div class="reply-box-header">
+                        <img id="replyUserAvatar" src="" alt="" class="reply-user-avatar">
+                        <span id="replyUserName" class="reply-user-name"></span>
+                    </div>
+                    <textarea id="novoComentario" class="reply-textarea"
+                        placeholder="Escreve a tua resposta…" maxlength="2000" rows="4"
+                        oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px'"></textarea>
+                    <div class="reply-box-actions">
+                        <span class="reply-char-count"><span id="charCount">0</span>/2000</span>
+                        <button class="btn-reply-submit" id="btnEnviarResposta" onclick="enviarComentario()">
+                            ↩ Publicar Resposta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aviso para não logados -->
+                <div class="topico-login-aviso" id="loginAviso" style="display:none;">
+                    <span>Faz <a href="#" onclick="loginWithGoogle(); return false;">login</a> para responder neste tópico.</span>
+                </div>
+
+            </div>
+
+            <!-- Estado vazio / erro -->
+            <div class="topico-erro" id="topicoErro" style="display:none;">
+                <div style="font-size:3rem;">🔍</div>
+                <h2>Tópico não encontrado</h2>
+                <p>Este tópico pode ter sido apagado ou o link é inválido.</p>
+                <a href="comunidade.html" class="btn-voltar-forum">← Voltar ao Fórum</a>
+            </div>
+
+        </div><!-- /topico-page -->
+
+    </div><!-- /foreground -->
+
+    <!-- Toast -->
+    <div class="toast-comunidade" id="toastComunidade"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="../js/galaxy.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/navbar-scroll.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/personagens.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+    <script src="../js/topico.js"></script>
+
+</body>
+
+</html>

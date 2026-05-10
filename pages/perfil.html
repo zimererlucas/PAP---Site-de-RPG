@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Utilizador - Projeto Gênesis</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/galaxy.css">
+    <link rel="stylesheet" href="../css/glassmorphism.css">
+    <link rel="stylesheet" href="../css/perfil.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- Fundo nebulosa -->
+    <canvas id="nebula-canvas"></canvas>
+
+    <div id="foreground">
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <a href="../index.html" class="logo">
+                <img src="../assets/GenisisLogov6.png" alt="Logo" class="logo-img">
+                <span>Projeto Gênesis</span>
+            </a>
+            <ul class="nav-list">
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+                <li><a href="comunidade.html" class="nav-link active">Comunidade</a></li>
+                <li><a href="Sistema.html" class="nav-link">Sistema</a></li>
+                <li id="loginItem" class="nav-action" style="display:none;">
+                    <button id="loginBtn" class="nav-btn">Login</button>
+                </li>
+                <li id="userItem" class="nav-action" style="display:none;">
+                    <div id="user-avatar-wrapper" class="avatar-wrapper">
+                        <img id="profile-picture" src="" alt="Perfil" class="avatar-img">
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Sidebar de Perfil (do auth.js) -->
+        <div id="user-sidebar" class="user-sidebar">
+            <div class="sidebar-header">
+                <img id="sidebar-pic" src="" alt="Foto de Perfil" class="sidebar-avatar">
+                <div class="username-container">
+                    <h3 id="sidebar-name">Nome do Utilizador</h3>
+                    <button id="edit-username-btn" class="edit-username-btn">✏️</button>
+                    <input id="sidebar-name-input" class="username-input" style="display: none;" maxlength="20">
+                </div>
+                <p id="sidebar-email">email@exemplo.com</p>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-info">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <span>Bio</span>
+                            <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
+                        </div>
+                        <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
+                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;"
+                            maxlength="150"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="nav-btn logout-full">Sair</button>
+            </div>
+        </div>
+
+        <div class="perfil-page">
+            <div id="perfilLoading" class="perfil-loading">
+                <div class="spinner"></div>
+                <p>A procurar na galáxia…</p>
+            </div>
+
+            <div id="perfilErro" class="perfil-erro" style="display:none;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🌌</div>
+                <h2>Utilizador não encontrado</h2>
+                <p>O perfil que procuras pode ter sido apagado ou o link está incorreto.</p>
+                <a href="comunidade.html" class="btn-voltar">Voltar à Comunidade</a>
+            </div>
+
+            <div id="perfilWrapper" class="perfil-wrapper" style="display:none;">
+                <!-- Cabeçalho do Perfil -->
+                <div class="perfil-header-card glass-panel">
+                    <img id="pAvatar" class="p-avatar" src="" alt="Avatar">
+                    <div class="p-info">
+                        <h1 id="pName" class="p-name">Nome do Utilizador</h1>
+                        <p id="pBio" class="p-bio">Nenhuma bio definida.</p>
+                        
+                        <div class="p-stats">
+                            <div class="p-stat">
+                                <span class="p-stat-val" id="pStatScore">0</span>
+                                <span class="p-stat-label">Reputação</span>
+                            </div>
+                            <div class="p-stat">
+                                <span class="p-stat-val" id="pStatPosts">0</span>
+                                <span class="p-stat-label">Tópicos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="perfil-tabs">
+                    <button class="p-tab active" onclick="mudarAba('posts')">📝 Tópicos Recentes</button>
+                    <button class="p-tab" onclick="mudarAba('fichas')">🧙 Personagens</button>
+                    <button class="p-tab" onclick="mudarAba('campanhas')">🌍 Campanhas</button>
+                </div>
+
+                <!-- Conteúdo -->
+                <div class="perfil-content">
+                    <div id="aba-posts" class="p-aba-content active">
+                        <div id="listaPosts" class="p-lista"></div>
+                    </div>
+                    <div id="aba-fichas" class="p-aba-content">
+                        <div id="listaFichas" class="p-lista-cards"></div>
+                    </div>
+                    <div id="aba-campanhas" class="p-aba-content">
+                        <div id="listaCampanhas" class="p-lista-cards"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="../js/galaxy.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/navbar-scroll.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/perfil.js"></script>
+</body>
+</html>

@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="../css/galaxy.css">
     <link rel="stylesheet" href="../css/glassmorphism.css">
     <link rel="stylesheet" href="../css/comunidade.css">
+    <link rel="stylesheet" href="../css/forum.css">
 
     <!-- Supabase (antes dos scripts) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -88,191 +89,156 @@
         ══════════════════════════════════ -->
         <div class="comunidade-page">
 
-            <!-- Cabeçalho -->
+            <!-- ══ CABEÇALHO DO FÓRUM ══ -->
             <div class="com-header">
-                <h1>🌐 Comunidade</h1>
+                <div class="com-header-left">
+                    <h1>🌐 Fórum da Comunidade</h1>
+                    <p class="com-header-subtitle">Partilha ideias, personagens, mundos e histórias com a comunidade</p>
+                </div>
                 <div class="com-header-actions">
-                    <button id="btnPublicar" class="btn-publicar" style="display:none;" type="button">
-                        ✨ Publicar Post
-                    </button>
+                    <a href="criar-topico.html" id="btnPublicar" class="btn-publicar" style="display:none; text-decoration: none;">
+                        ✨ Novo Tópico
+                    </a>
                 </div>
             </div>
 
-            <!-- Separador Discussão -->
-            <div class="comunidade-mode-tabs" role="tablist">
-                <button type="button" class="comunidade-tab active" data-tab="feed" role="tab" aria-selected="true">💬
-                    Discussão</button>
+            <!-- ══ ESTATÍSTICAS DO FÓRUM ══ -->
+            <div class="forum-stats-bar" id="forumStatsBar">
+                <div class="forum-stat">
+                    <span class="forum-stat-value" id="statTotalPosts">—</span>
+                    <span class="forum-stat-label">Tópicos</span>
+                </div>
+                <div class="forum-stat-divider"></div>
+                <div class="forum-stat">
+                    <span class="forum-stat-value" id="statTotalComents">—</span>
+                    <span class="forum-stat-label">Respostas</span>
+                </div>
+                <div class="forum-stat-divider"></div>
+                <div class="forum-stat">
+                    <span class="forum-stat-value" id="statActiveToday">—</span>
+                    <span class="forum-stat-label">Hoje</span>
+                </div>
             </div>
 
-            <!-- ══ MODO: FEED ══ -->
-            <div id="modeFeed">
+            <!-- ══ LAYOUT DO FÓRUM: SIDEBAR + CONTEÚDO ══ -->
+            <div class="forum-layout">
 
-                <!-- ══ DESTAQUES ══ -->
-                <section class="destaques-section" id="destaquesSection" style="display:none;">
-                    <div class="destaques-row">
-                        <!-- Painel Semana -->
-                        <div class="destaque-panel semana">
-                            <div class="destaque-panel-title">🔥 Mais Votados da Semana</div>
-                            <div class="destaque-list" id="destaqueSemanaList">
-                                <!-- JS renders here -->
+                <!-- ══ SIDEBAR DE CATEGORIAS ══ -->
+                <aside class="forum-sidebar">
+
+                    <!-- Categorias / Subfóruns -->
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">📂 Categorias</div>
+                        <nav class="category-nav" id="categoryNav">
+                            <button type="button" class="category-btn active" data-categoria="" onclick="filtrarPorCategoria(this, '')">
+                                <span class="cat-icon">🌐</span>
+                                <span class="cat-label">Todos os Tópicos</span>
+                                <span class="cat-count" id="count-all">—</span>
+                            </button>
+                            <button type="button" class="category-btn" data-categoria="homebrew" onclick="filtrarPorCategoria(this, 'homebrew')">
+                                <span class="cat-icon">⚗️</span>
+                                <span class="cat-label">Homebrew</span>
+                                <span class="cat-count" id="count-homebrew">—</span>
+                            </button>
+                            <button type="button" class="category-btn" data-categoria="personagem" onclick="filtrarPorCategoria(this, 'personagem')">
+                                <span class="cat-icon">🧙</span>
+                                <span class="cat-label">Personagens</span>
+                                <span class="cat-count" id="count-personagem">—</span>
+                            </button>
+                            <button type="button" class="category-btn" data-categoria="mundo" onclick="filtrarPorCategoria(this, 'mundo')">
+                                <span class="cat-icon">🌍</span>
+                                <span class="cat-label">Mundos</span>
+                                <span class="cat-count" id="count-mundo">—</span>
+                            </button>
+                            <button type="button" class="category-btn" data-categoria="narrativa" onclick="filtrarPorCategoria(this, 'narrativa')">
+                                <span class="cat-icon">📖</span>
+                                <span class="cat-label">Narrativas</span>
+                                <span class="cat-count" id="count-narrativa">—</span>
+                            </button>
+                            <button type="button" class="category-btn" data-categoria="outro" onclick="filtrarPorCategoria(this, 'outro')">
+                                <span class="cat-icon">💬</span>
+                                <span class="cat-label">Outros</span>
+                                <span class="cat-count" id="count-outro">—</span>
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Destaques na sidebar -->
+                    <div class="sidebar-section" id="destaquesSection" style="display:none;">
+                        <div class="sidebar-section-title">🔥 Em Destaque</div>
+                        <div class="destaque-list" id="destaqueSemanaList"></div>
+                    </div>
+
+                    <!-- Mais Votados do Mês -->
+                    <div class="sidebar-section" id="destaqueMesSection" style="display:none;">
+                        <div class="sidebar-section-title">🌟 Top do Mês</div>
+                        <div class="destaque-list" id="destaqueMesList"></div>
+                    </div>
+
+                </aside>
+
+                <!-- ══ ÁREA PRINCIPAL DO FÓRUM ══ -->
+                <main class="forum-main">
+
+                    <!-- Barra de ferramentas compacta -->
+                    <div class="forum-toolbar">
+                        <div class="forum-toolbar-left">
+                            <div class="forum-category-title" id="forumCategoryTitle">🌐 Todos os Tópicos</div>
+                        </div>
+                        <div class="forum-toolbar-right">
+                            <div class="feed-search-wrap">
+                                <span class="feed-search-icon" aria-hidden="true">🔍</span>
+                                <input type="search" id="feedSearch" class="feed-search-input"
+                                    placeholder="Pesquisar tópicos…" autocomplete="off" maxlength="200">
+                            </div>
+                            <div class="forum-sort-group">
+                                <button type="button" class="sort-btn active" data-ordem="score_desc"
+                                    onclick="mudarOrdem('score_desc')">▲ Mais votados</button>
+                                <button type="button" class="sort-btn" data-ordem="score_asc"
+                                    onclick="mudarOrdem('score_asc')">▼ Menos votados</button>
+                                <button type="button" class="sort-btn" data-ordem="recentes"
+                                    onclick="mudarOrdem('recentes')">⏱️ Mais recentes</button>
                             </div>
                         </div>
-                        <!-- Painel Mês -->
-                        <div class="destaque-panel mes">
-                            <div class="destaque-panel-title">🌟 Mais Votados do Mês</div>
-                            <div class="destaque-list" id="destaqueMesList">
-                                <!-- JS renders here -->
-                            </div>
-                        </div>
                     </div>
-                </section>
 
-                <!-- ══ TOOLBAR — busca, filtros e ordenação por votos ══ -->
-                <div class="feed-toolbar">
-                    <div class="feed-toolbar-head">
-                        <div class="feed-toolbar-title">Explorar Comunidade</div>
-                        <div class="feed-sort-btns">
-                            <button type="button" class="sort-btn active" data-ordem="score_desc"
-                                onclick="mudarOrdem('score_desc')">▲ Mais votados</button>
-                            <button type="button" class="sort-btn" data-ordem="score_asc"
-                                onclick="mudarOrdem('score_asc')">▼ Menos votados</button>
-                            <button type="button" class="sort-btn" data-ordem="recentes"
-                                onclick="mudarOrdem('recentes')">⏱️ Mais recentes</button>
-                        </div>
+                    <!-- Cabeçalho da tabela de tópicos -->
+                    <div class="forum-thread-header">
+                        <div class="thread-col-topic">Tópico</div>
+                        <div class="thread-col-stats">Votos</div>
+                        <div class="thread-col-replies">Respostas</div>
+                        <div class="thread-col-activity">Atividade</div>
                     </div>
-                    <div class="feed-toolbar-search">
-                        <label class="feed-search-label" for="feedSearch">Pesquisar</label>
-                        <div class="feed-search-wrap">
-                            <span class="feed-search-icon" aria-hidden="true">🔍</span>
-                            <input type="search" id="feedSearch" class="feed-search-input"
-                                placeholder="Título ou conteúdo do post…" autocomplete="off" maxlength="200">
-                        </div>
+
+                    <!-- ══ LISTA DE TÓPICOS ══ -->
+                    <div id="postsFeed">
+                        <!-- Linhas de tópico renderizadas no JS -->
                     </div>
-                    <div class="feed-toolbar-filters">
-                        <label class="feed-filter-label" for="feedTipoFiltro">Tipo</label>
-                        <select id="feedTipoFiltro" class="feed-select">
-                            <option value="">Todos os tipos</option>
-                            <option value="homebrew">⚗️ Homebrew</option>
-                            <option value="personagem">🧙 Personagem</option>
-                            <option value="mundo">🌍 Mundo</option>
-                            <option value="narrativa">📖 Narrativa</option>
-                            <option value="outro">💬 Outro</option>
-                        </select>
+
+                    <div class="feed-loading" id="feedLoading">
+                        <div class="spinner"></div>
+                        <p>A carregar tópicos…</p>
                     </div>
-                </div>
+                    <div class="feed-empty" id="feedEmpty" style="display:none;">
+                        <div class="feed-empty-icon">📜</div>
+                        <h3>Nenhum tópico ainda</h3>
+                        <p>Sê o primeiro a partilhar conteúdo nesta categoria!</p>
+                    </div>
 
-                <!-- ══ FEED ══ -->
-                <div id="postsFeed">
-                    <!-- Cards renderizados no JS -->
-                </div>
+                    <!-- Sentinel para infinite scroll -->
+                    <div id="scrollSentinel" style="display:none;">
+                        <div class="load-more-spinner"></div>
+                    </div>
 
-                <div class="feed-loading" id="feedLoading">
-                    <div class="spinner"></div>
-                    <p>A carregar posts…</p>
-                </div>
-                <div class="feed-empty" id="feedEmpty" style="display:none;">
-                    <div class="feed-empty-icon">📜</div>
-                    <h3>Nenhum post ainda</h3>
-                    <p>Sê o primeiro a partilhar conteúdo com a comunidade!</p>
-                </div>
+                </main>
 
-                <!-- Sentinel para infinite scroll -->
-                <div id="scrollSentinel" style="display:none;">
-                    <div class="load-more-spinner"></div>
-                </div>
-
-            </div><!-- /modeFeed -->
+            </div><!-- /forum-layout -->
 
         </div><!-- /comunidade-page -->
 
     </div><!-- /foreground -->
 
-    <!-- ══════════════════════════════════════════
-         MODAL — CRIAR POST
-    ══════════════════════════════════════════ -->
-    <div class="modal-overlay" id="modalCriarPost">
-        <div class="modal-box" style="position:relative;">
-            <button class="modal-close" onclick="fecharModalCriar()">✕</button>
-            <h2>✨ Publicar Post</h2>
-
-            <form id="formCriarPost" onsubmit="submitPost(event)">
-
-                <!-- Tipo de post -->
-                <div class="form-group">
-                    <label>Tipo de Post</label>
-                    <div class="tipo-selector">
-                        <div class="tipo-option">
-                            <input type="radio" name="tipo" id="tipo-homebrew" value="homebrew" checked>
-                            <label for="tipo-homebrew" style="--tipo-color:#f59e0b; --tipo-rgb:245,158,11;">
-                                <span class="tipo-icon">⚗️</span>Homebrew
-                            </label>
-                        </div>
-                        <div class="tipo-option">
-                            <input type="radio" name="tipo" id="tipo-personagem" value="personagem">
-                            <label for="tipo-personagem" style="--tipo-color:#8b5cf6; --tipo-rgb:139,92,246;">
-                                <span class="tipo-icon">🧙</span>Personagem
-                            </label>
-                        </div>
-                        <div class="tipo-option">
-                            <input type="radio" name="tipo" id="tipo-mundo" value="mundo">
-                            <label for="tipo-mundo" style="--tipo-color:#10b981; --tipo-rgb:16,185,129;">
-                                <span class="tipo-icon">🌍</span>Mundo
-                            </label>
-                        </div>
-                        <div class="tipo-option">
-                            <input type="radio" name="tipo" id="tipo-narrativa" value="narrativa">
-                            <label for="tipo-narrativa" style="--tipo-color:#3b82f6; --tipo-rgb:59,130,246;">
-                                <span class="tipo-icon">📖</span>Narrativa
-                            </label>
-                        </div>
-                        <div class="tipo-option">
-                            <input type="radio" name="tipo" id="tipo-outro" value="outro">
-                            <label for="tipo-outro" style="--tipo-color:#6b7280; --tipo-rgb:107,114,128;">
-                                <span class="tipo-icon">💬</span>Outro
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Referência a ficha (só aparece se tipo=personagem) -->
-                <div class="form-group ref-section" id="refPersonagemSection">
-                    <label>Vincular a uma Ficha (opcional)</label>
-                    <select id="selectPersonagem">
-                        <option value="">— Nenhuma —</option>
-                    </select>
-                    <div id="fichaPreview"
-                        style="display:none; margin-top:10px; padding:10px; background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:8px; font-size:0.82rem; color:rgba(255,255,255,0.7);">
-                    </div>
-                </div>
-
-                <!-- Referência a campanha (aparece em "mundo" e "narrativa") -->
-                <div class="form-group ref-section" id="refCampanhaSection">
-                    <label>Vincular a uma Campanha (opcional)</label>
-                    <select id="selectCampanha">
-                        <option value="">— Nenhuma —</option>
-                    </select>
-                </div>
-
-                <!-- Título -->
-                <div class="form-group">
-                    <label for="postTitulo">Título *</label>
-                    <input type="text" id="postTitulo" placeholder="Dá um título ao teu post…" maxlength="150" required>
-                </div>
-
-                <!-- Conteúdo -->
-                <div class="form-group">
-                    <label for="postConteudo">Conteúdo *</label>
-                    <textarea id="postConteudo" placeholder="Escreve aqui o teu conteúdo…" maxlength="5000"
-                        required></textarea>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="fecharModalCriar()">Cancelar</button>
-                    <button type="submit" class="btn-submit" id="btnSubmitPost">Publicar</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- MODAL CRIAR POST REMOVIDO PARA CRIAR-TOPICO.HTML -->
 
     <!-- ══════════════════════════════════════════
          MODAL — DETALHE DO POST
@@ -304,6 +270,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Select oculto para compatibilidade JS -->
+    <select id="feedTipoFiltro" style="display:none;"></select>
 
     <!-- Toast de feedback -->
     <div class="toast-comunidade" id="toastComunidade"></div>

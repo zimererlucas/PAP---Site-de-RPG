@@ -190,8 +190,11 @@ function renderCampanhasNarrador(lista) {
     container.innerHTML = lista.map(campanha => `
         <div class="col-md-6 col-lg-4">
             <div class="card h-100 custom-glass-card">
-                <div class="card-header custom-card-header">
+                <div class="card-header custom-card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0" style="color: #667eea; font-weight: 700; font-size: 1.25rem;">🎭 ${campanha.nome}</h5>
+                    <button class="btn btn-sm ${campanha.is_public !== false ? 'btn-success' : 'btn-secondary'}" style="padding: 2px 8px; font-weight: 600; font-size: 0.75rem;" onclick="toggleCampanhaVisibility('${campanha.id}', ${campanha.is_public !== false})">
+                        ${campanha.is_public !== false ? '👁️ Público' : '🔒 Privado'}
+                    </button>
                 </div>
                 <div class="card-body">
                     <p class="card-text text-standard-upsized">${campanha.descricao || 'Sem descrição'}</p>
@@ -210,6 +213,20 @@ function renderCampanhasNarrador(lista) {
             </div>
         </div>
     `).join('');
+}
+
+window.toggleCampanhaVisibility = async function(id, currentStatus) {
+    try {
+        const { error } = await supabase
+            .from('campanhas')
+            .update({ is_public: !currentStatus })
+            .eq('id', id);
+        if (error) throw error;
+        await loadCampanhasNarrador();
+    } catch (e) {
+        console.error("Erro ao mudar visibilidade:", e);
+        alert("Erro ao mudar visibilidade.");
+    }
 }
 
 function renderCampanhasJogador(lista) {

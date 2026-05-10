@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Tópico - Projeto Gênesis</title>
+    <meta name="description" content="Cria um novo tópico na comunidade do Projeto Gênesis.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- EasyMDE CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/card-refinement.css">
+    <link rel="stylesheet" href="../css/galaxy.css">
+    <link rel="stylesheet" href="../css/glassmorphism.css">
+    <link rel="stylesheet" href="../css/comunidade.css">
+    
+    <style>
+        .criar-topico-page {
+            max-width: 900px;
+            margin: 120px auto 40px auto;
+            padding: 30px;
+            background: rgba(15, 20, 40, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+            color: #fff;
+        }
+
+        .criar-topico-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+
+        .criar-topico-header h1 {
+            font-size: 2rem;
+            margin: 0;
+            background: linear-gradient(135deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group select option {
+            background: #1e1e2d;
+            color: white;
+        }
+
+        /* Editor customizado MDE */
+        .editor-toolbar {
+            border-color: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px 8px 0 0;
+            opacity: 1;
+        }
+        .editor-toolbar i.separator {
+            border-right: 1px solid rgba(255,255,255,0.1);
+            border-left: none;
+        }
+        .editor-toolbar a {
+            color: #a78bfa !important;
+        }
+        .editor-toolbar a.active, .editor-toolbar a:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: transparent;
+        }
+        .CodeMirror {
+            background: rgba(15, 20, 40, 0.5) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+            color: #fff !important;
+            border-radius: 0 0 8px 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .CodeMirror-cursor {
+            border-left: 1px solid white !important;
+        }
+        .editor-preview {
+            background: #111827 !important;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-cancel {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .btn-cancel:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .btn-save {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+    </style>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- Fundo nebulosa -->
+    <canvas id="nebula-canvas"></canvas>
+
+    <div id="foreground">
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <a href="../index.html" class="logo">
+                <img src="../assets/GenisisLogov6.png" alt="Logo" class="logo-img">
+                <span>Projeto Gênesis</span>
+            </a>
+            <ul class="nav-list">
+                <li><a href="fichas.html" class="nav-link">Fichas</a></li>
+                <li><a href="campanhas.html" class="nav-link">Campanhas</a></li>
+                <li><a href="comunidade.html" class="nav-link active">Comunidade</a></li>
+                <li><a href="Sistema.html" class="nav-link">Sistema</a></li>
+                <li id="loginItem" class="nav-action" style="display:none;">
+                    <button id="loginBtn" class="nav-btn">Login</button>
+                </li>
+                <li id="userItem" class="nav-action" style="display:none;">
+                    <div id="user-avatar-wrapper" class="avatar-wrapper">
+                        <img id="profile-picture" src="" alt="Perfil" class="avatar-img">
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Sidebar de Perfil -->
+        <div id="user-sidebar" class="user-sidebar">
+            <div class="sidebar-header">
+                <img id="sidebar-pic" src="" alt="Foto de Perfil" class="sidebar-avatar">
+                <div class="username-container">
+                    <h3 id="sidebar-name">Nome do Utilizador</h3>
+                    <button id="edit-username-btn" class="edit-username-btn">✏️</button>
+                    <input id="sidebar-name-input" class="username-input" style="display: none;" maxlength="20">
+                </div>
+                <p id="sidebar-email">email@exemplo.com</p>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-info">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <span>Bio</span>
+                            <button id="edit-bio-btn" class="edit-username-btn">✏️</button>
+                        </div>
+                        <p id="sidebar-bio" class="info-bio">Nenhuma bio definida.</p>
+                        <textarea id="sidebar-bio-input" class="bio-input" style="display: none;"
+                            maxlength="150"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="nav-btn logout-full">Sair</button>
+            </div>
+        </div>
+
+        <div class="criar-topico-page">
+            <div class="criar-topico-header">
+                <h1 id="pageTitle">✨ Criar Novo Tópico</h1>
+                <a href="comunidade.html" class="btn-cancel">← Voltar ao Fórum</a>
+            </div>
+
+            <form id="formCriarPost" onsubmit="submitPost(event)">
+                
+                <!-- Tipo de post -->
+                <div class="form-group">
+                    <label>Categoria do Tópico</label>
+                    <div class="tipo-selector">
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-homebrew" value="homebrew" checked>
+                            <label for="tipo-homebrew" style="--tipo-color:#f59e0b; --tipo-rgb:245,158,11;">
+                                <span class="tipo-icon">⚗️</span>Homebrew
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-personagem" value="personagem">
+                            <label for="tipo-personagem" style="--tipo-color:#8b5cf6; --tipo-rgb:139,92,246;">
+                                <span class="tipo-icon">🧙</span>Personagem
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-mundo" value="mundo">
+                            <label for="tipo-mundo" style="--tipo-color:#10b981; --tipo-rgb:16,185,129;">
+                                <span class="tipo-icon">🌍</span>Mundo
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-narrativa" value="narrativa">
+                            <label for="tipo-narrativa" style="--tipo-color:#3b82f6; --tipo-rgb:59,130,246;">
+                                <span class="tipo-icon">📖</span>Narrativa
+                            </label>
+                        </div>
+                        <div class="tipo-option">
+                            <input type="radio" name="tipo" id="tipo-outro" value="outro">
+                            <label for="tipo-outro" style="--tipo-color:#6b7280; --tipo-rgb:107,114,128;">
+                                <span class="tipo-icon">💬</span>Outro
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referência a ficha -->
+                <div class="form-group ref-section" id="refPersonagemSection" style="display: none;">
+                    <label>Vincular a uma Ficha (opcional)</label>
+                    <select id="selectPersonagem">
+                        <option value="">— Nenhuma —</option>
+                    </select>
+                </div>
+
+                <!-- Referência a campanha -->
+                <div class="form-group ref-section" id="refCampanhaSection" style="display: none;">
+                    <label>Vincular a uma Campanha (opcional)</label>
+                    <select id="selectCampanha">
+                        <option value="">— Nenhuma —</option>
+                    </select>
+                </div>
+
+                <!-- Título -->
+                <div class="form-group">
+                    <label for="postTitulo">Título *</label>
+                    <input type="text" id="postTitulo" placeholder="Dá um título cativante ao teu post…" maxlength="150" required>
+                </div>
+
+                <!-- Conteúdo -->
+                <div class="form-group">
+                    <label for="postConteudo">Conteúdo * (Suporta Markdown para imagens, listas, negrito)</label>
+                    <textarea id="postConteudo" placeholder="Escreve aqui a tua ideia…"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <a href="comunidade.html" class="btn-cancel">Cancelar</a>
+                    <button type="submit" class="btn-save" id="btnSubmitPost">Publicar Tópico</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast de feedback -->
+    <div class="toast-comunidade" id="toastComunidade"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script src="../js/galaxy.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/navbar-scroll.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/criar-topico.js"></script>
+</body>
+</html>

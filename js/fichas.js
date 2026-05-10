@@ -90,8 +90,11 @@ function renderFichas(lista) {
     fichasContainer.innerHTML = lista.map(ficha => `
         <div class="col-md-6 col-lg-4">
             <div class="card h-100 custom-glass-card">
-                <div class="card-header custom-card-header">
+                <div class="card-header custom-card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0" style="color: #e0e0e0; font-weight: 700;">${ficha.nome}</h5>
+                    <button class="btn btn-sm ${ficha.is_public !== false ? 'btn-success' : 'btn-secondary'}" style="padding: 2px 8px; font-weight: 600; font-size: 0.75rem;" onclick="toggleFichaVisibility('${ficha.id}', ${ficha.is_public !== false})">
+                        ${ficha.is_public !== false ? '👁️ Público' : '🔒 Privado'}
+                    </button>
                 </div>
                 <div class="card-body">
                     <p class="card-text text-standard-upsized">
@@ -108,6 +111,20 @@ function renderFichas(lista) {
             </div>
         </div>
     `).join('');
+}
+
+window.toggleFichaVisibility = async function(id, currentStatus) {
+    try {
+        const { error } = await supabase
+            .from('personagens')
+            .update({ is_public: !currentStatus })
+            .eq('id', id);
+        if (error) throw error;
+        await loadFichas();
+    } catch (e) {
+        console.error("Erro ao mudar visibilidade:", e);
+        alert("Erro ao mudar visibilidade.");
+    }
 }
 
 function updateProgressFichas() {

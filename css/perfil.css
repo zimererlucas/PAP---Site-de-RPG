@@ -1,0 +1,235 @@
+/* =========================================================
+   PERFIL.CSS — Perfis Públicos · Projeto Gênesis
+   ========================================================= */
+
+.perfil-page {
+    max-width: 900px;
+    margin: 120px auto 40px auto;
+    padding: 0 20px;
+}
+
+.perfil-loading, .perfil-erro {
+    text-align: center;
+    padding: 80px 20px;
+    color: rgba(255,255,255,0.6);
+}
+
+.spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(255,255,255,0.08);
+    border-top-color: #a78bfa;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Cabeçalho do Perfil */
+.perfil-header-card {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 40px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    background: rgba(15, 20, 40, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+}
+
+.p-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.p-info {
+    flex: 1;
+}
+
+.p-name {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: white;
+    margin: 0 0 8px 0;
+}
+
+.p-bio {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 600px;
+}
+
+.p-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.p-stat {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255,255,255,0.05);
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.p-stat-val {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #a78bfa;
+}
+
+.p-stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+}
+
+/* Tabs */
+.perfil-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+}
+
+.p-tab {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.p-tab:hover {
+    color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+.p-tab.active {
+    color: white;
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+/* Conteúdo das abas */
+.p-aba-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.p-aba-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Listas */
+.p-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.p-post-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 20, 40, 0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.2s;
+}
+
+.p-post-item:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateX(5px);
+}
+
+.p-post-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.p-post-meta {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+}
+
+.p-post-score {
+    font-weight: 700;
+    color: #10b981;
+}
+
+/* Grid para Fichas/Campanhas */
+.p-lista-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.p-card {
+    background: rgba(15, 20, 40, 0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.p-card:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    transform: translateY(-5px);
+}
+
+.p-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.p-card-subtitle {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .perfil-header-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+    }
+    .p-stats {
+        justify-content: center;
+    }
+    .perfil-tabs {
+        flex-direction: column;
+    }
+}
