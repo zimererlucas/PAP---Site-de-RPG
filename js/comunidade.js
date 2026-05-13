@@ -167,7 +167,7 @@ function renderRowDestaque(post, index) {
             <div class="destaque-rank">#${index + 1}</div>
             <div class="destaque-info">
                 <div class="destaque-titulo">${escapeHtml(post.titulo)}</div>
-                <div class="destaque-meta">por ${escapeHtml(post.perfis?.username || 'Utilizador')}</div>
+                <div class="destaque-meta">por <a href="perfil.html?id=${post.user_id}" onclick="event.stopPropagation()" style="color:inherit; text-decoration:none;">${escapeHtml(post.perfis?.username || 'Utilizador')}</a></div>
             </div>
             <div class="destaque-score-badge">▲ ${post.score}</div>
         </div>

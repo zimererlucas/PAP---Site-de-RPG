@@ -88,7 +88,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Subscritores Realtime
     initRealtime();
+
+    // Event listener do modal de confirmação
+    document.getElementById('btnConfirmAction')?.addEventListener('click', async () => {
+        if (!targetToDelete) return;
+        const { type, id } = targetToDelete;
+        fecharConfirmModal();
+        if (type === 'post') {
+            await confirmarApagarPost();
+        } else if (type === 'comment') {
+            await confirmarApagarComentario(id);
+        }
+    });
 });
+
+let targetToDelete = null;
+
+function abrirConfirmModal(type, id = null) {
+    targetToDelete = { type, id };
+    const modal = document.getElementById('confirmModal');
+    const msg = document.getElementById('confirmMessage');
+    
+    if (type === 'post') {
+        if (msg) msg.textContent = 'Tens a certeza que queres apagar este tópico permanentemente?';
+    } else {
+        if (msg) msg.textContent = 'Tens a certeza que queres apagar esta resposta permanentemente?';
+    }
+    
+    if (modal) modal.classList.add('open');
+}
+
+function fecharConfirmModal() {
+    targetToDelete = null;
+    const modal = document.getElementById('confirmModal');
+    if (modal) modal.classList.remove('open');
+}
 
 // ── Carregar Tópico ───────────────────────────────────────────────
 async function carregarTopico() {
@@ -165,7 +199,7 @@ function renderPost(post) {
         actionsHtml = `
         <div class="topico-post-actions">
             ${isOwner ? `<button class="topico-action-btn" onclick="editarPost()">✏️ Editar</button>` : ''}
-            ${(isOwner || isAdmin) ? `<button class="topico-action-btn danger" onclick="apagarPost()">🗑️ Apagar</button>` : ''}
+            ${(isOwner || isAdmin) ? `<button class="topico-action-btn danger" onclick="abrirConfirmModal('post')">🗑️ Apagar</button>` : ''}
         </div>`;
     }
 
@@ -223,18 +257,17 @@ async function carregarComentarios() {
         if (!lista) return;
 
         lista.innerHTML = '';
-        renderComentariosThread(data || [], lista, null, 0);
+        renderComentarios(data || [], lista);
 
     } catch (err) {
         console.error('Erro ao carregar comentários:', err);
     }
 }
 
-function renderComentariosThread(allComments, container, parentId, depth) {
-    const thread = allComments.filter(c => c.parent_id === parentId);
-    if (!thread.length) return;
+function renderComentarios(allComments, container) {
+    if (!allComments.length) return;
 
-    thread.forEach(c => {
+    allComments.forEach(c => {
         const nomeUser = escapeHtml(c.perfis?.username || 'Utilizador');
         const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeUser)}&background=2a2a35&color=fff`;
         const avatar = c.perfis?.avatar_url || defaultAvatar;
@@ -252,7 +285,7 @@ function renderComentariosThread(allComments, container, parentId, depth) {
                 <button class="btn-actions-toggle" onclick="toggleMenu(event,'menu-${c.id}')">⋮</button>
                 <div id="menu-${c.id}" class="actions-menu">
                     ${isOwner ? `<button class="action-item" onclick="editarComentario('${c.id}')">✏️ Editar</button>` : ''}
-                    ${canDelete ? `<button class="action-item delete" onclick="apagarComentario('${c.id}')">🗑️ Apagar</button>` : ''}
+                    ${canDelete ? `<button class="action-item delete" onclick="abrirConfirmModal('comment', '${c.id}')">🗑️ Apagar</button>` : ''}
                 </div>
             </div>`;
         }
@@ -260,6 +293,10 @@ function renderComentariosThread(allComments, container, parentId, depth) {
         const div = document.createElement('div');
         div.className = 'reply-item';
         div.id = `reply-${c.id}`;
+        
+        let textoHtml = escapeHtml(c.texto);
+        textoHtml = textoHtml.replace(/^(@[^\s]+\s)/, '<span class="reply-citation" style="color: var(--primary); font-weight: 500;">$1</span>');
+
         div.innerHTML = `
             ${menuHtml}
             <div class="reply-item-header">
@@ -270,7 +307,7 @@ function renderComentariosThread(allComments, container, parentId, depth) {
                 </div>
                 <span class="reply-date">${formatarData(c.criado_em)}</span>
             </div>
-            <div class="reply-texto" id="reply-text-${c.id}">${escapeHtml(c.texto)}</div>
+            <div class="reply-texto" id="reply-text-${c.id}">${textoHtml}</div>
             <div class="reply-footer">
                 <div class="reply-votes-group">
                     <span class="reply-vote-link up ${meuVoto === 1 ? 'active' : ''}"
@@ -279,23 +316,12 @@ function renderComentariosThread(allComments, container, parentId, depth) {
                     <span class="reply-vote-link down ${meuVoto === -1 ? 'active' : ''}"
                         onclick="votarComentario('${c.id}', -1)">▼</span>
                 </div>
-                ${currentUser ? `<button class="btn-reply-reply" onclick="abrirReplyInline('${c.id}')">↩ Responder</button>` : ''}
+                ${currentUser ? `<button class="btn-reply-reply" onclick="abrirReplyInline('${c.id}', '${nomeUser}')">↩ Responder</button>` : ''}
             </div>
             <div id="reply-inline-${c.id}"></div>
-            <div id="nested-${c.id}"></div>
         `;
 
         container.appendChild(div);
-
-        // Renderizar filhos
-        if (depth < 3) {
-            const nestedContainer = div.querySelector(`#nested-${c.id}`);
-            const nestedWrapper = document.createElement('div');
-            nestedWrapper.className = 'reply-nested';
-            nestedContainer.appendChild(nestedWrapper);
-            renderComentariosThread(allComments, nestedWrapper, c.id, depth + 1);
-            if (!nestedWrapper.children.length) nestedWrapper.remove();
-        }
     });
 }
 
@@ -407,23 +433,29 @@ async function enviarComentario() {
 }
 
 // ── Reply Inline ──────────────────────────────────────────────────
-function abrirReplyInline(commentId) {
+function abrirReplyInline(commentId, nomeUser = '') {
     // Fechar outros inline abertos
     document.querySelectorAll('[id^="reply-inline-"]').forEach(el => el.innerHTML = '');
 
     const area = document.getElementById(`reply-inline-${commentId}`);
     if (!area) return;
 
+    const citationText = nomeUser ? `@${nomeUser} ` : '';
+
     area.innerHTML = `
         <div class="reply-inline-area">
-            <textarea id="inline-ta-${commentId}" placeholder="Escreve a tua resposta…" rows="2"></textarea>
+            <textarea id="inline-ta-${commentId}" placeholder="Escreve a tua resposta…" rows="2">${citationText}</textarea>
             <div class="reply-inline-actions">
                 <button class="btn-reply-cancel" onclick="fecharReplyInline('${commentId}')">Cancelar</button>
                 <button class="btn-reply-send-inline" onclick="enviarReplyInline('${commentId}')">↩ Responder</button>
             </div>
         </div>
     `;
-    area.querySelector('textarea')?.focus();
+    const ta = area.querySelector('textarea');
+    if (ta) {
+        ta.focus();
+        ta.setSelectionRange(ta.value.length, ta.value.length);
+    }
 }
 
 function fecharReplyInline(commentId) {
@@ -431,17 +463,17 @@ function fecharReplyInline(commentId) {
     if (area) area.innerHTML = '';
 }
 
-async function enviarReplyInline(parentId) {
-    const ta = document.getElementById(`inline-ta-${parentId}`);
+async function enviarReplyInline(commentId) {
+    const ta = document.getElementById(`inline-ta-${commentId}`);
     const texto = ta?.value.trim();
     if (!texto) return;
 
     try {
         const { error } = await supabase.from('comentarios_posts').insert({
-            post_id: postId, user_id: currentUser.id, parent_id: parentId, texto
+            post_id: postId, user_id: currentUser.id, texto
         });
         if (error) throw error;
-        fecharReplyInline(parentId);
+        fecharReplyInline(commentId);
         await carregarComentarios();
         mostrarToast('Resposta enviada! ⤴️', 'success');
     } catch (err) {
@@ -450,8 +482,7 @@ async function enviarReplyInline(parentId) {
 }
 
 // ── Apagar / Editar Post ──────────────────────────────────────────
-async function apagarPost() {
-    if (!confirm('Tens a certeza que queres apagar este tópico permanentemente?')) return;
+async function confirmarApagarPost() {
     try {
         const { error } = await supabase.from('posts').delete().eq('id', postId);
         if (error) throw error;
@@ -467,8 +498,7 @@ async function editarPost() {
 }
 
 // ── Apagar / Editar Comentário ────────────────────────────────────
-async function apagarComentario(commentId) {
-    if (!confirm('Apagar esta resposta?')) return;
+async function confirmarApagarComentario(commentId) {
     try {
         const { error } = await supabase.from('comentarios_posts').delete().eq('id', commentId);
         if (error) throw error;
@@ -585,8 +615,8 @@ window.enviarComentario = enviarComentario;
 window.abrirReplyInline = abrirReplyInline;
 window.fecharReplyInline = fecharReplyInline;
 window.enviarReplyInline = enviarReplyInline;
-window.apagarPost = apagarPost;
+window.abrirConfirmModal = abrirConfirmModal;
+window.fecharConfirmModal = fecharConfirmModal;
 window.editarPost = editarPost;
-window.apagarComentario = apagarComentario;
 window.editarComentario = editarComentario;
 window.toggleMenu = toggleMenu;

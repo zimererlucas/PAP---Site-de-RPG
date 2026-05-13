@@ -161,6 +161,18 @@
     <!-- Toast -->
     <div class="toast-comunidade" id="toastComunidade"></div>
 
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 400px; text-align: center;">
+            <h2 style="justify-content: center; color: var(--danger, #ef4444);">Tem a certeza?</h2>
+            <p id="confirmMessage" style="color: rgba(255,255,255,0.7); margin-bottom: 24px;">Esta ação não pode ser desfeita.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="nav-btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="fecharConfirmModal()">Cancelar</button>
+                <button class="nav-btn" style="background: var(--danger, #ef4444); color: white; border: none;" id="btnConfirmAction">Sim, apagar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="../js/galaxy.js"></script>
