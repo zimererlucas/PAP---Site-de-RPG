@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         spellChecker: false,
         sideBySideFullscreen: false,
         placeholder: "Escreve aqui a tua ideia… Podes usar Markdown para formatação, adicionar imagens, links, etc.",
-        toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "image", "|", "side-by-side", "fullscreen", "guide"],
+        toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "upload-image", "|", "side-by-side", "fullscreen", "guide"],
         uploadImage: true,
         imageAccept: 'image/png, image/jpeg, image/gif, image/webp',
         imageMaxSize: 1024 * 1024 * 5, // 5MB
