@@ -56,6 +56,82 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!easyMDE.isSideBySideActive()) {
             easyMDE.toggleSideBySide();
         }
+        
+        // ── Observar mudanças na preview para adicionar wrappers de redimensionamento às imagens ──
+        const previewEl = document.querySelector('.editor-preview');
+        if (previewEl) {
+            const observer = new MutationObserver(() => {
+                const images = previewEl.querySelectorAll('img:not(.handled-by-resizer)');
+                images.forEach(img => {
+                    if (img.closest('.custom-resizable-wrapper')) return;
+                    img.classList.add('handled-by-resizer');
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'custom-resizable-wrapper';
+                    img.parentNode.insertBefore(wrapper, img);
+                    wrapper.appendChild(img);
+
+                    const handle = document.createElement('div');
+                    handle.className = 'custom-resize-handle';
+                    wrapper.appendChild(handle);
+
+                    handle.addEventListener('mousedown', (e) => {
+                        let startX = e.clientX;
+                        let startWidth = wrapper.offsetWidth || img.clientWidth;
+                        e.preventDefault();
+
+                        const onMouseMove = (ev) => {
+                            const newWidth = Math.max(50, startWidth + (ev.clientX - startX));
+                            wrapper.style.width = newWidth + 'px';
+                        };
+
+                        const onMouseUp = () => {
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+
+                            // Gravar o novo tamanho no texto do editor
+                            const src = img.getAttribute('src');
+                            if (!src) return;
+                            const alt = img.getAttribute('alt') || '';
+                            const finalWidth = wrapper.offsetWidth;
+
+                            let text = easyMDE.value();
+                            const safeSrc = src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            
+                            // Regex para Markdown e HTML
+                            const mdRegex = new RegExp(`!\\[.*?\\]\\(${safeSrc}\\)`, 'g');
+                            const htmlRegex = new RegExp(`<img[^>]+src=["']${safeSrc}["'][^>]*>`, 'g');
+
+                            let replaced = false;
+                            let newText = text.replace(mdRegex, (match) => {
+                                replaced = true;
+                                return `<img src="${src}" alt="${alt}" width="${finalWidth}">`;
+                            });
+
+                            if (!replaced) {
+                                newText = text.replace(htmlRegex, (match) => {
+                                    if (match.includes('width=')) {
+                                        return match.replace(/width=["']?\\d+["']?/, `width="${finalWidth}"`);
+                                    } else {
+                                        return match.replace('<img ', `<img width="${finalWidth}" `);
+                                    }
+                                });
+                            }
+
+                            if (newText !== text) {
+                                const cursor = easyMDE.codemirror.getCursor();
+                                easyMDE.value(newText);
+                                easyMDE.codemirror.setCursor(cursor);
+                            }
+                        };
+
+                        document.addEventListener('mousemove', onMouseMove);
+                        document.addEventListener('mouseup', onMouseUp);
+                    });
+                });
+            });
+            observer.observe(previewEl, { childList: true, subtree: true });
+        }
     }, 100);
 
     // 3. Setup form
