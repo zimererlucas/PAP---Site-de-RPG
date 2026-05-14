@@ -211,6 +211,12 @@ body {
 .about-text h2 {
     font-size: 1.6rem;
     margin-bottom: 1rem;
+    background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: #c4b5fd; /* Fallback */
+    font-weight: 700;
 }
 
 .about-text p {
@@ -285,8 +291,12 @@ body {
 .feature-card h3 {
     font-size: 1rem;
     font-weight: 700;
-    color: #c4b5fd;
     margin: 0;
+    background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: #c4b5fd; /* Fallback */
 }
 
 .feature-card p {
