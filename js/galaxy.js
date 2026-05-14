@@ -22,9 +22,9 @@ const CONFIG = {
 
     // VELOCIDADES AJUSTÁVEIS
     speeds: {
-        stars: 0.01,      // Reduzido de 0.3 para 0.08 (73% mais lento)
-        clouds: 0.1,    // Reduzido de 0.09 para 0.024 (73% mais lento)
-        cloudRotation: 0.00003 // Reduzido de 0.0001 para 0.00003 (70% mais lento)
+        stars: 0.01,      
+        clouds: 0.1,    
+        cloudRotation: 0.00003 
     }
 };
 

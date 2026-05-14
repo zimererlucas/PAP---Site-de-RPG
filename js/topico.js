@@ -307,7 +307,7 @@ function renderComentarios(allComments, container) {
                 </div>
                 <span class="reply-date">${formatarData(c.criado_em)}</span>
             </div>
-            <div class="reply-texto" id="reply-text-${c.id}">${textoHtml}</div>
+            <div class="reply-texto" id="reply-text-${c.id}" data-raw-text="${escapeHtml(c.texto)}">${textoHtml}</div>
             <div class="reply-footer">
                 <div class="reply-votes-group">
                     <span class="reply-vote-link up ${meuVoto === 1 ? 'active' : ''}"
@@ -509,14 +509,64 @@ async function confirmarApagarComentario(commentId) {
     }
 }
 
-async function editarComentario(commentId) {
+function editarComentario(commentId) {
     const textEl = document.getElementById(`reply-text-${commentId}`);
-    const novoTexto = prompt('Editar resposta:', textEl?.textContent || '');
-    if (!novoTexto || novoTexto.trim() === textEl?.textContent) return;
+    if (!textEl) return;
+    
+    if (document.getElementById(`edit-ta-${commentId}`)) return;
+
+    const currentText = textEl.getAttribute('data-raw-text') || textEl.textContent || '';
+
+    const area = document.createElement('div');
+    area.className = 'reply-inline-area';
+    area.style.marginTop = '10px';
+    area.innerHTML = `
+        <textarea id="edit-ta-${commentId}" rows="3">${escapeHtml(currentText)}</textarea>
+        <div class="reply-inline-actions">
+            <button class="btn-reply-cancel" onclick="cancelarEdicaoComentario('${commentId}')">Cancelar</button>
+            <button class="btn-reply-send-inline" onclick="salvarEdicaoComentario('${commentId}')">💾 Guardar</button>
+        </div>
+    `;
+
+    textEl.style.display = 'none';
+    textEl.parentNode.insertBefore(area, textEl.nextSibling);
+
+    const ta = document.getElementById(`edit-ta-${commentId}`);
+    if (ta) {
+        ta.focus();
+        ta.setSelectionRange(ta.value.length, ta.value.length);
+    }
+}
+
+function cancelarEdicaoComentario(commentId) {
+    const textEl = document.getElementById(`reply-text-${commentId}`);
+    const taArea = document.getElementById(`edit-ta-${commentId}`)?.parentNode;
+    if (textEl && taArea) {
+        textEl.style.display = '';
+        taArea.remove();
+    }
+}
+
+async function salvarEdicaoComentario(commentId) {
+    const ta = document.getElementById(`edit-ta-${commentId}`);
+    if (!ta) return;
+    const novoTexto = ta.value.trim();
+    const textEl = document.getElementById(`reply-text-${commentId}`);
+    const currentText = textEl ? (textEl.getAttribute('data-raw-text') || textEl.textContent).trim() : '';
+
+    if (!novoTexto) {
+        mostrarToast('A resposta não pode estar vazia.', 'error');
+        return;
+    }
+
+    if (novoTexto === currentText) {
+        cancelarEdicaoComentario(commentId);
+        return;
+    }
 
     try {
         const { error } = await supabase.from('comentarios_posts').update({
-            texto: novoTexto.trim()
+            texto: novoTexto
         }).eq('id', commentId);
         if (error) throw error;
         mostrarToast('Resposta atualizada.', 'success');
@@ -619,4 +669,6 @@ window.abrirConfirmModal = abrirConfirmModal;
 window.fecharConfirmModal = fecharConfirmModal;
 window.editarPost = editarPost;
 window.editarComentario = editarComentario;
+window.cancelarEdicaoComentario = cancelarEdicaoComentario;
+window.salvarEdicaoComentario = salvarEdicaoComentario;
 window.toggleMenu = toggleMenu;
