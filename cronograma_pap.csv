@@ -1,0 +1,23 @@
+Nome da Tarefa,Fase,Data de Início,Data de Fim,Estado
+Escolha do tema e aprovação,Planeamento e Design,2025-09-01,2025-09-15,Concluído
+Levantamento de requisitos,Planeamento e Design,2025-09-15,2025-09-30,Concluído
+Pesquisa de tecnologias,Planeamento e Design,2025-09-15,2025-09-30,Concluído
+Design de interfaces (UI/UX),Planeamento e Design,2025-10-01,2025-10-15,Concluído
+Modelação da base de dados,Planeamento e Design,2025-10-16,2025-10-31,Concluído
+Configuração do ambiente de desenvolvimento,Desenvolvimento Base,2025-11-01,2025-11-07,Concluído
+Desenvolvimento do Front-end,Desenvolvimento Base,2025-11-08,2025-11-30,Concluído
+Sistema de Autenticação,Desenvolvimento Base,2025-11-20,2025-11-30,Concluído
+Integração com Supabase,Desenvolvimento Base,2025-12-01,2025-12-15,Concluído
+Gestão de Campanhas e Perfis,Desenvolvimento Base,2025-12-16,2025-12-31,Concluído
+Fórum e Comunidade,Desenvolvimento Base,2026-01-01,2026-01-15,Concluído
+Mecânicas de RPG (Dados/Turnos),Desenvolvimento Base,2026-01-16,2026-01-31,Concluído
+Melhorias de UI/UX e Responsividade,Refinamento e Testes,2026-02-01,2026-02-15,Concluído
+Correção de bugs e Otimização,Refinamento e Testes,2026-02-16,2026-02-28,Concluído
+Testes de segurança e RLS,Refinamento e Testes,2026-03-01,2026-03-15,Concluído
+Testes com utilizadores reais,Refinamento e Testes,2026-03-16,2026-03-31,Concluído
+Congelamento de código,Documentação e Entrega,2026-04-01,2026-04-05,Concluído
+Redação do Relatório Final da PAP,Documentação e Entrega,2026-04-06,2026-04-30,Em Progresso
+Revisão final do relatório,Documentação e Entrega,2026-05-01,2026-05-10,Em Progresso
+Preparação da Apresentação (Slides),Documentação e Entrega,2026-05-11,2026-05-20,Não Iniciado
+Ensaios para a defesa,Documentação e Entrega,2026-05-21,2026-05-25,Não Iniciado
+Entrega e Apresentação Final,Documentação e Entrega,2026-05-26,2026-05-31,Não Iniciado

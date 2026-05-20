@@ -313,6 +313,7 @@ function quotePostgrestFilterValue(value) {
 function stripMarkdown(text) {
     if (!text) return '';
     return text
+        .replace(/<[^>]*>/g, '') // remove tags HTML
         .replace(/!\[.*?\]\(.*?\)/g, '') // remove imagens
         .replace(/\[(.*?)\]\(.*?\)/g, '$1') // links ficam só com o texto
         .replace(/[#*`~>_-]/g, '') // remove formatações simples

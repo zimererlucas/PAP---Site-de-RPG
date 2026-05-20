@@ -68,6 +68,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     const wrapper = document.createElement('div');
                     wrapper.className = 'custom-resizable-wrapper';
+                    
+                    // Se a imagem já tiver um atributo 'width', aplicar o valor ao wrapper
+                    const widthAttr = img.getAttribute('width');
+                    if (widthAttr) {
+                        if (/^\d+$/.test(widthAttr)) {
+                            wrapper.style.width = widthAttr + 'px';
+                        } else {
+                            wrapper.style.width = widthAttr;
+                        }
+                    }
+                    
                     img.parentNode.insertBefore(wrapper, img);
                     wrapper.appendChild(img);
 
@@ -96,11 +107,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                             const finalWidth = wrapper.offsetWidth;
 
                             let text = easyMDE.value();
-                            const safeSrc = src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            
+                            const safeRawSrc = src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            const decodedSrc = decodeURI(src);
+                            const safeDecodedSrc = decodedSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            const srcPattern = safeRawSrc === safeDecodedSrc ? safeRawSrc : `(?:${safeRawSrc}|${safeDecodedSrc})`;
                             
                             // Regex para Markdown e HTML
-                            const mdRegex = new RegExp(`!\\[.*?\\]\\(${safeSrc}\\)`, 'g');
-                            const htmlRegex = new RegExp(`<img[^>]+src=["']${safeSrc}["'][^>]*>`, 'g');
+                            const mdRegex = new RegExp(`!\\[.*?\\]\\(${srcPattern}\\)`, 'g');
+                            const htmlRegex = new RegExp(`<img[^>]+src=["']${srcPattern}["'][^>]*>`, 'gi');
 
                             let replaced = false;
                             let newText = text.replace(mdRegex, (match) => {
@@ -110,10 +125,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                             if (!replaced) {
                                 newText = text.replace(htmlRegex, (match) => {
-                                    if (match.includes('width=')) {
-                                        return match.replace(/width=["']?\\d+["']?/, `width="${finalWidth}"`);
+                                    if (/width\s*=\s*["']?[^"'\s>]+["']?/i.test(match)) {
+                                        return match.replace(/width\s*=\s*["']?[^"'\s>]+["']?/i, `width="${finalWidth}"`);
                                     } else {
-                                        return match.replace('<img ', `<img width="${finalWidth}" `);
+                                        return match.replace(/<img\s/i, `<img width="${finalWidth}" `);
                                     }
                                 });
                             }

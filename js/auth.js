@@ -159,7 +159,9 @@ async function loginWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: window.location.origin + (window.location.pathname.includes('/pages/') ? '/../index.html' : '/index.html')
+            redirectTo: window.location.pathname.includes('/pages/') 
+                ? new URL('../index.html', window.location.href).href 
+                : new URL('index.html', window.location.href).href
         }
     });
 
